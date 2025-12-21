@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
 
-test("Placeholder", () => {
+test("basic arithmetic operations work correctly", () => {
   expect(1 + 1).toBe(2);
 });
