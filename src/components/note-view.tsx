@@ -65,7 +65,7 @@ export function NoteView({ noteId }: NoteViewProps) {
                 const isValid = fieldApi.state.meta.isValid;
                 if (!isValid) return;
 
-                if (isNewNote && !currentNoteId) return;
+                if (!currentNoteId) return;
 
                 try {
                   setIsSaving(true);
