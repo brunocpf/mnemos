@@ -15,13 +15,14 @@ const eslintConfig = defineConfig([
       "check-file/filename-naming-convention": [
         "error",
         {
-          "src/**/*.{ts,tsx}": "KEBAB_CASE",
+          "pages/**/*.jsx": "NEXT_JS_PAGE_ROUTER_FILENAME_CASE",
+          "pages/**/*.tsx": "NEXT_JS_PAGE_ROUTER_FILENAME_CASE",
         },
       ],
       "check-file/folder-naming-convention": [
         "error",
         {
-          "src/**/": "KEBAB_CASE",
+          "src/app/**/": "NEXT_JS_APP_ROUTER_CASE",
         },
       ],
     },
