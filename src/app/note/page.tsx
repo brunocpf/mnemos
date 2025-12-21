@@ -1,3 +1,4 @@
+import { BackButton } from "@/components/back-button";
 import { NoteView } from "@/components/note-view";
 
 export default async function NotePage({ searchParams }: PageProps<"/note">) {
@@ -9,6 +10,7 @@ export default async function NotePage({ searchParams }: PageProps<"/note">) {
 
   return (
     <div className="relative pb-32">
+      <BackButton className="absolute top-4 left-4" />
       <NoteView noteId={noteId} />
     </div>
   );
