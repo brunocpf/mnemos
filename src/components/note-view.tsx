@@ -7,8 +7,7 @@ import {
   updateNoteContent,
   useNoteById,
 } from "@/client-data/notes-dal";
-
-import { NoteEditorForm } from "./note-editor-form";
+import { NoteEditorForm } from "@/components/note-editor-form";
 
 interface NoteViewProps {
   noteId?: string;
@@ -25,6 +24,8 @@ export function NoteView({ noteId }: NoteViewProps) {
     noteId !== undefined &&
     currentNoteId !== undefined &&
     note === undefined;
+
+  const renderEditor = !isLoading && !noteDoesNotExist;
 
   const handlePersist = async (noteId: string | undefined, value: string) => {
     try {
@@ -52,9 +53,9 @@ export function NoteView({ noteId }: NoteViewProps) {
           It may have been deleted or never existed.
         </p>
       </Activity>
-      <Activity mode={!noteDoesNotExist || isNewNote ? "visible" : "hidden"}>
+      <Activity mode={renderEditor ? "visible" : "hidden"}>
         <NoteEditorForm
-          key={noteId ?? "new-note"}
+          key={noteId ? (note?.id ?? "unloaded-note") : "new-note"}
           noteId={currentNoteId}
           initialContent={note?.content ?? ""}
           onPersist={handlePersist}

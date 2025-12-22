@@ -8,7 +8,6 @@ import Underline from "@tiptap/extension-underline";
 import { Markdown } from "@tiptap/markdown";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect } from "react";
 
 interface RichTextEditorProps {
   value?: string;
@@ -26,6 +25,7 @@ export function RichTextEditor({
   autoFocus,
 }: RichTextEditorProps) {
   const editor = useEditor({
+    autofocus: autoFocus,
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
@@ -53,7 +53,6 @@ export function RichTextEditor({
       }),
       Placeholder.configure({
         placeholder,
-        emptyEditorClass: "is-editor-empty",
       }),
     ],
     content: value,
@@ -64,41 +63,16 @@ export function RichTextEditor({
           "ProseMirror prose prose-sm dark:prose-invert max-w-none focus:outline-none",
       },
     },
-    onUpdate: ({ editor, transaction }) => {
-      if (transaction.getMeta("fromEmptyAutoFocus")) {
-        transaction.setMeta("fromEmptyAutoFocus", false);
-        return;
-      }
-
+    onUpdate: ({ editor }) => {
       onChange?.(editor.getMarkdown());
     },
     onBlur: ({ event }) => {
       onBlur?.(event);
     },
+    parseOptions: {
+      preserveWhitespace: "full",
+    },
   });
-
-  useEffect(() => {
-    if (!editor) return;
-    const content = editor.getMarkdown();
-
-    if (content !== value && value !== undefined) {
-      editor.commands.setContent(value, {
-        contentType: "markdown",
-        emitUpdate: false,
-      });
-
-      if (autoFocus) {
-        editor.commands.focus("end", {
-          scrollIntoView: true,
-        });
-      }
-    } else if (value === "" && autoFocus && !editor.isFocused) {
-      editor.commands.setMeta("fromEmptyAutoFocus", true);
-      editor.commands.focus("end", {
-        scrollIntoView: true,
-      });
-    }
-  }, [value, editor, autoFocus]);
 
   return <EditorContent editor={editor} />;
 }

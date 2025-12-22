@@ -74,8 +74,9 @@ export function NoteListItem({ note }: NoteListItemProps) {
     if (note.title && note.title.trim().length > 0) {
       return note.title;
     }
-    const firstLine = content.split("\n")[0].trim();
-    return firstLine.slice(0, 100);
+    const firstLine = content.split("\n")[0].trim().slice(0, 100);
+
+    return firstLine.length > 0 ? firstLine : "Untitled";
   }, [note.title, content]);
 
   const form = useForm({
