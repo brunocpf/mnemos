@@ -37,7 +37,7 @@ export function NoteEditorForm({
         listeners={{
           onChangeDebounceMs: 200,
           onChange: async ({ fieldApi, value }) => {
-            if (!fieldApi.state.meta.isValid || value.trim() === "") return;
+            if (!fieldApi.state.meta.isValid) return;
             await onPersist(noteId, value);
           },
         }}
