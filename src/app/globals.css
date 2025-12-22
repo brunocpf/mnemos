@@ -121,9 +121,12 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    scrollbar-gutter: stable both-edges;
   }
   body {
     @apply bg-background text-foreground;
+  }
+  html,
+  body {
+    scrollbar-gutter: stable both-edges;
   }
 }
