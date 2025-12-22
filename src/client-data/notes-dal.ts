@@ -45,7 +45,7 @@ export async function permanentlyDeleteNote(id: Note["id"]) {
 
 export function useNotes() {
   const notesResult = useLiveQuery(
-    () => db.notes.where("deleted").equals(0).toArray(),
+    () => db.notes.where("deleted").equals(0).reverse().sortBy("updatedAt"),
     [],
     dexieLoading,
   );

@@ -1,0 +1,104 @@
+"use client";
+
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
+import { Markdown } from "@tiptap/markdown";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
+
+interface RichTextEditorProps {
+  value?: string;
+  onChange?: (value: string) => void;
+  onBlur?: (event: FocusEvent) => void;
+  placeholder?: string;
+  autoFocus?: boolean;
+}
+
+export function RichTextEditor({
+  value,
+  onChange,
+  onBlur,
+  placeholder,
+  autoFocus,
+}: RichTextEditorProps) {
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        underline: false,
+        link: false,
+      }),
+      Markdown,
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        linkOnPaste: true,
+        HTMLAttributes: {
+          class: "text-primary underline underline-offset-4",
+          rel: "noopener noreferrer nofollow",
+          target: "_blank",
+        },
+      }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+      Image.configure({
+        inline: false,
+        allowBase64: true,
+      }),
+      Placeholder.configure({
+        placeholder,
+        emptyEditorClass: "is-editor-empty",
+      }),
+    ],
+    content: value,
+    contentType: "markdown",
+    editorProps: {
+      attributes: {
+        class:
+          "ProseMirror prose prose-sm dark:prose-invert max-w-none focus:outline-none",
+      },
+    },
+    onUpdate: ({ editor, transaction }) => {
+      if (transaction.getMeta("fromEmptyAutoFocus")) {
+        transaction.setMeta("fromEmptyAutoFocus", false);
+        return;
+      }
+
+      onChange?.(editor.getMarkdown());
+    },
+    onBlur: ({ event }) => {
+      onBlur?.(event);
+    },
+  });
+
+  useEffect(() => {
+    if (!editor) return;
+    const content = editor.getMarkdown();
+
+    if (content !== value && value !== undefined) {
+      editor.commands.setContent(value, {
+        contentType: "markdown",
+        emitUpdate: false,
+      });
+
+      if (autoFocus) {
+        editor.commands.focus("end", {
+          scrollIntoView: true,
+        });
+      }
+    } else if (value === "" && autoFocus && !editor.isFocused) {
+      editor.commands.setMeta("fromEmptyAutoFocus", true);
+      editor.commands.focus("end", {
+        scrollIntoView: true,
+      });
+    }
+  }, [value, editor, autoFocus]);
+
+  return <EditorContent editor={editor} />;
+}

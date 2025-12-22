@@ -5,18 +5,20 @@ import { toast } from "sonner";
 import z from "zod";
 
 import { noteSchema } from "@/client-data/note";
-import { addNote, updateNote, useNoteById } from "@/client-data/notes-dal";
+import {
+  addNote,
+  updateNoteContent,
+  useNoteById,
+} from "@/client-data/notes-dal";
 
+import { RichTextEditor } from "./rich-text-editor";
 import { Field, FieldError } from "./ui/field";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
 
 interface NoteViewProps {
   noteId?: string;
 }
 
 const formSchema = z.object({
-  title: noteSchema.shape.title,
   content: noteSchema.shape.content,
 });
 
@@ -25,22 +27,21 @@ export function NoteView({ noteId }: NoteViewProps) {
   const { data: note, isLoading } = useNoteById(currentNoteId);
   const [isSaving, setIsSaving] = useState(false);
 
-  const form = useForm({
-    defaultValues: {
-      title: note?.title ?? "",
-      content: note?.content ?? "",
-    },
-    validators: {
-      onChange: formSchema,
-    },
-  });
-
   const isNewNote = currentNoteId === undefined;
   const noteDoesNotExist =
     !isLoading &&
     noteId !== undefined &&
     currentNoteId !== undefined &&
     note === undefined;
+
+  const form = useForm({
+    defaultValues: {
+      content: note?.content ?? "",
+    },
+    validators: {
+      onChange: formSchema,
+    },
+  });
 
   return (
     <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-16">
@@ -58,48 +59,6 @@ export function NoteView({ noteId }: NoteViewProps) {
           }}
         >
           <form.Field
-            name="title"
-            listeners={{
-              onChangeDebounceMs: 200,
-              onChange: async ({ fieldApi, value }) => {
-                const isValid = fieldApi.state.meta.isValid;
-                if (!isValid) return;
-
-                if (!currentNoteId) return;
-
-                try {
-                  setIsSaving(true);
-                  await updateNote(currentNoteId, {
-                    content: form.state.values.content,
-                    title: value,
-                  });
-                } finally {
-                  setIsSaving(false);
-                }
-              },
-            }}
-          >
-            {(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                    placeholder="Title"
-                    autoComplete="off"
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          </form.Field>
-          <form.Field
             name="content"
             listeners={{
               onChangeDebounceMs: 200,
@@ -110,21 +69,15 @@ export function NoteView({ noteId }: NoteViewProps) {
 
                 try {
                   setIsSaving(true);
-                  const title = form.state.values.title.trim() || "Untitled";
-                  form.setFieldValue("title", title);
 
-                  if (isNewNote && !currentNoteId) {
+                  if (isNewNote && value.trim() !== "") {
                     const newId = await addNote({
                       content: value,
-                      title,
                     });
                     toast("Note created");
                     setCurrentNoteId(newId);
-                  } else {
-                    await updateNote(currentNoteId, {
-                      content: value,
-                      title,
-                    });
+                  } else if (currentNoteId) {
+                    await updateNoteContent(currentNoteId, value);
                   }
                 } finally {
                   setIsSaving(false);
@@ -137,17 +90,12 @@ export function NoteView({ noteId }: NoteViewProps) {
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field className="mt-4" data-invalid={isInvalid}>
-                  <Textarea
-                    id={field.name}
-                    name={field.name}
+                  <RichTextEditor
                     value={field.state.value}
+                    onChange={field.handleChange}
                     onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
                     placeholder="Write your note here..."
-                    className="field-sizing-fixed resize-none"
                     autoFocus
-                    rows={10}
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>

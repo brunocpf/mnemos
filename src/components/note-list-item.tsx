@@ -1,13 +1,13 @@
 "use client";
-
 import {
   IconChevronCompactRight,
   IconEdit,
   IconTrash,
 } from "@tabler/icons-react";
+import markdownToTxt from "markdown-to-txt";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Activity } from "react";
+import { Activity, useMemo } from "react";
 import { toast } from "sonner";
 
 import { Note } from "@/client-data/note";
@@ -45,6 +45,15 @@ export function NoteListItem({ note }: NoteListItemProps) {
     });
   };
 
+  const content = useMemo(() => markdownToTxt(note.content), [note.content]);
+  const title = useMemo(() => {
+    if (note.title && note.title.trim().length > 0) {
+      return note.title;
+    }
+    const firstLine = content.split("\n")[0].trim();
+    return firstLine.slice(0, 100);
+  }, [note.title, content]);
+
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -65,7 +74,7 @@ export function NoteListItem({ note }: NoteListItemProps) {
             <div className="flex flex-1 flex-col overflow-hidden">
               <div className="min-w-0">
                 <p className="text-foreground truncate text-sm font-semibold">
-                  {note.title}
+                  {title}
                 </p>
                 <p className="text-muted-foreground mt-1 text-xs">
                   Updated {defaultFormatter.format(new Date(note.updatedAt))}
@@ -73,7 +82,7 @@ export function NoteListItem({ note }: NoteListItemProps) {
               </div>
               <Activity mode={note.content ? "visible" : "hidden"}>
                 <p className="text-muted-foreground mt-3 min-w-0 truncate text-sm">
-                  {note.content}
+                  {content}
                 </p>
               </Activity>
             </div>
@@ -87,7 +96,7 @@ export function NoteListItem({ note }: NoteListItemProps) {
       <ContextMenuContent className="w-52">
         <ContextMenuItem inset onClick={handleEdit}>
           <IconEdit />
-          Edit
+          Rename
         </ContextMenuItem>
         <ContextMenuItem inset variant="destructive" onClick={handleDelete}>
           <IconTrash />
