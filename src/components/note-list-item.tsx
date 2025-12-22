@@ -1,17 +1,23 @@
 "use client";
+
 import {
   IconChevronCompactRight,
   IconEdit,
   IconTrash,
 } from "@tabler/icons-react";
+import { useForm } from "@tanstack/react-form";
 import markdownToTxt from "markdown-to-txt";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Activity, useMemo } from "react";
 import { toast } from "sonner";
+import z from "zod";
 
-import { Note } from "@/client-data/note";
-import { deleteNote, restoreNote } from "@/client-data/notes-dal";
+import { Note, noteSchema } from "@/client-data/note";
+import {
+  deleteNote,
+  restoreNote,
+  updateNoteTitle,
+} from "@/client-data/notes-dal";
 import { Button } from "@/components/ui/button";
 import {
   ContextMenu,
@@ -21,25 +27,36 @@ import {
 } from "@/components/ui/context-menu";
 import { defaultFormatter } from "@/lib/dateFormatters";
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Field, FieldError } from "./ui/field";
+import { Input } from "./ui/input";
+
 interface NoteListItemProps {
   note: Note;
 }
 
+const formSchema = z.object({
+  newTitle: noteSchema.shape.title.nonoptional(),
+});
+
 export function NoteListItem({ note }: NoteListItemProps) {
-  const { push } = useRouter();
-
-  const handleEdit = () => {
-    push(`/note?noteId=${note.id}`);
-  };
-
   const handleDelete = () => {
     deleteNote(note.id);
-    toast("Note deleted", {
+    toast.info("Note deleted", {
       action: {
         label: "Undo",
         onClick: () => {
           restoreNote(note.id);
-          toast("Note restored");
+          toast.info("Note restored");
         },
       },
     });
@@ -54,55 +71,124 @@ export function NoteListItem({ note }: NoteListItemProps) {
     return firstLine.slice(0, 100);
   }, [note.title, content]);
 
+  const form = useForm({
+    defaultValues: {
+      newTitle: title ?? "",
+    },
+    validators: {
+      onChange: formSchema,
+    },
+    onSubmit: async ({ value: { newTitle } }) => {
+      const updatedTitle = newTitle.trim();
+
+      await updateNoteTitle(note.id, updatedTitle);
+
+      toast.success("Note renamed");
+    },
+  });
+
   return (
-    <ContextMenu>
-      <ContextMenuTrigger
-        render={
-          <Button
-            nativeButton={false}
-            variant="card"
-            className="flex h-auto w-full cursor-pointer items-center justify-between px-8 text-start"
-            render={
-              <Link
-                href={{
-                  pathname: "/note",
-                  query: { noteId: note.id },
-                }}
-              />
-            }
-          >
-            <div className="flex flex-1 flex-col overflow-hidden">
-              <div className="min-w-0">
-                <p className="text-foreground truncate text-sm font-semibold">
-                  {title}
-                </p>
-                <p className="text-muted-foreground mt-1 text-xs">
-                  Updated {defaultFormatter.format(new Date(note.updatedAt))}
-                </p>
+    <Dialog>
+      <ContextMenu>
+        <ContextMenuTrigger
+          render={
+            <Button
+              nativeButton={false}
+              variant="card"
+              className="flex h-auto w-full cursor-pointer items-center justify-between px-8 text-start"
+              render={
+                <Link
+                  href={{
+                    pathname: "/note",
+                    query: { noteId: note.id },
+                  }}
+                />
+              }
+            >
+              <div className="flex flex-1 flex-col overflow-hidden">
+                <div className="min-w-0">
+                  <p className="text-foreground truncate text-sm font-semibold">
+                    {title}
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    Updated {defaultFormatter.format(new Date(note.updatedAt))}
+                  </p>
+                </div>
+                <Activity mode={note.content ? "visible" : "hidden"}>
+                  <p className="text-muted-foreground mt-3 min-w-0 truncate text-sm">
+                    {content}
+                  </p>
+                </Activity>
               </div>
-              <Activity mode={note.content ? "visible" : "hidden"}>
-                <p className="text-muted-foreground mt-3 min-w-0 truncate text-sm">
-                  {content}
-                </p>
-              </Activity>
-            </div>
-            <IconChevronCompactRight
-              data-icon="inline-end"
-              className="size-10"
-            />
-          </Button>
-        }
-      />
-      <ContextMenuContent className="w-52">
-        <ContextMenuItem inset onClick={handleEdit}>
-          <IconEdit />
-          Rename
-        </ContextMenuItem>
-        <ContextMenuItem inset variant="destructive" onClick={handleDelete}>
-          <IconTrash />
-          Delete
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
+              <IconChevronCompactRight
+                data-icon="inline-end"
+                className="size-10"
+              />
+            </Button>
+          }
+        />
+        <ContextMenuContent className="w-52">
+          <DialogTrigger
+            nativeButton={false}
+            render={
+              <ContextMenuItem nativeButton={false} inset>
+                <IconEdit />
+                Rename
+              </ContextMenuItem>
+            }
+          />
+          <ContextMenuItem
+            nativeButton={false}
+            inset
+            variant="destructive"
+            onClick={handleDelete}
+          >
+            <IconTrash />
+            Delete
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+      <DialogContent>
+        <form
+          onSubmit={(e: React.FormEvent) => {
+            e.preventDefault();
+            form.handleSubmit(e);
+          }}
+          className="flex flex-col gap-4"
+        >
+          <DialogHeader>
+            <DialogTitle>Rename</DialogTitle>
+            <DialogDescription>Rename this note.</DialogDescription>
+          </DialogHeader>
+          <form.Field name="newTitle">
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <Input
+                    className="mt-2"
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    aria-invalid={isInvalid}
+                    placeholder="Note title"
+                    autoComplete="off"
+                    autoFocus
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+          <DialogFooter>
+            <DialogClose render={<Button type="submit">Confirm</Button>} />
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

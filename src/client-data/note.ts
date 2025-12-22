@@ -2,7 +2,7 @@ import z from "zod";
 
 export const noteSchema = z.object({
   id: z.uuid(),
-  title: z.string().max(100).optional(),
+  title: z.string().min(1).max(100).optional(),
   content: z.string(),
   deleted: z.number(),
   createdAt: z.date(),

@@ -53,7 +53,7 @@ export function NoteView({ noteId }: NoteViewProps) {
       </Activity>
       <Activity mode={!noteDoesNotExist || isNewNote ? "visible" : "hidden"}>
         <form
-          onSubmit={(e: React.FormEvent) => {
+          onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit(e);
           }}
@@ -74,7 +74,7 @@ export function NoteView({ noteId }: NoteViewProps) {
                     const newId = await addNote({
                       content: value,
                     });
-                    toast("Note created");
+                    toast.info("Note created");
                     setCurrentNoteId(newId);
                   } else if (currentNoteId) {
                     await updateNoteContent(currentNoteId, value);
