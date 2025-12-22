@@ -15,6 +15,7 @@ import z from "zod";
 import { Note, noteSchema } from "@/client-data/note";
 import {
   deleteNote,
+  permanentlyDeleteNote,
   restoreNote,
   updateNoteTitle,
 } from "@/client-data/notes-dal";
@@ -52,12 +53,18 @@ export function NoteListItem({ note }: NoteListItemProps) {
   const handleDelete = () => {
     deleteNote(note.id);
     toast.info("Note deleted", {
+      position: "top-center",
       action: {
         label: "Undo",
         onClick: () => {
           restoreNote(note.id);
-          toast.info("Note restored");
+          toast.info("Note restored", {
+            position: "top-center",
+          });
         },
+      },
+      onAutoClose: () => {
+        permanentlyDeleteNote(note.id);
       },
     });
   };
@@ -83,7 +90,7 @@ export function NoteListItem({ note }: NoteListItemProps) {
 
       await updateNoteTitle(note.id, updatedTitle);
 
-      toast.success("Note renamed");
+      toast.success("Note renamed", { position: "top-center" });
     },
   });
 
@@ -185,7 +192,13 @@ export function NoteListItem({ note }: NoteListItemProps) {
             }}
           </form.Field>
           <DialogFooter>
-            <DialogClose render={<Button type="submit">Confirm</Button>} />
+            <DialogClose
+              render={
+                <Button className="cursor-pointer" type="submit">
+                  Confirm
+                </Button>
+              }
+            />
           </DialogFooter>
         </form>
       </DialogContent>

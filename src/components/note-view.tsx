@@ -1,26 +1,18 @@
 "use client";
-import { useForm } from "@tanstack/react-form";
 import { Activity, useState } from "react";
 import { toast } from "sonner";
-import z from "zod";
 
-import { noteSchema } from "@/client-data/note";
 import {
   addNote,
   updateNoteContent,
   useNoteById,
 } from "@/client-data/notes-dal";
 
-import { RichTextEditor } from "./rich-text-editor";
-import { Field, FieldError } from "./ui/field";
+import { NoteEditorForm } from "./note-editor-form";
 
 interface NoteViewProps {
   noteId?: string;
 }
-
-const formSchema = z.object({
-  content: noteSchema.shape.content,
-});
 
 export function NoteView({ noteId }: NoteViewProps) {
   const [currentNoteId, setCurrentNoteId] = useState(noteId);
@@ -34,14 +26,23 @@ export function NoteView({ noteId }: NoteViewProps) {
     currentNoteId !== undefined &&
     note === undefined;
 
-  const form = useForm({
-    defaultValues: {
-      content: note?.content ?? "",
-    },
-    validators: {
-      onChange: formSchema,
-    },
-  });
+  const handlePersist = async (noteId: string | undefined, value: string) => {
+    try {
+      setIsSaving(true);
+
+      if (!noteId && value.trim() !== "") {
+        const newId = await addNote({
+          content: value,
+        });
+        toast.info("Note created", { position: "top-center" });
+        setCurrentNoteId(newId);
+      } else if (noteId) {
+        await updateNoteContent(noteId, value);
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-16">
@@ -52,57 +53,12 @@ export function NoteView({ noteId }: NoteViewProps) {
         </p>
       </Activity>
       <Activity mode={!noteDoesNotExist || isNewNote ? "visible" : "hidden"}>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit(e);
-          }}
-        >
-          <form.Field
-            name="content"
-            listeners={{
-              onChangeDebounceMs: 200,
-              onChange: async ({ fieldApi, value }) => {
-                const isValid = fieldApi.state.meta.isValid;
-
-                if (!isValid) return;
-
-                try {
-                  setIsSaving(true);
-
-                  if (isNewNote && value.trim() !== "") {
-                    const newId = await addNote({
-                      content: value,
-                    });
-                    toast.info("Note created");
-                    setCurrentNoteId(newId);
-                  } else if (currentNoteId) {
-                    await updateNoteContent(currentNoteId, value);
-                  }
-                } finally {
-                  setIsSaving(false);
-                }
-              },
-            }}
-          >
-            {(field) => {
-              const isInvalid =
-                field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field className="mt-4" data-invalid={isInvalid}>
-                  <RichTextEditor
-                    value={field.state.value}
-                    onChange={field.handleChange}
-                    onBlur={field.handleBlur}
-                    placeholder="Write your note here..."
-                    autoFocus
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          </form.Field>
-        </form>
+        <NoteEditorForm
+          key={noteId ?? "new-note"}
+          noteId={currentNoteId}
+          initialContent={note?.content ?? ""}
+          onPersist={handlePersist}
+        />
         <div>
           <Activity mode={isNewNote ? "hidden" : "visible"}>
             <p className="text-muted-foreground text-sm">
