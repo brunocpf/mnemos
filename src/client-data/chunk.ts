@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const chunkSchema = z.object({
-  id: z.uuid(),
+  id: z.string(),
   noteId: z.uuid(),
   order: z.number().min(0),
   text: z.string(),
