@@ -25,7 +25,6 @@ export function BackButton({ className }: BackButtonProps) {
       aria-label="Back"
     >
       <IconArrowLeft />
-      <span className="sr-only">Back</span>
     </Button>
   );
 }
