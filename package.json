@@ -12,7 +12,7 @@
     "@base-ui/react": "^1.0.0",
     "@langchain/textsplitters": "^1.0.1",
     "@tabler/icons-react": "^3.36.0",
-    "@tanstack/react-form": "^1.27.5",
+    "@tanstack/react-form": "^1.27.6",
     "@tiptap/extension-image": "^3.14.0",
     "@tiptap/extension-link": "^3.14.0",
     "@tiptap/extension-placeholder": "^3.14.0",
