@@ -12,13 +12,15 @@ const formSchema = z.object({
 interface NoteEditorFormProps {
   noteId?: string;
   initialContent: string;
-  onPersist: (noteId: string | undefined, value: string) => Promise<void>;
+  onChange?: (noteId: string | undefined, value: string) => void;
+  onBlur?: (noteId: string | undefined, content: string) => void;
 }
 
 export function NoteEditorForm({
   noteId,
   initialContent,
-  onPersist,
+  onChange,
+  onBlur,
 }: NoteEditorFormProps) {
   const form = useForm({
     defaultValues: { content: initialContent },
@@ -38,7 +40,11 @@ export function NoteEditorForm({
           onChangeDebounceMs: 200,
           onChange: async ({ fieldApi, value }) => {
             if (!fieldApi.state.meta.isValid) return;
-            await onPersist(noteId, value);
+            onChange?.(noteId, value);
+          },
+          onBlur: ({ fieldApi, value }) => {
+            if (!fieldApi.state.meta.isValid) return;
+            onBlur?.(noteId, value);
           },
         }}
       >

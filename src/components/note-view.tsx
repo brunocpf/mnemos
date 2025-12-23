@@ -1,14 +1,16 @@
 "use client";
 
-import { Activity, useState } from "react";
+import { Activity, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { indexChunks } from "@/client-data/indexing-dal";
 import {
   addNote,
   updateNoteContent,
   useNoteById,
 } from "@/client-data/notes-dal";
 import { NoteEditorForm } from "@/components/note-editor-form";
+import { IndexerService } from "@/indexing/indexer-service";
 
 interface NoteViewProps {
   noteId?: string;
@@ -18,10 +20,27 @@ export function NoteView({ noteId }: NoteViewProps) {
   const [currentNoteId, setCurrentNoteId] = useState(noteId);
   const [isSaving, setIsSaving] = useState(false);
   const { data: note, isLoading } = useNoteById(currentNoteId);
+  const indexerRef = useRef<IndexerService | null>(null);
 
-  const isCreatingNote = currentNoteId === undefined;
-  const noteDoesNotExist = !isLoading && !isCreatingNote && note === undefined;
-  const shouldShowEditor = !isLoading && !noteDoesNotExist;
+  const isCreatingNote = !currentNoteId;
+  const noteDoesNotExist = !isLoading && !isCreatingNote && !note;
+  const shouldShowEditor = !noteId || (!isLoading && !noteDoesNotExist);
+
+  const indexer = useMemo(() => {
+    const service = new IndexerService({
+      onResult: (res) => {
+        indexChunks(res.noteId, res.chunks, res.contentHash);
+      },
+    });
+    indexerRef.current = service;
+    return service;
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      indexer.dispose();
+    };
+  }, [indexer]);
 
   const handlePersist = async (
     noteIdToPersist: string | undefined,
@@ -38,15 +57,31 @@ export function NoteView({ noteId }: NoteViewProps) {
         setCurrentNoteId(newId);
       } else if (noteIdToPersist) {
         await updateNoteContent(noteIdToPersist, value);
+
+        indexer.schedule({
+          id: noteIdToPersist,
+          title: note?.title,
+          content: value,
+        });
       }
     } finally {
       setIsSaving(false);
     }
   };
 
+  const onBlur = (noteId: string | undefined, content: string) => {
+    if (!noteId) return;
+
+    indexer.flush({
+      id: noteId,
+      title: note?.title,
+      content: content,
+    });
+  };
+
   return (
     <section className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-16">
-      <Activity mode={noteDoesNotExist ? "visible" : "hidden"}>
+      <Activity mode={!!noteId && noteDoesNotExist ? "visible" : "hidden"}>
         <h1 className="text-3xl font-semibold">Note not found</h1>
         <p className="text-muted-foreground">
           It may have been deleted or never existed.
@@ -57,7 +92,8 @@ export function NoteView({ noteId }: NoteViewProps) {
           key={noteId ? (note?.id ?? "unloaded-note") : "new-note"}
           noteId={currentNoteId}
           initialContent={note?.content ?? ""}
-          onPersist={handlePersist}
+          onChange={handlePersist}
+          onBlur={onBlur}
         />
         <div>
           <Activity mode={isCreatingNote ? "hidden" : "visible"}>

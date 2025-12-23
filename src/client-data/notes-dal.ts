@@ -2,7 +2,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 
 import { db } from "@/client-data/db";
 import { Note } from "@/client-data/note";
-import { dexieLoading } from "@/lib/dexieLoading";
+import { dexieLoading } from "@/lib/dexie-loading";
 
 export async function addNote(
   note: Omit<Note, "id" | "deleted" | "createdAt" | "updatedAt" | "deletedAt">,
@@ -40,7 +40,20 @@ export async function restoreNote(id: Note["id"]) {
 }
 
 export async function permanentlyDeleteNote(id: Note["id"]) {
-  return await db.notes.delete(id);
+  const chunkIds = await db.chunks.where("noteId").equals(id).primaryKeys();
+  await db.transaction(
+    "rw",
+    db.notes,
+    db.chunks,
+    db.embeddings,
+    db.noteHashes,
+    async () => {
+      await db.chunks.where("noteId").equals(id).delete();
+      await db.embeddings.where("chunkId").anyOf(chunkIds).delete();
+      await db.noteHashes.delete(id);
+      await db.notes.delete(id);
+    },
+  );
 }
 
 export function useNotes() {
