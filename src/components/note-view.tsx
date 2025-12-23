@@ -1,4 +1,5 @@
 "use client";
+
 import { Activity, useState } from "react";
 import { toast } from "sonner";
 
@@ -15,30 +16,28 @@ interface NoteViewProps {
 
 export function NoteView({ noteId }: NoteViewProps) {
   const [currentNoteId, setCurrentNoteId] = useState(noteId);
-  const { data: note, isLoading } = useNoteById(currentNoteId);
   const [isSaving, setIsSaving] = useState(false);
+  const { data: note, isLoading } = useNoteById(currentNoteId);
 
-  const isNewNote = currentNoteId === undefined;
-  const noteDoesNotExist =
-    !isLoading &&
-    noteId !== undefined &&
-    currentNoteId !== undefined &&
-    note === undefined;
+  const isCreatingNote = currentNoteId === undefined;
+  const noteDoesNotExist = !isLoading && !isCreatingNote && note === undefined;
+  const shouldShowEditor = !isLoading && !noteDoesNotExist;
 
-  const renderEditor = !isLoading && !noteDoesNotExist;
-
-  const handlePersist = async (noteId: string | undefined, value: string) => {
+  const handlePersist = async (
+    noteIdToPersist: string | undefined,
+    value: string,
+  ) => {
     try {
       setIsSaving(true);
 
-      if (!noteId && value.trim() !== "") {
+      if (!noteIdToPersist && value.trim() !== "") {
         const newId = await addNote({
           content: value,
         });
         toast.info("Note created", { position: "top-center" });
         setCurrentNoteId(newId);
-      } else if (noteId) {
-        await updateNoteContent(noteId, value);
+      } else if (noteIdToPersist) {
+        await updateNoteContent(noteIdToPersist, value);
       }
     } finally {
       setIsSaving(false);
@@ -53,7 +52,7 @@ export function NoteView({ noteId }: NoteViewProps) {
           It may have been deleted or never existed.
         </p>
       </Activity>
-      <Activity mode={renderEditor ? "visible" : "hidden"}>
+      <Activity mode={shouldShowEditor ? "visible" : "hidden"}>
         <NoteEditorForm
           key={noteId ? (note?.id ?? "unloaded-note") : "new-note"}
           noteId={currentNoteId}
@@ -61,7 +60,7 @@ export function NoteView({ noteId }: NoteViewProps) {
           onPersist={handlePersist}
         />
         <div>
-          <Activity mode={isNewNote ? "hidden" : "visible"}>
+          <Activity mode={isCreatingNote ? "hidden" : "visible"}>
             <p className="text-muted-foreground text-sm">
               {isSaving ? "Saving..." : "All changes saved."}
             </p>
