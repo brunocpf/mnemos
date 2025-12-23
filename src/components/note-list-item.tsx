@@ -26,8 +26,6 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { defaultFormatter } from "@/lib/dateFormatters";
-
 import {
   Dialog,
   DialogClose,
@@ -37,9 +35,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
-import { Field, FieldError } from "./ui/field";
-import { Input } from "./ui/input";
+} from "@/components/ui/dialog";
+import { Field, FieldError } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { defaultFormatter } from "@/lib/dateFormatters";
 
 interface NoteListItemProps {
   note: Note;
@@ -67,6 +66,8 @@ export function NoteListItem({ note }: NoteListItemProps) {
         permanentlyDeleteNote(note.id);
       },
     });
+
+    // TODO: Figure out a way to clean up soft deleted notes if the autoclose trigger is not fired
   };
 
   const content = useMemo(() => markdownToTxt(note.content), [note.content]);

@@ -1,3 +1,5 @@
+"use client";
+
 import { Route } from "next";
 import Link from "next/link";
 
