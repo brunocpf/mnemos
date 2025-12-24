@@ -1,12 +1,24 @@
 "use client";
-import { useCallback, useEffect, useRef } from "react";
+
+import { createContext, use, useCallback, useEffect, useRef } from "react";
 
 import { db } from "@/client-data/db";
 import { ChunkingClient } from "@/services/chunking-client";
 import { EmbedderService } from "@/services/embedder-service";
 import { EmbeddingClient } from "@/services/embedding-client";
 
-export function useEmbedderService() {
+export const EmbedderServiceContext = createContext<{
+  schedule: (
+    data: { id: string; title?: string; content: string },
+    delayMs?: number,
+  ) => void;
+  flush: (data: { id: string; title?: string; content: string }) => void;
+}>({
+  schedule: () => {},
+  flush: () => {},
+});
+
+export function EmbedderServiceProvider({ children }: React.PropsWithChildren) {
   const embedderServiceRef = useRef<EmbedderService | null>(null);
 
   useEffect(() => {
@@ -65,8 +77,13 @@ export function useEmbedderService() {
     [],
   );
 
-  return {
-    schedule,
-    flush,
-  };
+  return (
+    <EmbedderServiceContext.Provider value={{ schedule, flush }}>
+      {children}
+    </EmbedderServiceContext.Provider>
+  );
+}
+
+export function useEmbedderService() {
+  return use(EmbedderServiceContext);
 }

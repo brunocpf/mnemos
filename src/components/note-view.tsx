@@ -9,7 +9,7 @@ import {
   useNoteById,
 } from "@/client-data/notes-dal";
 import { NoteEditorForm } from "@/components/note-editor-form";
-import { useEmbedderService } from "@/hooks/use-embedder-service";
+import { useEmbedderService } from "@/providers/embedder-service-provider";
 
 interface NoteViewProps {
   noteId?: string;

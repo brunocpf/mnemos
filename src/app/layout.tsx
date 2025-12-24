@@ -3,6 +3,7 @@ import { Figtree } from "next/font/google";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { EmbedderServiceProvider } from "@/providers/embedder-service-provider";
 
 import "./globals.css";
 
@@ -22,10 +23,12 @@ export default function RootLayout({
     <html lang="en" className={fontSans.variable} suppressHydrationWarning>
       <head />
       <body className="antialiased">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <EmbedderServiceProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </EmbedderServiceProvider>
       </body>
     </html>
   );

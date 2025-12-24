@@ -39,6 +39,7 @@ import {
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { defaultFormatter } from "@/lib/dateFormatters";
+import { useEmbedderService } from "@/providers/embedder-service-provider";
 
 interface NoteListItemProps {
   note: Note;
@@ -49,6 +50,8 @@ const formSchema = z.object({
 });
 
 export function NoteListItem({ note }: NoteListItemProps) {
+  const embedder = useEmbedderService();
+
   const handleDelete = () => {
     deleteNote(note.id);
     toast.info("Note deleted", {
@@ -91,7 +94,11 @@ export function NoteListItem({ note }: NoteListItemProps) {
       const updatedTitle = newTitle.trim();
 
       await updateNoteTitle(note.id, updatedTitle);
-
+      embedder.flush({
+        id: note.id,
+        title: updatedTitle,
+        content: note.content,
+      });
       toast.success("Note renamed", { position: "top-center" });
     },
   });
