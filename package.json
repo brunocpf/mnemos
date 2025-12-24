@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
+    "@huggingface/transformers": "^3.8.1",
     "@langchain/textsplitters": "^1.0.1",
     "@tabler/icons-react": "^3.36.0",
     "@tanstack/react-form": "^1.27.6",

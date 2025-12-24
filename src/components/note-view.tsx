@@ -1,16 +1,16 @@
 "use client";
 
-import { Activity, useEffect, useMemo, useRef, useState } from "react";
+import { Activity, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { indexChunks } from "@/client-data/indexing-dal";
+import { persistAndEmbedChunks } from "@/client-data/indexing-dal";
 import {
   addNote,
   updateNoteContent,
   useNoteById,
 } from "@/client-data/notes-dal";
 import { NoteEditorForm } from "@/components/note-editor-form";
-import { IndexerService } from "@/indexing/indexer-service";
+import { IndexerService } from "@/services/indexer-service";
 
 interface NoteViewProps {
   noteId?: string;
@@ -26,21 +26,18 @@ export function NoteView({ noteId }: NoteViewProps) {
   const noteDoesNotExist = !isLoading && !isCreatingNote && !note;
   const shouldShowEditor = !noteId || (!isLoading && !noteDoesNotExist);
 
-  const indexer = useMemo(() => {
-    const service = new IndexerService({
-      onResult: (res) => {
-        indexChunks(res.noteId, res.chunks, res.contentHash);
+  useEffect(() => {
+    indexerRef.current = new IndexerService({
+      callbacks: {
+        onResult: ({ noteId, chunks, contentHash }) => {
+          persistAndEmbedChunks(noteId, chunks, contentHash);
+        },
       },
     });
-    indexerRef.current = service;
-    return service;
-  }, []);
-
-  useEffect(() => {
     return () => {
-      indexer.dispose();
+      indexerRef.current?.dispose();
     };
-  }, [indexer]);
+  }, []);
 
   const handlePersist = async (
     noteIdToPersist: string | undefined,
@@ -58,7 +55,7 @@ export function NoteView({ noteId }: NoteViewProps) {
       } else if (noteIdToPersist) {
         await updateNoteContent(noteIdToPersist, value);
 
-        indexer.schedule({
+        indexerRef.current?.schedule({
           id: noteIdToPersist,
           title: note?.title,
           content: value,
@@ -72,7 +69,7 @@ export function NoteView({ noteId }: NoteViewProps) {
   const onBlur = (noteId: string | undefined, content: string) => {
     if (!noteId) return;
 
-    indexer.flush({
+    indexerRef.current?.flush({
       id: noteId,
       title: note?.title,
       content: content,

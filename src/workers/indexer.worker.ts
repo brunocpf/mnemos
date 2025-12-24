@@ -69,5 +69,5 @@ self.onmessage = async (ev: MessageEvent<IndexRequest>) => {
     contentHash,
   };
 
-  (self as DedicatedWorkerGlobalScope).postMessage(res);
+  postMessage(res);
 };
