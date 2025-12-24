@@ -33,6 +33,10 @@ export class EmbedderService {
     this.embeddingClient.addEventListener("error", this.handleEmbeddingError);
   }
 
+  get modelId() {
+    return this.embeddingClient.modelId;
+  }
+
   schedule(
     data: {
       id: string;
@@ -62,8 +66,6 @@ export class EmbedderService {
       "error",
       this.handleEmbeddingError,
     );
-    this.chunkingClient.dispose();
-    this.embeddingClient.dispose();
   }
 
   private performEmbeddings(
@@ -143,6 +145,7 @@ export class EmbedderService {
   private handleEmbeddingChunksResult = async (
     ev: EmbeddingChunksResultEvent,
   ) => {
+    console.log("EmbeddingChunksResultEvent received");
     const { noteId, vectors, version } = ev.detail;
     const currentModelId = this.embeddingClient.modelId;
 
