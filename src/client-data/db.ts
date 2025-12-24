@@ -7,7 +7,7 @@ import { Embedding } from "@/client-data/embedding";
 import { Note } from "@/client-data/note";
 import { NoteHash } from "@/client-data/note-hash";
 
-class MnemosDb extends Dexie {
+export class MnemosDb extends Dexie {
   notes: Table<Note, Note["id"]>;
   noteHashes: Table<NoteHash, NoteHash["noteId"]>;
   chunks: Table<Chunk, Chunk["id"]>;

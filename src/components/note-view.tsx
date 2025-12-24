@@ -1,16 +1,15 @@
 "use client";
 
-import { Activity, useEffect, useRef, useState } from "react";
+import { Activity, useState } from "react";
 import { toast } from "sonner";
 
-import { persistAndEmbedChunks } from "@/client-data/indexing-dal";
 import {
   addNote,
   updateNoteContent,
   useNoteById,
 } from "@/client-data/notes-dal";
 import { NoteEditorForm } from "@/components/note-editor-form";
-import { IndexerService } from "@/services/indexer-service";
+import { useEmbedderService } from "@/hooks/use-embedder-service";
 
 interface NoteViewProps {
   noteId?: string;
@@ -20,24 +19,11 @@ export function NoteView({ noteId }: NoteViewProps) {
   const [currentNoteId, setCurrentNoteId] = useState(noteId);
   const [isSaving, setIsSaving] = useState(false);
   const { data: note, isLoading } = useNoteById(currentNoteId);
-  const indexerRef = useRef<IndexerService | null>(null);
+  const embedder = useEmbedderService();
 
   const isCreatingNote = !currentNoteId;
   const noteDoesNotExist = !isLoading && !isCreatingNote && !note;
   const shouldShowEditor = !noteId || (!isLoading && !noteDoesNotExist);
-
-  useEffect(() => {
-    indexerRef.current = new IndexerService({
-      callbacks: {
-        onResult: ({ noteId, chunks, contentHash }) => {
-          persistAndEmbedChunks(noteId, chunks, contentHash);
-        },
-      },
-    });
-    return () => {
-      indexerRef.current?.dispose();
-    };
-  }, []);
 
   const handlePersist = async (
     noteIdToPersist: string | undefined,
@@ -55,7 +41,7 @@ export function NoteView({ noteId }: NoteViewProps) {
       } else if (noteIdToPersist) {
         await updateNoteContent(noteIdToPersist, value);
 
-        indexerRef.current?.schedule({
+        embedder.schedule({
           id: noteIdToPersist,
           title: note?.title,
           content: value,
@@ -69,7 +55,7 @@ export function NoteView({ noteId }: NoteViewProps) {
   const onBlur = (noteId: string | undefined, content: string) => {
     if (!noteId) return;
 
-    indexerRef.current?.flush({
+    embedder.flush({
       id: noteId,
       title: note?.title,
       content: content,

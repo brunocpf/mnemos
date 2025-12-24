@@ -4,8 +4,8 @@ import { getMarkdownBlocks } from "@/lib/get-markdown-blocks";
 import { mergeBlocksIntoChunks } from "@/lib/merge-blocks-into-chunks";
 import { sha256 } from "@/lib/sha256";
 
-export type IndexRequest = {
-  type: "INDEX_NOTE";
+export type ChunkingRequest = {
+  type: "CHUNK_NOTE";
   noteId: string;
   version: number;
   title?: string;
@@ -16,8 +16,8 @@ export type IndexRequest = {
   };
 };
 
-export type IndexResponse = {
-  type: "INDEX_RESULT";
+export type ChunkingResponse = {
+  type: "CHUNK_RESULT";
   noteId: string;
   version: number;
   chunks: {
@@ -30,10 +30,10 @@ export type IndexResponse = {
   contentHash: string;
 };
 
-self.onmessage = async (ev: MessageEvent<IndexRequest>) => {
+self.onmessage = async (ev: MessageEvent<ChunkingRequest>) => {
   const msg = ev.data;
 
-  if (msg.type !== "INDEX_NOTE") return;
+  if (msg.type !== "CHUNK_NOTE") return;
 
   const body = msg.title
     ? appendTitleToContent(msg.title, msg.content)
@@ -61,8 +61,8 @@ self.onmessage = async (ev: MessageEvent<IndexRequest>) => {
     }),
   );
 
-  const res: IndexResponse = {
-    type: "INDEX_RESULT",
+  const res: ChunkingResponse = {
+    type: "CHUNK_RESULT",
     noteId: msg.noteId,
     version: msg.version,
     chunks,

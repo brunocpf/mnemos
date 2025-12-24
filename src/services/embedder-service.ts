@@ -1,170 +1,176 @@
-"use client";
-
-import type {
-  EmbedChunksResponse,
-  EmbedErrorResponse,
-  EmbedQueryResponse,
-  EmbedResponse,
-} from "@/workers/embedder.worker";
-
-type ChunkItem = { chunkId: string; text: string };
-
-type EmbedderCallbacks = {
-  onChunksResult?: (response: Omit<EmbedChunksResponse, "type">) => void;
-  onQueryResult?: (response: Omit<EmbedQueryResponse, "type">) => void;
-  onError?: (response: Omit<EmbedErrorResponse, "type">) => void;
-};
+import { MnemosDb } from "@/client-data/db";
+import {
+  ChunkingClient,
+  ChunkingResultEvent,
+} from "@/services/chunking-client";
+import {
+  EmbeddingChunksResultEvent,
+  EmbeddingClient,
+  EmbeddingErrorEvent,
+} from "@/services/embedding-client";
 
 export class EmbedderService {
-  private worker: Worker | null = null;
-  private latestVersionByNote = new Map<string, number>();
-  private latestQueryVersion = 0;
-
-  private pendingQuery = new Map<
-    number,
-    {
-      resolve: (vec: Float32Array) => void;
-      reject: (err: Error) => void;
-    }
-  >();
-
-  private modelId: string;
+  private pendingEmbedHashByNote: Map<
+    string,
+    { version: number; contentHash: string }
+  >;
 
   constructor(
-    options: { modelId?: string; callbacks?: EmbedderCallbacks } = {},
+    private db: MnemosDb,
+    private chunkingClient: ChunkingClient,
+    private embeddingClient: EmbeddingClient,
   ) {
-    this.modelId = options.modelId ?? "Supabase/gte-small";
+    this.pendingEmbedHashByNote = new Map<
+      string,
+      { version: number; contentHash: string }
+    >();
 
-    if (typeof window === "undefined" || typeof Worker === "undefined") return;
-
-    this.worker = new Worker(
-      new URL("@/workers/embedder.worker.ts", import.meta.url),
-      {
-        type: "module",
-      },
+    this.chunkingClient.addEventListener("result", this.handleChunkResult);
+    this.embeddingClient.addEventListener(
+      "chunks",
+      this.handleEmbeddingChunksResult,
     );
-
-    this.worker.onmessage = (ev: MessageEvent<EmbedResponse>) => {
-      const res = ev.data;
-
-      switch (res.type) {
-        case "CHUNKS_RESULT": {
-          const latest = this.latestVersionByNote.get(res.noteId);
-          if (latest !== res.version) return;
-
-          options.callbacks?.onChunksResult?.(res);
-          break;
-        }
-
-        case "QUERY_RESULT": {
-          if (this.latestQueryVersion !== res.version) return;
-
-          options.callbacks?.onQueryResult?.(res);
-
-          const pending = this.pendingQuery.get(res.version);
-
-          if (pending) {
-            this.pendingQuery.delete(res.version);
-            pending.resolve(new Float32Array(res.vectorBuffer));
-          }
-          break;
-        }
-
-        case "ERROR": {
-          options.callbacks?.onError?.(res);
-          const pending = this.pendingQuery.get(this.latestQueryVersion);
-          if (pending) {
-            this.pendingQuery.delete(this.latestQueryVersion);
-            pending.reject(new Error(res.message));
-          }
-          break;
-        }
-      }
-    };
+    this.embeddingClient.addEventListener(
+      "error",
+      this.handleEmbeddingChunksError,
+    );
   }
 
-  setModel(modelId: string) {
-    this.modelId = modelId;
+  schedule(
+    data: {
+      id: string;
+      title?: string;
+      content: string;
+    },
+    delayMs = 1000,
+  ) {
+    this.chunkingClient.schedule(data, delayMs);
   }
 
-  embedChunks(noteId: string, items: ChunkItem[]) {
-    if (!this.worker) return 0;
-
-    const version = (this.latestVersionByNote.get(noteId) ?? 0) + 1;
-    this.latestVersionByNote.set(noteId, version);
-
-    this.worker.postMessage({
-      type: "EMBED_CHUNKS" as const,
-      noteId,
-      version,
-      items,
-      modelId: this.modelId,
-    });
-
-    return version;
-  }
-
-  embedQuery(text: string) {
-    if (!this.worker) return 0;
-
-    const version = this.latestQueryVersion + 1;
-    this.latestQueryVersion = version;
-
-    this.worker.postMessage({
-      type: "EMBED_QUERY" as const,
-      version,
-      text,
-      modelId: this.modelId,
-    });
-
-    return version;
-  }
-
-  embedQueryAsync(text: string, timeoutMs = 30_000): Promise<Float32Array> {
-    if (!this.worker) {
-      return Promise.reject(
-        new Error("Web Workers are not available in this environment."),
-      );
-    }
-
-    const version = this.embedQuery(text);
-
-    return new Promise<Float32Array>((resolve, reject) => {
-      this.pendingQuery.set(version, { resolve, reject });
-
-      const t = window.setTimeout(() => {
-        const pending = this.pendingQuery.get(version);
-        if (!pending) return;
-        this.pendingQuery.delete(version);
-        reject(new Error(`Embedding query timed out after ${timeoutMs}ms.`));
-      }, timeoutMs);
-
-      const origResolve = resolve;
-      const origReject = reject;
-      this.pendingQuery.set(version, {
-        resolve: (vec) => {
-          window.clearTimeout(t);
-          origResolve(vec);
-        },
-        reject: (err) => {
-          window.clearTimeout(t);
-          origReject(err);
-        },
-      });
-    });
+  flush(data: { id: string; title?: string; content: string }) {
+    this.chunkingClient.flush(data);
   }
 
   dispose() {
-    for (const [, promise] of this.pendingQuery) {
-      promise.reject(new Error("EmbedderService disposed."));
-    }
-
-    this.pendingQuery.clear();
-
-    this.worker?.terminate();
-    this.worker = null;
-
-    this.latestVersionByNote.clear();
-    this.latestQueryVersion = 0;
+    this.chunkingClient.removeEventListener("result", this.handleChunkResult);
+    this.embeddingClient.removeEventListener(
+      "chunks",
+      this.handleEmbeddingChunksResult,
+    );
+    this.chunkingClient.dispose();
+    this.embeddingClient.dispose();
   }
+
+  private performEmbeddings(
+    noteId: string,
+    items: { id: string; text: string }[],
+    contentHash: string,
+  ) {
+    //TODO: use server function/API as fallback
+    const version = this.embeddingClient.embedChunks(
+      noteId,
+      items.map((c) => ({
+        chunkId: c.id,
+        text: c.text,
+      })),
+    );
+
+    this.pendingEmbedHashByNote.set(noteId, { version, contentHash });
+  }
+
+  private handleChunkResult = async (ev: ChunkingResultEvent) => {
+    const { noteId, chunks, contentHash } = ev.detail;
+    const currentModelId = this.embeddingClient.modelId;
+
+    const noteHash = await this.db.noteHashes.get(noteId);
+
+    const upToDateChunks = noteHash?.lastIndexedHash === contentHash;
+
+    const upToDateEmbeddings =
+      noteHash?.lastEmbeddedHash === contentHash &&
+      noteHash?.lastEmbeddingModelId === currentModelId;
+
+    if (upToDateChunks && upToDateEmbeddings) return;
+
+    const prev = await this.db.chunks.where("noteId").equals(noteId).toArray();
+
+    const prevById = new Map(prev.map((c) => [c.id, c]));
+    const nextIds = new Set(chunks.map((c) => c.id));
+
+    const removedIds = prev.filter((c) => !nextIds.has(c.id)).map((c) => c.id);
+
+    const addedOrChanged = chunks.filter((c) => {
+      const p = prevById.get(c.id);
+      return !p || p.hash !== c.hash;
+    });
+
+    await this.db.transaction(
+      "rw",
+      this.db.chunks,
+      this.db.embeddings,
+      this.db.noteHashes,
+      async () => {
+        if (removedIds.length) {
+          await this.db.chunks.bulkDelete(removedIds);
+
+          await this.db.embeddings.bulkDelete(
+            removedIds.map((chunkId) => [chunkId, currentModelId] as const),
+          );
+        }
+
+        await this.db.chunks.bulkPut(chunks);
+
+        await this.db.noteHashes.put({
+          noteId,
+          lastIndexedHash: contentHash,
+          indexedAt: new Date(),
+        });
+      },
+    );
+
+    if (addedOrChanged.length) {
+      this.performEmbeddings(noteId, addedOrChanged, contentHash);
+    }
+  };
+
+  private handleEmbeddingChunksResult = async (
+    ev: EmbeddingChunksResultEvent,
+  ) => {
+    const { noteId, vectors, version } = ev.detail;
+    const currentModelId = this.embeddingClient.modelId;
+
+    await this.db.transaction(
+      "rw",
+      this.db.embeddings,
+      this.db.noteHashes,
+      async () => {
+        const pending = this.pendingEmbedHashByNote.get(noteId);
+        if (!pending || pending.version !== version) return;
+
+        const { contentHash } = pending;
+
+        await this.db.embeddings.bulkPut(
+          vectors.map((v) => ({
+            chunkId: v.chunkId,
+            noteId: noteId,
+            modelId: currentModelId,
+            vectorBuffer: v.vectorBuffer,
+            createdAt: new Date(),
+          })),
+        );
+
+        await this.db.noteHashes.put({
+          noteId,
+          lastEmbeddingModelId: currentModelId,
+          lastEmbeddedHash: contentHash,
+          embeddedAt: new Date(),
+        });
+      },
+    );
+  };
+
+  handleEmbeddingChunksError = (ev: EmbeddingErrorEvent) => {
+    const { message } = ev.detail;
+    console.error("Embedder worker error:", message);
+  };
 }
