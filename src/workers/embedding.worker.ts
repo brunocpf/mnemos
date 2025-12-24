@@ -134,9 +134,15 @@ class EmbeddingPipeline {
     if (!EmbeddingPipeline.instance || EmbeddingPipeline.modelId !== modelId) {
       await EmbeddingPipeline.instance?.dispose();
 
+      const useGpu = typeof navigator !== "undefined" && "gpu" in navigator;
+
       EmbeddingPipeline.instance = await pipeline<"feature-extraction">(
         "feature-extraction",
         modelId,
+        {
+          device: useGpu ? "webgpu" : "wasm",
+          dtype: "auto",
+        },
       );
       EmbeddingPipeline.modelId = modelId;
     }
