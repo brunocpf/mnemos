@@ -1,16 +1,15 @@
 "use client";
 
-import { Activity, useEffect, useMemo, useRef, useState } from "react";
+import { Activity, useState } from "react";
 import { toast } from "sonner";
 
-import { indexChunks } from "@/client-data/indexing-dal";
 import {
   addNote,
   updateNoteContent,
   useNoteById,
 } from "@/client-data/notes-dal";
 import { NoteEditorForm } from "@/components/note-editor-form";
-import { IndexerService } from "@/indexing/indexer-service";
+import { useEmbedderService } from "@/hooks/use-embedder-service";
 
 interface NoteViewProps {
   noteId?: string;
@@ -20,27 +19,11 @@ export function NoteView({ noteId }: NoteViewProps) {
   const [currentNoteId, setCurrentNoteId] = useState(noteId);
   const [isSaving, setIsSaving] = useState(false);
   const { data: note, isLoading } = useNoteById(currentNoteId);
-  const indexerRef = useRef<IndexerService | null>(null);
+  const embedder = useEmbedderService();
 
   const isCreatingNote = !currentNoteId;
   const noteDoesNotExist = !isLoading && !isCreatingNote && !note;
   const shouldShowEditor = !noteId || (!isLoading && !noteDoesNotExist);
-
-  const indexer = useMemo(() => {
-    const service = new IndexerService({
-      onResult: (res) => {
-        indexChunks(res.noteId, res.chunks, res.contentHash);
-      },
-    });
-    indexerRef.current = service;
-    return service;
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      indexer.dispose();
-    };
-  }, [indexer]);
 
   const handlePersist = async (
     noteIdToPersist: string | undefined,
@@ -58,7 +41,7 @@ export function NoteView({ noteId }: NoteViewProps) {
       } else if (noteIdToPersist) {
         await updateNoteContent(noteIdToPersist, value);
 
-        indexer.schedule({
+        embedder.schedule({
           id: noteIdToPersist,
           title: note?.title,
           content: value,
@@ -72,7 +55,7 @@ export function NoteView({ noteId }: NoteViewProps) {
   const onBlur = (noteId: string | undefined, content: string) => {
     if (!noteId) return;
 
-    indexer.flush({
+    embedder.flush({
       id: noteId,
       title: note?.title,
       content: content,

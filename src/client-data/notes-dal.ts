@@ -40,7 +40,6 @@ export async function restoreNote(id: Note["id"]) {
 }
 
 export async function permanentlyDeleteNote(id: Note["id"]) {
-  const chunkIds = await db.chunks.where("noteId").equals(id).primaryKeys();
   await db.transaction(
     "rw",
     db.notes,
@@ -49,7 +48,7 @@ export async function permanentlyDeleteNote(id: Note["id"]) {
     db.noteHashes,
     async () => {
       await db.chunks.where("noteId").equals(id).delete();
-      await db.embeddings.where("chunkId").anyOf(chunkIds).delete();
+      await db.embeddings.where("noteId").equals(id).delete();
       await db.noteHashes.delete(id);
       await db.notes.delete(id);
     },
