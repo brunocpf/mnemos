@@ -162,8 +162,6 @@ export class EmbeddingClient extends TypedEventTarget<{
 
     this.pendingQuery.clear();
 
-    this.worker.terminate();
-
     this.latestVersionByNote.clear();
     this.latestQueryVersion = 0;
   }

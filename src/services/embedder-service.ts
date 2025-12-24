@@ -155,7 +155,7 @@ export class EmbedderService {
         await this.db.embeddings.bulkPut(
           vectors.map((v) => ({
             chunkId: v.chunkId,
-            noteId: noteId,
+            noteId,
             modelId: currentModelId,
             vectorBuffer: v.vectorBuffer,
             createdAt: new Date(),
@@ -172,7 +172,7 @@ export class EmbedderService {
     );
   };
 
-  handleEmbeddingError = (ev: EmbeddingErrorEvent) => {
+  private handleEmbeddingError = (ev: EmbeddingErrorEvent) => {
     const { message } = ev.detail;
     console.error("Embedder worker error:", message);
   };

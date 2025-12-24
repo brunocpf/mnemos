@@ -96,6 +96,5 @@ export class ChunkingClient extends TypedEventTarget<{
     for (const timer of this.timers.values()) window.clearTimeout(timer);
 
     this.timers.clear();
-    this.worker.terminate();
   }
 }

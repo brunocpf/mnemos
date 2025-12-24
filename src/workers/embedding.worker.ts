@@ -55,10 +55,9 @@ self.onmessage = async (ev: MessageEvent<EmbedRequest>) => {
 
       const vectors: { chunkId: string; vectorBuffer: ArrayBuffer }[] = [];
 
-      for (let i = 0; i < msg.items.length; i++) {
+      for (const item of msg.items) {
         if (latestByNote.get(msg.noteId) !== msg.version) return;
 
-        const item = msg.items[i];
         const tensor = await extractor(item.text, {
           pooling: "mean",
           normalize: true,
