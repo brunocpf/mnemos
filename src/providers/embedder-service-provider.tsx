@@ -13,9 +13,14 @@ export const EmbedderServiceContext = createContext<{
     delayMs?: number,
   ) => void;
   flush: (data: { id: string; title?: string; content: string }) => void;
+  embedQuery(
+    text: string,
+    timeoutMs?: number,
+  ): Promise<Float32Array<ArrayBufferLike>>;
 }>({
   schedule: () => {},
   flush: () => {},
+  embedQuery: () => Promise.resolve(new Float32Array()),
 });
 
 export function EmbedderServiceProvider({ children }: React.PropsWithChildren) {
@@ -77,8 +82,16 @@ export function EmbedderServiceProvider({ children }: React.PropsWithChildren) {
     [],
   );
 
+  const embedQuery = useCallback((text: string, timeoutMs = 30000) => {
+    if (embedderServiceRef.current === null) {
+      throw new Error("EmbedderService is not initialized");
+    }
+
+    return embedderServiceRef.current.embedQuery(text, timeoutMs);
+  }, []);
+
   return (
-    <EmbedderServiceContext.Provider value={{ schedule, flush }}>
+    <EmbedderServiceContext.Provider value={{ schedule, flush, embedQuery }}>
       {children}
     </EmbedderServiceContext.Provider>
   );

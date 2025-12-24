@@ -2,7 +2,6 @@
 
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
-import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import { Markdown } from "@tiptap/markdown";
@@ -13,7 +12,6 @@ interface RichTextEditorProps {
   value?: string;
   onChange?: (value: string) => void;
   onBlur?: (event: FocusEvent) => void;
-  placeholder?: string;
   autoFocus?: boolean;
 }
 
@@ -21,7 +19,6 @@ export function RichTextEditor({
   value,
   onChange,
   onBlur,
-  placeholder,
   autoFocus,
 }: RichTextEditorProps) {
   const editor = useEditor({
@@ -51,9 +48,6 @@ export function RichTextEditor({
         inline: false,
         allowBase64: true,
       }),
-      Placeholder.configure({
-        placeholder,
-      }),
     ],
     content: value,
     contentType: "markdown",
@@ -70,7 +64,7 @@ export function RichTextEditor({
       onBlur?.(event);
     },
     parseOptions: {
-      preserveWhitespace: "full",
+      preserveWhitespace: false,
     },
   });
 

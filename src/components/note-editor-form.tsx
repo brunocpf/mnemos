@@ -57,7 +57,6 @@ export function NoteEditorForm({
                 value={field.state.value}
                 onChange={field.handleChange}
                 onBlur={field.handleBlur}
-                placeholder="Write your note here..."
                 autoFocus={initialContent === ""}
               />
               {isInvalid && <FieldError errors={field.state.meta.errors} />}

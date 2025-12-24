@@ -48,6 +48,10 @@ export class EmbedderService {
     this.chunkingClient.flush(data);
   }
 
+  async embedQuery(text: string, timeoutMs = 30000) {
+    return this.embeddingClient.embedQueryAsync(text, timeoutMs);
+  }
+
   dispose() {
     this.chunkingClient.removeEventListener("result", this.handleChunkResult);
     this.embeddingClient.removeEventListener(
