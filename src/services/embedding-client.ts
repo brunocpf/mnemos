@@ -6,7 +6,7 @@ import type {
   EmbedResponse,
 } from "@/workers/embedding.worker";
 
-type EmmbeddingCallbacks = {
+type EmbeddingCallbacks = {
   onChunksResult?: (response: Omit<EmbedChunksResponse, "type">) => void;
   onQueryResult?: (response: Omit<EmbedQueryResponse, "type">) => void;
   onError?: (response: Omit<EmbedErrorResponse, "type">) => void;
@@ -40,7 +40,7 @@ export class EmbeddingClient extends TypedEventTarget<{
 
   constructor(
     private worker: Worker,
-    options: { modelId?: string; callbacks?: EmmbeddingCallbacks } = {},
+    options: { modelId?: string; callbacks?: EmbeddingCallbacks } = {},
   ) {
     super();
 

@@ -30,10 +30,7 @@ export class EmbedderService {
       "chunks",
       this.handleEmbeddingChunksResult,
     );
-    this.embeddingClient.addEventListener(
-      "error",
-      this.handleEmbeddingChunksError,
-    );
+    this.embeddingClient.addEventListener("error", this.handleEmbeddingError);
   }
 
   schedule(
@@ -57,6 +54,10 @@ export class EmbedderService {
       "chunks",
       this.handleEmbeddingChunksResult,
     );
+    this.embeddingClient.removeEventListener(
+      "error",
+      this.handleEmbeddingError,
+    );
     this.chunkingClient.dispose();
     this.embeddingClient.dispose();
   }
@@ -66,7 +67,9 @@ export class EmbedderService {
     items: { id: string; text: string }[],
     contentHash: string,
   ) {
-    //TODO: use server function/API as fallback
+    // TODO: Use a server function/API as a fallback embedding mechanism when
+    // the client-side embedding pipeline (e.g., WebWorkers or local model loading)
+    // is unavailable or fails, so embeddings can still be generated remotely.
     const version = this.embeddingClient.embedChunks(
       noteId,
       items.map((c) => ({
@@ -169,7 +172,7 @@ export class EmbedderService {
     );
   };
 
-  handleEmbeddingChunksError = (ev: EmbeddingErrorEvent) => {
+  handleEmbeddingError = (ev: EmbeddingErrorEvent) => {
     const { message } = ev.detail;
     console.error("Embedder worker error:", message);
   };
