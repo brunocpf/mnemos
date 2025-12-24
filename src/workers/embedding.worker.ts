@@ -138,13 +138,6 @@ class EmbeddingPipeline {
       EmbeddingPipeline.instance = await pipeline<"feature-extraction">(
         "feature-extraction",
         modelId,
-        {
-          progress_callback: (progress) => {
-            console.log(
-              `Loading embedding model (${modelId}): ${progress.status}`,
-            );
-          },
-        },
       );
       EmbeddingPipeline.modelId = modelId;
     }
