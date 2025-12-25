@@ -32,8 +32,12 @@ export function NoteList({
   const searchNotes = useMemo(() => {
     if (!trimmedQuery) return [];
     return matches
-      .map((match) => noteMap.get(match.noteId))
-      .filter((note): note is Note => Boolean(note));
+      .map((match) => {
+        const note = noteMap.get(match.noteId);
+        if (!note) return null;
+        return { note, match } as NoteEntry;
+      })
+      .filter((entry): entry is NoteEntry => Boolean(entry));
   }, [matches, noteMap, trimmedQuery]);
 
   if (isLoading) {
@@ -73,7 +77,7 @@ export function NoteList({
       );
     }
 
-    return <NotesList notes={searchNotes} />;
+    return <NotesList entries={searchNotes} />;
   }
 
   if (!notes?.length) {
@@ -82,15 +86,22 @@ export function NoteList({
     );
   }
 
-  return <NotesList notes={notes} />;
+  const defaultEntries = notes?.map((note) => ({ note })) ?? [];
+
+  return <NotesList entries={defaultEntries} />;
 }
 
-function NotesList({ notes }: { notes: Note[] }) {
+type NoteEntry = {
+  note: Note;
+  match?: SemanticMatch;
+};
+
+function NotesList({ entries }: { entries: NoteEntry[] }) {
   return (
     <ul className="space-y-3">
-      {notes.map((note) => (
+      {entries.map(({ note, match }) => (
         <li key={note.id}>
-          <NoteListItem note={note} />
+          <NoteListItem note={note} match={match} />
         </li>
       ))}
     </ul>

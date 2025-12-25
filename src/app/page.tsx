@@ -12,6 +12,7 @@ import {
 
 import { ActionFooter } from "@/components/action-footer";
 import { NoteList } from "@/components/note-list";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useSemanticSearch } from "@/hooks/use-semantic-search";
 
 export default function Home() {
@@ -52,9 +53,10 @@ export default function Home() {
   );
 
   const deferredSearchQuery = useDeferredValue(searchQuery);
+  const debouncedSearchQuery = useDebounce(deferredSearchQuery, 300);
 
   const { matches, isSearching, error } =
-    useSemanticSearch(deferredSearchQuery);
+    useSemanticSearch(debouncedSearchQuery);
 
   return (
     <div className="relative pb-32">
@@ -64,7 +66,7 @@ export default function Home() {
             Your Notes
           </p>
           <NoteList
-            searchQuery={searchQuery}
+            searchQuery={debouncedSearchQuery}
             matches={matches}
             isSearching={isSearching}
             error={error}

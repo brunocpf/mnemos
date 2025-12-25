@@ -4,18 +4,30 @@ import { useEffect, useRef, useState } from "react";
 
 import { db } from "@/client-data/db";
 import { dotProduct } from "@/lib/dot-product";
+import {
+  createHighlightSnippet,
+  getHighlightTerms,
+  type SearchHighlightPayload,
+} from "@/lib/search-highlight";
 import { topKPush } from "@/lib/top-k";
 import { useEmbedderService } from "@/providers/embedder-service-provider";
 
-const DEFAULT_TOP_K = 12;
-const DEFAULT_OVERSAMPLING_FACTOR = 2;
+const DEFAULT_TOP_K = process.env.NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K
+  ? parseInt(process.env.NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K, 10)
+  : 12;
+const DEFAULT_OVERSAMPLING_FACTOR = process.env
+  .NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_OVERSAMPLING_FACTOR
+  ? parseInt(
+      process.env.NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_OVERSAMPLING_FACTOR,
+      10,
+    )
+  : 2;
 
-export type SemanticMatch = {
-  noteId: string;
-  chunkId: string;
-  excerpt: string;
+export type SemanticMatch = SearchHighlightPayload & {
   score: number;
 };
+
+type Candidate = Pick<SemanticMatch, "noteId" | "chunkId" | "score">;
 
 export type UseSemanticSearchOptions = {
   topK?: number;
@@ -47,6 +59,8 @@ export function useSemanticSearch(
       return;
     }
 
+    const highlightTerms = getHighlightTerms(normalizedQuery);
+
     let cancelled = false;
     const searchId = latestSearchRef.current + 1;
     latestSearchRef.current = searchId;
@@ -67,7 +81,7 @@ export function useSemanticSearch(
 
         if (cancelled || latestSearchRef.current !== searchId) return;
 
-        const chunkCandidates: Omit<SemanticMatch, "excerpt">[] = [];
+        const chunkCandidates: Candidate[] = [];
 
         for (const embedding of embeddings) {
           if (cancelled || latestSearchRef.current !== searchId) return;
@@ -98,19 +112,8 @@ export function useSemanticSearch(
           );
         }
 
-        const candidatesWithExcerpts = await Promise.all(
-          chunkCandidates.map(async (candidate) => {
-            const chunk = await db.chunks.get(candidate.chunkId);
-            const excerpt = chunk?.text.slice(0, 200) ?? "";
-            return {
-              ...candidate,
-              excerpt,
-            };
-          }),
-        );
-
-        const bestByNote = new Map<string, SemanticMatch>();
-        for (const candidate of candidatesWithExcerpts) {
+        const bestByNote = new Map<string, Candidate>();
+        for (const candidate of chunkCandidates) {
           const prev = bestByNote.get(candidate.noteId);
           if (!prev || candidate.score > prev.score) {
             bestByNote.set(candidate.noteId, candidate);
@@ -121,9 +124,38 @@ export function useSemanticSearch(
           .sort((a, b) => b.score - a.score)
           .slice(0, topK);
 
+        const chunkIds = orderedMatches.map((match) => match.chunkId);
+        const chunks = await db.chunks.bulkGet(chunkIds);
+        const chunkTextById = new Map<string, string>();
+        chunks.forEach((chunk, index) => {
+          if (chunk) {
+            chunkTextById.set(chunkIds[index], chunk.text ?? "");
+          }
+        });
+
+        const enrichedMatches = orderedMatches.map((match) => {
+          const chunkText = chunkTextById.get(match.chunkId) ?? "";
+          const snippetResult = createHighlightSnippet(
+            chunkText,
+            highlightTerms,
+          );
+
+          return {
+            ...match,
+            snippet:
+              snippetResult.snippet.length > 0
+                ? snippetResult.snippet
+                : chunkText.slice(0, 240),
+            highlights: snippetResult.highlights,
+            leadingEllipsis: snippetResult.leadingEllipsis,
+            trailingEllipsis: snippetResult.trailingEllipsis,
+            terms: highlightTerms,
+          } satisfies SemanticMatch;
+        });
+
         if (cancelled || latestSearchRef.current !== searchId) return;
 
-        setMatches(orderedMatches);
+        setMatches(enrichedMatches);
       } catch (err) {
         if (cancelled || latestSearchRef.current !== searchId) return;
 
@@ -144,7 +176,7 @@ export function useSemanticSearch(
     return () => {
       cancelled = true;
     };
-  }, [embedQuery, getModelId, oversamplingFactor, query, topK]);
+  }, [query, embedQuery, getModelId, oversamplingFactor, topK]);
 
   return {
     matches,

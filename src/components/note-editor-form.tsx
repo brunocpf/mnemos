@@ -14,6 +14,7 @@ interface NoteEditorFormProps {
   initialContent: string;
   onChange?: (noteId: string | undefined, value: string) => void;
   onBlur?: (noteId: string | undefined, content: string) => void;
+  highlightTerms?: string[];
 }
 
 export function NoteEditorForm({
@@ -21,6 +22,7 @@ export function NoteEditorForm({
   initialContent,
   onChange,
   onBlur,
+  highlightTerms,
 }: NoteEditorFormProps) {
   const form = useForm({
     defaultValues: { content: initialContent },
@@ -58,6 +60,7 @@ export function NoteEditorForm({
                 onChange={field.handleChange}
                 onBlur={field.handleBlur}
                 autoFocus={initialContent === ""}
+                highlightTerms={highlightTerms}
               />
               {isInvalid && <FieldError errors={field.state.meta.errors} />}
             </Field>

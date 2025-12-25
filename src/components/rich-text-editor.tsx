@@ -7,12 +7,16 @@ import Underline from "@tiptap/extension-underline";
 import { Markdown } from "@tiptap/markdown";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
+
+import { SearchHighlightExtension } from "@/components/rich-text-editor/search-highlight-extension";
 
 interface RichTextEditorProps {
   value?: string;
   onChange?: (value: string) => void;
   onBlur?: (event: FocusEvent) => void;
   autoFocus?: boolean;
+  highlightTerms?: string[];
 }
 
 export function RichTextEditor({
@@ -20,6 +24,7 @@ export function RichTextEditor({
   onChange,
   onBlur,
   autoFocus,
+  highlightTerms,
 }: RichTextEditorProps) {
   const editor = useEditor({
     autofocus: autoFocus,
@@ -48,6 +53,7 @@ export function RichTextEditor({
         inline: false,
         allowBase64: true,
       }),
+      SearchHighlightExtension.configure({ terms: [] }),
     ],
     content: value,
     contentType: "markdown",
@@ -67,6 +73,22 @@ export function RichTextEditor({
       preserveWhitespace: false,
     },
   });
+
+  useEffect(() => {
+    if (!editor) return;
+    const normalized =
+      highlightTerms?.map((term) => term.toLowerCase()).filter(Boolean) ?? [];
+
+    if (normalized.length) {
+      editor.commands.setSearchHighlights(normalized);
+    } else {
+      editor.commands.clearSearchHighlights();
+    }
+
+    return () => {
+      editor.commands.clearSearchHighlights();
+    };
+  }, [editor, highlightTerms]);
 
   return <EditorContent editor={editor} />;
 }
