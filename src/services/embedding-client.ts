@@ -28,14 +28,6 @@ export class EmbeddingClient extends TypedEventTarget<{
   private latestVersionByNote = new Map<string, number>();
   private latestQueryVersion = 0;
 
-  private pendingQuery = new Map<
-    number,
-    {
-      resolve: (vec: Float32Array) => void;
-      reject: (err: Error) => void;
-    }
-  >();
-
   public readonly modelId: string;
 
   constructor(
@@ -71,12 +63,6 @@ export class EmbeddingClient extends TypedEventTarget<{
             new CustomEvent("query", { detail: res }),
           );
 
-          const pending = this.pendingQuery.get(res.version);
-
-          if (pending) {
-            this.pendingQuery.delete(res.version);
-            pending.resolve(new Float32Array(res.vectorBuffer));
-          }
           break;
         }
 
@@ -87,11 +73,6 @@ export class EmbeddingClient extends TypedEventTarget<{
             new CustomEvent("error", { detail: res }),
           );
 
-          const pending = this.pendingQuery.get(this.latestQueryVersion);
-          if (pending) {
-            this.pendingQuery.delete(this.latestQueryVersion);
-            pending.reject(new Error(res.message));
-          }
           break;
         }
       }
@@ -127,41 +108,7 @@ export class EmbeddingClient extends TypedEventTarget<{
     return version;
   }
 
-  embedQueryAsync(text: string, timeoutMs = 30_000): Promise<Float32Array> {
-    const version = this.embedQuery(text);
-
-    return new Promise<Float32Array>((resolve, reject) => {
-      this.pendingQuery.set(version, { resolve, reject });
-
-      const t = window.setTimeout(() => {
-        const pending = this.pendingQuery.get(version);
-        if (!pending) return;
-        this.pendingQuery.delete(version);
-        reject(new Error(`Embedding query timed out after ${timeoutMs}ms.`));
-      }, timeoutMs);
-
-      const origResolve = resolve;
-      const origReject = reject;
-      this.pendingQuery.set(version, {
-        resolve: (vec) => {
-          window.clearTimeout(t);
-          origResolve(vec);
-        },
-        reject: (err) => {
-          window.clearTimeout(t);
-          origReject(err);
-        },
-      });
-    });
-  }
-
   dispose() {
-    for (const [, promise] of this.pendingQuery) {
-      promise.reject(new Error("EmbedderService disposed."));
-    }
-
-    this.pendingQuery.clear();
-
     this.latestVersionByNote.clear();
     this.latestQueryVersion = 0;
   }

@@ -1,39 +1,35 @@
 import { Settings, settingsSchema } from "@/client-data/settings";
 
 export class SettingsService {
+  static readonly STORAGE_KEY = "mnemos:settings";
   private readonly defaultSettings: Settings = settingsSchema.parse({});
   private cachedSettings: Settings | null = null;
-  private cachedSettingsJson: string | null = null;
+  private staleCache = true;
 
   constructor(private localStorage: Storage) {}
 
   get settings(): Settings {
-    const settingsJson = this.localStorage.getItem("settings");
-
-    if (
-      settingsJson !== null &&
-      this.cachedSettingsJson === settingsJson &&
-      this.cachedSettings !== null
-    ) {
+    if (!this.staleCache && this.cachedSettings !== null) {
       return this.cachedSettings;
     }
 
-    let validatedSettings: Settings;
+    let validatedSettings = this.defaultSettings;
+    const settingsJson = this.localStorage.getItem(SettingsService.STORAGE_KEY);
 
     if (settingsJson) {
       try {
         const parsed = JSON.parse(settingsJson);
         validatedSettings = settingsSchema.parse(parsed);
+        this.cachedSettings = validatedSettings;
       } catch {
         validatedSettings = this.defaultSettings;
+        this.cachedSettings = this.defaultSettings;
       }
     } else {
-      validatedSettings = this.defaultSettings;
+      this.cachedSettings = this.defaultSettings;
     }
 
-    this.cachedSettings = validatedSettings;
-    this.cachedSettingsJson = JSON.stringify(validatedSettings);
-
+    this.staleCache = false;
     return validatedSettings;
   }
 
@@ -48,11 +44,17 @@ export class SettingsService {
       [key]: value,
     };
 
-    const validatedSettings = settingsSchema.parse(updatedSettings);
-    const newSettingsJson = JSON.stringify(validatedSettings);
+    const parsedSettings = settingsSchema.safeParse(updatedSettings);
+
+    const validatedSettings: Settings = parsedSettings.success
+      ? parsedSettings.data
+      : this.defaultSettings;
 
     this.cachedSettings = validatedSettings;
-    this.cachedSettingsJson = newSettingsJson;
-    this.localStorage.setItem("settings", newSettingsJson);
+    this.staleCache = false;
+    this.localStorage.setItem(
+      SettingsService.STORAGE_KEY,
+      JSON.stringify(validatedSettings),
+    );
   }
 }

@@ -10,6 +10,7 @@ import {
   type EmbeddingChunksResultEvent,
   type EmbeddingErrorEvent,
   EmbeddingClient,
+  EmbeddingQueryResultEvent,
 } from "@/services/embedding-client";
 import { SettingsService } from "@/services/settings-service";
 import type { EmbedRequest } from "@/workers/embedding.worker";
@@ -19,6 +20,14 @@ export class EmbedderService {
     string,
     { version: number; contentHash: string }
   >;
+  private pendingQuery = new Map<
+    number,
+    {
+      resolve: (vec: Float32Array) => void;
+      reject: (err: Error) => void;
+    }
+  >();
+  private latestQueryVersion = 0;
 
   constructor(
     private db: MnemosDb,
@@ -35,6 +44,10 @@ export class EmbedderService {
     this.embeddingClient.addEventListener(
       "chunks",
       this.handleEmbeddingChunksResult,
+    );
+    this.embeddingClient.addEventListener(
+      "query",
+      this.handleEmbeddingQueryResult,
     );
     this.embeddingClient.addEventListener("error", this.handleEmbeddingError);
   }
@@ -58,15 +71,50 @@ export class EmbedderService {
     this.chunkingClient.flush(data);
   }
 
-  async embedQuery(text: string, timeoutMs = 30000) {
-    return this.embeddingClient.embedQueryAsync(text, timeoutMs);
+  embedQuery(text: string, timeoutMs = 30_000): Promise<Float32Array> {
+    const version = this.embeddingClient.embedQuery(text);
+    this.latestQueryVersion = version;
+
+    return new Promise<Float32Array>((resolve, reject) => {
+      this.pendingQuery.set(version, { resolve, reject });
+
+      const t = window.setTimeout(() => {
+        const pending = this.pendingQuery.get(version);
+        if (!pending) return;
+        this.pendingQuery.delete(version);
+        reject(new Error(`Embedding query timed out after ${timeoutMs}ms.`));
+      }, timeoutMs);
+
+      const origResolve = resolve;
+      const origReject = reject;
+      this.pendingQuery.set(version, {
+        resolve: (vec) => {
+          window.clearTimeout(t);
+          origResolve(vec);
+        },
+        reject: (err) => {
+          window.clearTimeout(t);
+          origReject(err);
+        },
+      });
+    });
   }
 
   dispose() {
+    for (const [, promise] of this.pendingQuery) {
+      promise.reject(new Error("EmbedderService disposed."));
+    }
+
+    this.pendingQuery.clear();
+
     this.chunkingClient.removeEventListener("result", this.handleChunkResult);
     this.embeddingClient.removeEventListener(
       "chunks",
       this.handleEmbeddingChunksResult,
+    );
+    this.embeddingClient.removeEventListener(
+      "query",
+      this.handleEmbeddingQueryResult,
     );
     this.embeddingClient.removeEventListener(
       "error",
@@ -90,7 +138,10 @@ export class EmbedderService {
     this.pendingEmbedHashByNote.set(noteId, { version, contentHash });
   }
 
-  private async performServerSideEmbeddings(request: EmbedRequest) {
+  private async performServerSideEmbeddings(
+    request: EmbedRequest,
+    latestQueryVersion: number,
+  ) {
     switch (request.type) {
       case "EMBED_CHUNKS": {
         const { noteId, items, version } = request;
@@ -106,7 +157,10 @@ export class EmbedderService {
           new CustomEvent("chunks", {
             detail: {
               noteId,
-              vectors,
+              vectors: vectors.map((v) => ({
+                chunkId: v.chunkId,
+                vectorBuffer: Float32Array.from(v.vectorArray).buffer,
+              })),
               version,
             },
           }),
@@ -114,18 +168,32 @@ export class EmbedderService {
         break;
       }
       case "EMBED_QUERY": {
-        const { version, text } = request;
-        const vector = await embedQuery(text);
+        try {
+          const { version, text } = request;
+          const vector = await embedQuery(text);
 
-        this.embeddingClient.dispatchTypedEvent(
-          "query",
-          new CustomEvent("query", {
-            detail: {
-              version,
-              vectorBuffer: vector.buffer,
-            },
-          }),
-        );
+          this.embeddingClient.dispatchTypedEvent(
+            "query",
+            new CustomEvent("query", {
+              detail: {
+                version,
+                vectorBuffer: Float32Array.from(vector).buffer,
+              },
+            }),
+          );
+          break;
+        } catch (err) {
+          const pending = this.pendingQuery.get(latestQueryVersion);
+
+          const errorMessage =
+            err instanceof Error
+              ? err.message
+              : "An unknown error occurred during server-side embedding.";
+          if (pending) {
+            this.pendingQuery.delete(latestQueryVersion);
+            pending.reject(new Error(errorMessage));
+          }
+        }
 
         break;
       }
@@ -223,12 +291,26 @@ export class EmbedderService {
     );
   };
 
+  private handleEmbeddingQueryResult = async (
+    ev: EmbeddingQueryResultEvent,
+  ) => {
+    const { version, vectorBuffer } = ev.detail;
+
+    const pending = this.pendingQuery.get(version);
+    if (pending) {
+      this.pendingQuery.delete(version);
+      pending.resolve(new Float32Array(vectorBuffer));
+    }
+  };
+
   private handleEmbeddingError = async (ev: EmbeddingErrorEvent) => {
     const { message, request } = ev.detail;
     console.error("Embedder worker error:", message);
+    const latestQueryVersion = this.latestQueryVersion;
 
     await this.db.localEmbeddingErrors.add({
       id: crypto.randomUUID(),
+      type: request.type,
       message,
       timestamp: new Date(),
     });
@@ -240,60 +322,52 @@ export class EmbedderService {
     );
 
     if (allowFallback && navigator.onLine) {
-      this.performServerSideEmbeddings(request);
+      this.performServerSideEmbeddings(request, latestQueryVersion);
+
       if (!dismissEmbeddingErrorMessages) {
-        toast.error(
-          "An error has occurred while indexing notes on your device.",
-          {
-            description: "Falling back to remote indexing",
-            action: {
-              label: "Dismiss",
-              onClick: () => {
-                this.settingsService.setSetting(
-                  "dismissEmbeddingErrorMessages",
-                  true,
-                );
-                toast.info(
-                  "You will no longer see error messages about local indexing failures.",
-                  {
-                    position: "top-center",
-                  },
-                );
-              },
-            },
-          },
-        );
-      }
-    } else {
-      toast.error(
-        "An error has occurred while indexing notes on your device.",
-        {
-          description: navigator.onLine
-            ? "You may lose search functionality. You can enable a fallback to remote indexing (requires internet connection)."
-            : "You may lose search functionality.",
+        toast.error("An error has occurred while indexing on your device.", {
+          description: "Falling back to remote indexing",
+          dismissible: true,
           action: {
-            props: {
-              disabled: !navigator.onLine,
-            },
-            label: navigator.onLine
-              ? "Enable Fallback"
-              : "Fallback Unavailable",
+            label: "Dismiss",
             onClick: () => {
-              this.performServerSideEmbeddings(request);
               this.settingsService.setSetting(
-                "embeddingHost",
-                "allow-fallback",
+                "dismissEmbeddingErrorMessages",
+                true,
               );
               toast.info(
-                "Fallback enabled. If an error occurs, indexing will be performed remotely. You can change this setting later.",
+                "You will no longer see error messages about local indexing failures.",
                 {
                   position: "top-center",
                 },
               );
             },
           },
+        });
+      }
+    } else {
+      toast.error("An error has occurred while indexing on your device.", {
+        description: navigator.onLine
+          ? "You may lose search functionality. You can enable a fallback to remote indexing (requires internet connection)."
+          : "You may lose search functionality.",
+        dismissible: true,
+        action: {
+          props: {
+            disabled: !navigator.onLine,
+          },
+          label: navigator.onLine ? "Enable Fallback" : "Fallback Unavailable",
+          onClick: () => {
+            this.performServerSideEmbeddings(request, latestQueryVersion);
+            this.settingsService.setSetting("embeddingHost", "allow-fallback");
+            toast.info(
+              "Fallback enabled. If an error occurs, indexing will be performed remotely. You can change this setting later.",
+              {
+                position: "top-center",
+              },
+            );
+          },
         },
-      );
+      });
     }
   };
 }

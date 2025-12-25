@@ -143,7 +143,7 @@ class EmbeddingPipeline {
         modelId,
         {
           device: useGpu ? "webgpu" : "wasm",
-          dtype: "auto",
+          dtype: "fp32",
         },
       );
       EmbeddingPipeline.modelId = modelId;
