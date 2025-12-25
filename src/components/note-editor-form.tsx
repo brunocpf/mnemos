@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import z from "zod";
+import { z } from "zod";
 
 import { noteSchema } from "@/client-data/note";
 import { RichTextEditor } from "@/components/rich-text-editor";

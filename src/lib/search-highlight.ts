@@ -1,5 +1,5 @@
 import markdownToTxt from "markdown-to-txt";
-import z from "zod";
+import { z } from "zod";
 
 const highlightRangeSchema = z.object({
   start: z.number().min(0),

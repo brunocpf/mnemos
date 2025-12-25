@@ -10,7 +10,7 @@ import markdownToTxt from "markdown-to-txt";
 import Link from "next/link";
 import { Activity, useMemo } from "react";
 import { toast } from "sonner";
-import z from "zod";
+import { z } from "zod";
 
 import { Note, noteSchema } from "@/client-data/note";
 import {

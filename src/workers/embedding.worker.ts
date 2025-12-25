@@ -16,7 +16,7 @@ type EmbedQueryRequest = {
   text: string;
 };
 
-type EmbedRequest = EmbedChunksRequest | EmbedQueryRequest;
+export type EmbedRequest = EmbedChunksRequest | EmbedQueryRequest;
 
 export type EmbedChunksResponse = {
   type: "CHUNKS_RESULT";
@@ -33,6 +33,7 @@ export type EmbedQueryResponse = {
 
 export type EmbedErrorResponse = {
   type: "ERROR";
+  request: EmbedRequest;
   message: string;
 };
 
@@ -115,11 +116,12 @@ self.onmessage = async (ev: MessageEvent<EmbedRequest>) => {
     }
   } catch (e: unknown) {
     if (e instanceof Error) {
-      postMessage({ type: "ERROR", message: e.message });
+      postMessage({ type: "ERROR", message: e.message, request: msg });
     } else {
       postMessage({
         type: "ERROR",
         message: "Unknown error in embedding worker",
+        request: msg,
       });
       console.error("Unknown error in embedding worker:", e);
     }

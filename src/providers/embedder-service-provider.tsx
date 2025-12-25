@@ -13,6 +13,7 @@ import { db } from "@/client-data/db";
 import { ChunkingClient } from "@/services/chunking-client";
 import { EmbedderService } from "@/services/embedder-service";
 import { EmbeddingClient } from "@/services/embedding-client";
+import { SettingsService } from "@/services/settings-service";
 
 export const EmbedderServiceContext = createContext<{
   schedule: (
@@ -55,10 +56,12 @@ export function EmbedderServiceProvider({ children }: React.PropsWithChildren) {
     const embeddingClient = new EmbeddingClient(embeddingWorker, {
       modelId: process.env.NEXT_PUBLIC_CURRENT_EMBEDDING_MODEL_ID,
     });
+    const settingsService = new SettingsService(localStorage);
 
     let disposed = false;
     const newEmbedderService = new EmbedderService(
       db,
+      settingsService,
       chunkingClient,
       embeddingClient,
     );

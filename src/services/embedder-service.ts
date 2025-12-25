@@ -1,13 +1,18 @@
+import { toast } from "sonner";
+
 import { MnemosDb } from "@/client-data/db";
+import { embed, embedQuery } from "@/server-actions/embed";
 import {
+  type ChunkingResultEvent,
   ChunkingClient,
-  ChunkingResultEvent,
 } from "@/services/chunking-client";
 import {
-  EmbeddingChunksResultEvent,
+  type EmbeddingChunksResultEvent,
+  type EmbeddingErrorEvent,
   EmbeddingClient,
-  EmbeddingErrorEvent,
 } from "@/services/embedding-client";
+import { SettingsService } from "@/services/settings-service";
+import type { EmbedRequest } from "@/workers/embedding.worker";
 
 export class EmbedderService {
   private pendingEmbedHashByNote: Map<
@@ -17,6 +22,7 @@ export class EmbedderService {
 
   constructor(
     private db: MnemosDb,
+    private settingsService: SettingsService,
     private chunkingClient: ChunkingClient,
     private embeddingClient: EmbeddingClient,
   ) {
@@ -68,14 +74,11 @@ export class EmbedderService {
     );
   }
 
-  private performEmbeddings(
+  private async performEmbeddings(
     noteId: string,
     items: { id: string; text: string }[],
     contentHash: string,
   ) {
-    // TODO: Use a server function/API as a fallback embedding mechanism when
-    // the client-side embedding pipeline (e.g., WebWorkers or local model loading)
-    // is unavailable or fails, so embeddings can still be generated remotely.
     const version = this.embeddingClient.embedChunks(
       noteId,
       items.map((c) => ({
@@ -85,6 +88,48 @@ export class EmbedderService {
     );
 
     this.pendingEmbedHashByNote.set(noteId, { version, contentHash });
+  }
+
+  private async performServerSideEmbeddings(request: EmbedRequest) {
+    switch (request.type) {
+      case "EMBED_CHUNKS": {
+        const { noteId, items, version } = request;
+        const vectors = await embed(
+          items.map((item) => ({
+            chunkId: item.chunkId,
+            text: item.text,
+          })),
+        );
+
+        this.embeddingClient.dispatchTypedEvent(
+          "chunks",
+          new CustomEvent("chunks", {
+            detail: {
+              noteId,
+              vectors,
+              version,
+            },
+          }),
+        );
+        break;
+      }
+      case "EMBED_QUERY": {
+        const { version, text } = request;
+        const vector = await embedQuery(text);
+
+        this.embeddingClient.dispatchTypedEvent(
+          "query",
+          new CustomEvent("query", {
+            detail: {
+              version,
+              vectorBuffer: vector.buffer,
+            },
+          }),
+        );
+
+        break;
+      }
+    }
   }
 
   private handleChunkResult = async (ev: ChunkingResultEvent) => {
@@ -138,7 +183,7 @@ export class EmbedderService {
     );
 
     if (addedOrChanged.length) {
-      this.performEmbeddings(noteId, addedOrChanged, contentHash);
+      await this.performEmbeddings(noteId, addedOrChanged, contentHash);
     }
   };
 
@@ -178,8 +223,77 @@ export class EmbedderService {
     );
   };
 
-  private handleEmbeddingError = (ev: EmbeddingErrorEvent) => {
-    const { message } = ev.detail;
+  private handleEmbeddingError = async (ev: EmbeddingErrorEvent) => {
+    const { message, request } = ev.detail;
     console.error("Embedder worker error:", message);
+
+    await this.db.localEmbeddingErrors.add({
+      id: crypto.randomUUID(),
+      message,
+      timestamp: new Date(),
+    });
+
+    const allowFallback =
+      this.settingsService.getSetting("embeddingHost") === "allow-fallback";
+    const dismissEmbeddingErrorMessages = this.settingsService.getSetting(
+      "dismissEmbeddingErrorMessages",
+    );
+
+    if (allowFallback && navigator.onLine) {
+      this.performServerSideEmbeddings(request);
+      if (!dismissEmbeddingErrorMessages) {
+        toast.error(
+          "An error has occurred while indexing notes on your device.",
+          {
+            description: "Falling back to remote indexing",
+            action: {
+              label: "Dismiss",
+              onClick: () => {
+                this.settingsService.setSetting(
+                  "dismissEmbeddingErrorMessages",
+                  true,
+                );
+                toast.info(
+                  "You will no longer see error messages about local indexing failures.",
+                  {
+                    position: "top-center",
+                  },
+                );
+              },
+            },
+          },
+        );
+      }
+    } else {
+      toast.error(
+        "An error has occurred while indexing notes on your device.",
+        {
+          description: navigator.onLine
+            ? "You may lose search functionality. You can enable a fallback to remote indexing (requires internet connection)."
+            : "You may lose search functionality.",
+          action: {
+            props: {
+              disabled: !navigator.onLine,
+            },
+            label: navigator.onLine
+              ? "Enable Fallback"
+              : "Fallback Unavailable",
+            onClick: () => {
+              this.performServerSideEmbeddings(request);
+              this.settingsService.setSetting(
+                "embeddingHost",
+                "allow-fallback",
+              );
+              toast.info(
+                "Fallback enabled. If an error occurs, indexing will be performed remotely. You can change this setting later.",
+                {
+                  position: "top-center",
+                },
+              );
+            },
+          },
+        },
+      );
+    }
   };
 }
