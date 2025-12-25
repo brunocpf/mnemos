@@ -53,10 +53,6 @@ export function useSemanticSearch(
 
     async function runSearch() {
       setIsSearching(true);
-      console.log("Running semantic search for query:", {
-        normalizedQuery,
-        timestamp: new Date(),
-      });
       setError(null);
 
       try {
@@ -139,10 +135,6 @@ export function useSemanticSearch(
         setError(error);
       } finally {
         if (cancelled || latestSearchRef.current !== searchId) return;
-        console.log("Semantic search completed or cancelled for query:", {
-          normalizedQuery,
-          timestamp: new Date(),
-        });
         setIsSearching(false);
       }
     }
