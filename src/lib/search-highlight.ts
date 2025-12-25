@@ -1,6 +1,9 @@
 import markdownToTxt from "markdown-to-txt";
 import { z } from "zod";
 
+const WORD_CHAR_REGEX = /[\p{L}\p{N}]/u;
+const WHITESPACE_REGEX = /\s/;
+
 const highlightRangeSchema = z.object({
   start: z.number().min(0),
   end: z.number().min(0),
@@ -94,9 +97,26 @@ export function createHighlightSnippet(
     }
   }
 
-  const snippetStart = merged.length
+  let snippetStart = merged.length
     ? Math.max(0, merged[0].start - Math.floor(maxLength * 0.25))
     : 0;
+
+  const startsInsideWord =
+    snippetStart > 0 &&
+    WORD_CHAR_REGEX.test(content[snippetStart - 1] ?? "") &&
+    WORD_CHAR_REGEX.test(content[snippetStart] ?? "");
+
+  if (startsInsideWord) {
+    let boundary = snippetStart;
+    while (
+      boundary > 0 &&
+      !WHITESPACE_REGEX.test(content[boundary - 1] ?? "")
+    ) {
+      boundary -= 1;
+    }
+    snippetStart = boundary;
+  }
+
   const snippetEnd = Math.min(content.length, snippetStart + maxLength);
 
   const snippet = content.slice(snippetStart, snippetEnd);

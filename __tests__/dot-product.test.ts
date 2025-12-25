@@ -12,7 +12,7 @@ describe("dotProduct", () => {
   it("handles negative values", () => {
     const a = new Float32Array([2, -3, 5]);
     const b = new Float32Array([-4, 6, 1]);
-    expect(dotProduct(a, b)).toBe(-8);
+    expect(dotProduct(a, b)).toBe(-21);
   });
 
   it("works with long vectors", () => {
