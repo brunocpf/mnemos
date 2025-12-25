@@ -9,7 +9,7 @@ import {
   getHighlightTerms,
   type SearchHighlightPayload,
 } from "@/lib/search-highlight";
-import { topKPush } from "@/lib/top-k";
+import { topKPush } from "@/lib/top-k-push";
 import { useEmbedderService } from "@/providers/embedder-service-provider";
 
 const DEFAULT_TOP_K = process.env.NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K

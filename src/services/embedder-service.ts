@@ -145,7 +145,6 @@ export class EmbedderService {
   private handleEmbeddingChunksResult = async (
     ev: EmbeddingChunksResultEvent,
   ) => {
-    console.log("EmbeddingChunksResultEvent received");
     const { noteId, vectors, version } = ev.detail;
     const currentModelId = this.embeddingClient.modelId;
 
