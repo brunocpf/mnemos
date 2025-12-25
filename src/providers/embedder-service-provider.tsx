@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, use, useCallback, useEffect, useRef } from "react";
+import {
+  createContext,
+  startTransition,
+  use,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import { db } from "@/client-data/db";
 import { ChunkingClient } from "@/services/chunking-client";
@@ -13,13 +20,21 @@ export const EmbedderServiceContext = createContext<{
     delayMs?: number,
   ) => void;
   flush: (data: { id: string; title?: string; content: string }) => void;
+  embedQuery(
+    text: string,
+    timeoutMs?: number,
+  ): Promise<Float32Array<ArrayBufferLike>>;
+  getModelId(): string;
 }>({
   schedule: () => {},
   flush: () => {},
+  embedQuery: () => Promise.resolve(new Float32Array()),
+  getModelId: () => "",
 });
 
 export function EmbedderServiceProvider({ children }: React.PropsWithChildren) {
-  const embedderServiceRef = useRef<EmbedderService | null>(null);
+  const [embedderService, setEmbedderService] =
+    useState<EmbedderService | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof Worker === "undefined") {
@@ -41,44 +56,75 @@ export function EmbedderServiceProvider({ children }: React.PropsWithChildren) {
       modelId: process.env.NEXT_PUBLIC_CURRENT_EMBEDDING_MODEL_ID,
     });
 
-    embedderServiceRef.current = new EmbedderService(
+    let disposed = false;
+    const newEmbedderService = new EmbedderService(
       db,
       chunkingClient,
       embeddingClient,
     );
 
+    startTransition(() => {
+      if (!disposed) {
+        setEmbedderService(newEmbedderService);
+      }
+    });
+
     return () => {
-      embedderServiceRef.current?.dispose();
+      disposed = true;
       chunkingWorker.terminate();
       embeddingWorker.terminate();
-      embedderServiceRef.current = null;
+      chunkingClient.dispose();
+      embeddingClient.dispose();
+      newEmbedderService.dispose();
+      startTransition(() => void setEmbedderService(null));
     };
   }, []);
 
   const schedule = useCallback(
     (data: { id: string; title?: string; content: string }, delayMs = 1000) => {
-      if (embedderServiceRef.current === null) {
+      if (embedderService === null) {
         throw new Error("EmbedderService is not initialized");
       }
 
-      embedderServiceRef.current.schedule(data, delayMs);
+      embedderService.schedule(data, delayMs);
     },
-    [],
+    [embedderService],
   );
 
   const flush = useCallback(
     (data: { id: string; title?: string; content: string }) => {
-      if (embedderServiceRef.current === null) {
+      if (embedderService === null) {
         throw new Error("EmbedderService is not initialized");
       }
 
-      embedderServiceRef.current.flush(data);
+      embedderService.flush(data);
     },
-    [],
+    [embedderService],
   );
 
+  const embedQuery = useCallback(
+    (text: string, timeoutMs = 30000) => {
+      if (embedderService === null) {
+        throw new Error("EmbedderService is not initialized");
+      }
+
+      return embedderService.embedQuery(text, timeoutMs);
+    },
+    [embedderService],
+  );
+
+  const getModelId = useCallback(() => {
+    if (embedderService === null) {
+      throw new Error("EmbedderService is not initialized");
+    }
+
+    return embedderService.modelId;
+  }, [embedderService]);
+
   return (
-    <EmbedderServiceContext.Provider value={{ schedule, flush }}>
+    <EmbedderServiceContext.Provider
+      value={{ schedule, flush, embedQuery, getModelId }}
+    >
       {children}
     </EmbedderServiceContext.Provider>
   );

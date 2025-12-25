@@ -19,6 +19,7 @@ import {
   restoreNote,
   updateNoteTitle,
 } from "@/client-data/notes-dal";
+import { HighlightedSnippet } from "@/components/highlighted-snippet";
 import { Button } from "@/components/ui/button";
 import {
   ContextMenu,
@@ -38,18 +39,21 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import type { SemanticMatch } from "@/hooks/use-semantic-search";
 import { defaultFormatter } from "@/lib/dateFormatters";
+import { encodeSearchHighlight } from "@/lib/search-highlight";
 import { useEmbedderService } from "@/providers/embedder-service-provider";
 
 interface NoteListItemProps {
   note: Note;
+  match?: SemanticMatch;
 }
 
 const formSchema = z.object({
   newTitle: noteSchema.shape.title.nonoptional(),
 });
 
-export function NoteListItem({ note }: NoteListItemProps) {
+export function NoteListItem({ note, match }: NoteListItemProps) {
   const embedder = useEmbedderService();
 
   const handleDelete = () => {
@@ -82,6 +86,20 @@ export function NoteListItem({ note }: NoteListItemProps) {
 
     return firstLine.length > 0 ? firstLine : "Untitled";
   }, [note.title, content]);
+
+  const highlightParam = useMemo(() => {
+    if (!match) return undefined;
+
+    return encodeSearchHighlight({
+      noteId: match.noteId,
+      chunkId: match.chunkId,
+      snippet: match.snippet,
+      highlights: match.highlights,
+      leadingEllipsis: match.leadingEllipsis,
+      trailingEllipsis: match.trailingEllipsis,
+      terms: match.terms,
+    });
+  }, [match]);
 
   const form = useForm({
     defaultValues: {
@@ -116,7 +134,9 @@ export function NoteListItem({ note }: NoteListItemProps) {
                 <Link
                   href={{
                     pathname: "/note",
-                    query: { noteId: note.id },
+                    query: highlightParam
+                      ? { noteId: note.id, highlight: highlightParam }
+                      : { noteId: note.id },
                   }}
                 />
               }
@@ -130,10 +150,20 @@ export function NoteListItem({ note }: NoteListItemProps) {
                     Updated {defaultFormatter.format(new Date(note.updatedAt))}
                   </p>
                 </div>
-                <Activity mode={note.content ? "visible" : "hidden"}>
-                  <p className="text-muted-foreground mt-3 min-w-0 truncate text-sm">
-                    {content}
-                  </p>
+                <Activity mode={match || note.content ? "visible" : "hidden"}>
+                  {match ? (
+                    <HighlightedSnippet
+                      className="text-muted-foreground mt-3 block truncate"
+                      text={match.snippet || content}
+                      highlights={match.highlights}
+                      leadingEllipsis={match.leadingEllipsis}
+                      trailingEllipsis={match.trailingEllipsis}
+                    />
+                  ) : (
+                    <p className="text-muted-foreground mt-3 min-w-0 truncate text-sm">
+                      {content}
+                    </p>
+                  )}
                 </Activity>
               </div>
               <IconChevronCompactRight

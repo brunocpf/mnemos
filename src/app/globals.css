@@ -129,4 +129,7 @@
   body {
     scrollbar-gutter: stable both-edges;
   }
+  .search-highlight {
+    @apply text-foreground rounded-sm bg-amber-200/70 dark:bg-amber-300/30;
+  }
 }

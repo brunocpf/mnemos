@@ -33,6 +33,10 @@ export class EmbedderService {
     this.embeddingClient.addEventListener("error", this.handleEmbeddingError);
   }
 
+  get modelId() {
+    return this.embeddingClient.modelId;
+  }
+
   schedule(
     data: {
       id: string;
@@ -48,6 +52,10 @@ export class EmbedderService {
     this.chunkingClient.flush(data);
   }
 
+  async embedQuery(text: string, timeoutMs = 30000) {
+    return this.embeddingClient.embedQueryAsync(text, timeoutMs);
+  }
+
   dispose() {
     this.chunkingClient.removeEventListener("result", this.handleChunkResult);
     this.embeddingClient.removeEventListener(
@@ -58,8 +66,6 @@ export class EmbedderService {
       "error",
       this.handleEmbeddingError,
     );
-    this.chunkingClient.dispose();
-    this.embeddingClient.dispose();
   }
 
   private performEmbeddings(
