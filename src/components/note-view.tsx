@@ -1,6 +1,5 @@
 "use client";
 
-import markdownToTxt from "markdown-to-txt";
 import { Activity, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -98,7 +97,7 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
 
     try {
       setIsSummarizing(true);
-      const summaryText = await summarize(markdownToTxt(note.content));
+      const summaryText = await summarize(note.content);
       setSummary(summaryText);
     } catch (err) {
       const description =

@@ -9,7 +9,9 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@ai-sdk/huggingface": "^1.0.1",
     "@base-ui/react": "^1.0.0",
+    "@huggingface/inference": "^4.13.5",
     "@huggingface/transformers": "^3.8.1",
     "@langchain/textsplitters": "^1.0.1",
     "@tabler/icons-react": "^3.36.0",
@@ -22,6 +24,7 @@
     "@tiptap/markdown": "^3.14.0",
     "@tiptap/react": "^3.14.0",
     "@tiptap/starter-kit": "^3.14.0",
+    "ai": "^6.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
