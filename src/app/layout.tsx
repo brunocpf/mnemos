@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Figtree } from "next/font/google";
 
+import { OnboardingGate } from "@/components/onboarding-gate";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { EmbedderServiceProvider } from "@/providers/embedder-service-provider";
@@ -25,7 +26,7 @@ export default function RootLayout({
       <body className="antialiased">
         <EmbedderServiceProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
+            <OnboardingGate>{children}</OnboardingGate>
             <Toaster />
           </ThemeProvider>
         </EmbedderServiceProvider>
