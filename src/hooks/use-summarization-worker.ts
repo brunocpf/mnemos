@@ -20,7 +20,7 @@ export function useSummarizationWorker() {
     );
     workerProxy.current = Comlink.wrap(worker);
 
-    return () => worker.terminate(); // Prevent memory leaks
+    return () => worker.terminate();
   }, []);
 
   const summarize = useCallback(
@@ -42,18 +42,7 @@ export function useSummarizationWorker() {
       }
 
       const summaryText = result
-        .map((item) => {
-          if (typeof item === "string") return item.trim();
-          if (item && typeof item === "object") {
-            if ("summary_text" in item && item.summary_text) {
-              return String(item.summary_text).trim();
-            }
-            if ("generated_text" in item && item.generated_text) {
-              return String(item.generated_text).trim();
-            }
-          }
-          return "";
-        })
+        .map((item) => item.trim() || "")
         .filter((textPart) => textPart.length > 0)
         .join("\n\n")
         .trim();

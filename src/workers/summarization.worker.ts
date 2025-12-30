@@ -1,26 +1,27 @@
 import {
+  Chat,
   pipeline,
-  SummarizationPipeline,
-  TextGenerationConfig,
+  TextGenerationPipeline,
 } from "@huggingface/transformers";
 import * as Comlink from "comlink";
 
-export type SummarizationResultItem =
-  | { summary_text?: string }
-  | { generated_text?: string }
-  | string;
+export type SummarizationResultItem = string;
 
 export type SummarizationResult = SummarizationResultItem[];
 
 class SummarizationWorkerService {
-  private instance: Promise<SummarizationPipeline> | null = null;
+  private instance: Promise<TextGenerationPipeline> | null = null;
 
-  private async getInstance(): Promise<SummarizationPipeline> {
+  private async getInstance(): Promise<TextGenerationPipeline> {
     if (!this.instance) {
-      this.instance = pipeline("summarization", "Xenova/t5-small", {
-        device: "gpu" in navigator ? "webgpu" : "wasm",
-        dtype: "fp32",
-      });
+      this.instance = pipeline<"text-generation">(
+        "text-generation",
+        "onnx-community/Phi-3.5-mini-instruct-onnx-web",
+        {
+          device: "gpu" in navigator ? "webgpu" : "wasm",
+          dtype: "q4f16",
+        },
+      );
     }
     return this.instance;
   }
@@ -29,13 +30,33 @@ class SummarizationWorkerService {
     try {
       const generator = await this.getInstance();
 
-      const result = await generator(text, {
-        max_length: 200,
-        min_length: 20,
-        num_beams: 4,
-      } as TextGenerationConfig);
+      const messages = [
+        {
+          role: "system",
+          content:
+            "You are a professional assistant that provides concise summaries for the user's personal notes.",
+        },
+        {
+          role: "user",
+          content: `Provide a short and concise summary for the following personal notes I wrote with no more than 3 short, single-sentence bullet points:\n\n"""\n${text}\n"""`,
+        },
+      ];
 
-      return JSON.parse(JSON.stringify(result));
+      const result = (await generator(messages, {
+        max_new_tokens: 200,
+        temperature: 0.3,
+        return_full_text: false,
+      })) as { generated_text: Chat }[];
+
+      const firstEntry = result[0];
+
+      if (!firstEntry) {
+        throw new Error("Summarization pipeline returned no data.");
+      }
+
+      const chat = firstEntry.generated_text;
+
+      return JSON.parse(JSON.stringify(chat[2].content)) as SummarizationResult;
     } catch (error) {
       console.error("Worker Error:", error);
       throw error;
