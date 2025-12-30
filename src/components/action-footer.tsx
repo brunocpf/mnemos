@@ -59,6 +59,13 @@ export function ActionFooter({
           >
             Privacy Policy
           </Link>
+          <span className="text-muted-foreground mx-1">•</span>
+          <Link
+            href="/settings"
+            className="text-primary font-medium underline-offset-4 hover:underline"
+          >
+            Settings
+          </Link>
         </p>
       </div>
     </footer>

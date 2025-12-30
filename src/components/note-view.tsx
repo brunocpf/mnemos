@@ -1,6 +1,5 @@
 "use client";
 
-import markdownToTxt from "markdown-to-txt";
 import { Activity, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -13,7 +12,7 @@ import { HighlightedSnippet } from "@/components/highlighted-snippet";
 import { NoteEditorForm } from "@/components/note-editor-form";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useSummarizationWorker } from "@/hooks/use-summarization-worker";
+import { useSummarizer } from "@/hooks/use-summarizer";
 import type { SearchHighlightPayload } from "@/lib/search-highlight";
 import { useEmbedderService } from "@/providers/embedder-service-provider";
 
@@ -29,7 +28,7 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
   const [summary, setSummary] = useState<string | null>(null);
   const { data: note, isLoading } = useNoteById(currentNoteId);
   const embedder = useEmbedderService();
-  const { summarize, isReady: isSummarizerReady } = useSummarizationWorker();
+  const { summarize, isReady: isSummarizerReady } = useSummarizer();
 
   const isCreatingNote = !currentNoteId;
   const noteDoesNotExist = !isLoading && !isCreatingNote && !note;
@@ -98,7 +97,7 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
 
     try {
       setIsSummarizing(true);
-      const summaryText = await summarize(markdownToTxt(note.content));
+      const summaryText = await summarize(note.content);
       setSummary(summaryText);
     } catch (err) {
       const description =

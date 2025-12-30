@@ -1,16 +1,28 @@
 import * as Comlink from "comlink";
-import { useCallback, useEffect, useRef } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import type {
+  ModelDownloadState,
   SummarizationResult,
   SummarizationService,
 } from "@/workers/summarization.worker";
 
 export function useSummarizationWorker() {
-  const workerProxy = useRef<Comlink.Remote<SummarizationService>>(null);
+  const workerProxy = useRef<Comlink.Remote<SummarizationService> | null>(null);
+  const [isReady, setIsReady] = useState(false);
+  const [modelDownloadState, setModelDownloadState] =
+    useState<ModelDownloadState>({ state: "idle" });
+  const subscriptionIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof Worker === "undefined") {
+      startTransition(() => void setIsReady(false));
       return;
     }
 
@@ -19,8 +31,52 @@ export function useSummarizationWorker() {
       { type: "module" },
     );
     workerProxy.current = Comlink.wrap(worker);
+    startTransition(() => void setIsReady(true));
 
-    return () => worker.terminate();
+    const subscribe = async () => {
+      if (!workerProxy.current) return;
+
+      try {
+        const initial =
+          (await workerProxy.current.getModelDownloadState()) as ModelDownloadState;
+        startTransition(() => void setModelDownloadState(initial));
+
+        const callback = Comlink.proxy((state: ModelDownloadState) => {
+          startTransition(() => void setModelDownloadState(state));
+        });
+
+        const id = (await workerProxy.current.subscribeModelDownloadState(
+          callback,
+        )) as number;
+        subscriptionIdRef.current = id;
+      } catch {
+        // If the worker API isn't available for some reason, ignore.
+      }
+    };
+
+    void subscribe();
+
+    return () => {
+      setIsReady(false);
+      const currentProxy = workerProxy.current;
+      const subscriptionId = subscriptionIdRef.current;
+      subscriptionIdRef.current = null;
+
+      if (currentProxy && subscriptionId !== null) {
+        void currentProxy.unsubscribeModelDownloadState(subscriptionId);
+      }
+
+      workerProxy.current = null;
+      worker.terminate();
+    };
+  }, []);
+
+  const preloadModel = useCallback(async () => {
+    if (!workerProxy.current) {
+      throw new Error("Summarization worker is still loading.");
+    }
+
+    await workerProxy.current.preloadModel();
   }, []);
 
   const summarize = useCallback(
@@ -56,5 +112,5 @@ export function useSummarizationWorker() {
     [workerProxy],
   );
 
-  return { summarize, isReady: workerProxy !== null };
+  return { summarize, isReady, preloadModel, modelDownloadState };
 }
