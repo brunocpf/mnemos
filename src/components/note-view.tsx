@@ -12,7 +12,7 @@ import { HighlightedSnippet } from "@/components/highlighted-snippet";
 import { NoteEditorForm } from "@/components/note-editor-form";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useSummarizationWorker } from "@/hooks/use-summarization-worker";
+import { useSummarizer } from "@/hooks/use-summarizer";
 import type { SearchHighlightPayload } from "@/lib/search-highlight";
 import { useEmbedderService } from "@/providers/embedder-service-provider";
 
@@ -28,7 +28,7 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
   const [summary, setSummary] = useState<string | null>(null);
   const { data: note, isLoading } = useNoteById(currentNoteId);
   const embedder = useEmbedderService();
-  const { summarize, isReady: isSummarizerReady } = useSummarizationWorker();
+  const { summarize, isReady: isSummarizerReady } = useSummarizer();
 
   const isCreatingNote = !currentNoteId;
   const noteDoesNotExist = !isLoading && !isCreatingNote && !note;
