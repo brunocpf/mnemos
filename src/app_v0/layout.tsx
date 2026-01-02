@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-head-element */
 import type { Metadata } from "next";
 import { Figtree } from "next/font/google";
 
