@@ -35,7 +35,7 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-50 flex w-full">
       <div
-        className="bg-background/90 mn-header-bg-scroll absolute inset-0 mask-[linear-gradient(to_bottom,black_40%,transparent)] [view-transition-class:fixed-bg] [view-transition-name:app-header-bg]"
+        className="from-background/90 mn-header-bg-scroll absolute inset-0 bg-linear-to-b to-transparent backdrop-blur-xs [view-transition-class:fixed-bg] [view-transition-name:app-header-bg]"
         aria-hidden="true"
       />
       <div className="isolate mx-auto grid w-full max-w-5xl grid-cols-[auto_1fr_auto] place-items-center px-6 py-4 [view-transition-class:fixed-fg] [view-transition-name:app-header-fg]">

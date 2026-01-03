@@ -136,6 +136,7 @@
     scrollbar-gutter: stable both-edges;
     scroll-snap-type: y proximity;
     overscroll-behavior: none;
+    padding-bottom: env(safe-area-inset-bottom);
   }
   html:focus-within,
   body:focus-within {
@@ -144,13 +145,17 @@
   .search-highlight {
     @apply text-foreground rounded-sm bg-amber-200/70 dark:bg-amber-300/30;
   }
+
+  .mn-ios-keyboard-open {
+    background: red;
+  }
 }
 
 @layer utilities {
-  .mn-snap-section {
+  /*.mn-snap-section {
     scroll-margin-top: var(--mn-scroll-margin-section-top);
     scroll-margin-bottom: var(--mn-scroll-margin-section-bottom);
-  }
+  }*/
 
   .mn-header-bg-scroll {
     opacity: 0;

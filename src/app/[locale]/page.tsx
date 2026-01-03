@@ -24,10 +24,14 @@ export default async function Home() {
     >
       <div className="relative pb-32">
         <main className="mx-auto flex max-w-5xl flex-col gap-2 px-6 pb-16">
-          <h1 className="mn-page-title-scroll snap-end text-2xl font-semibold select-none">
+          <h1 className="mn-page-title-scroll text-2xl font-semibold select-none">
+            {" "}
+            {/* snap-end */}
             {title}
           </h1>
-          <section className="mn-snap-section snap-start space-y-4 overflow-x-hidden">
+          <section className="mn-snap-section h-1000 space-y-4 overflow-x-hidden bg-red-50">
+            {" "}
+            {/* snap-start */}
             <TempSuspenseComponent />
             <Link href="/subpath/subpath2">Go to subpath</Link>
           </section>
