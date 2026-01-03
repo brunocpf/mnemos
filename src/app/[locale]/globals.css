@@ -120,7 +120,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50 transform-gpu;
   }
   body {
     @apply bg-background text-foreground;
@@ -128,10 +128,15 @@
   html,
   body {
     scrollbar-gutter: stable both-edges;
+    scroll-snap-type: y proximity;
   }
   .search-highlight {
     @apply text-foreground rounded-sm bg-amber-200/70 dark:bg-amber-300/30;
   }
+}
+
+@view-transition {
+  navigation: auto;
 }
 
 @keyframes header-reveal {
@@ -160,6 +165,93 @@
 
 @keyframes fade-out {
   to {
+    opacity: 0;
+  }
+}
+
+::view-transition-group(.fixed),
+::view-transition-group(.fixed-bg) {
+  z-index: 1000;
+}
+
+::view-transition-group(.fixed-fg) {
+  z-index: 1050;
+}
+
+::view-transition-new(.slide-in-forward),
+::view-transition-old(.slide-in-back) {
+  transform-origin: center right;
+}
+
+::view-transition-old(.slide-in-forward),
+::view-transition-new(.slide-in-back) {
+  transform-origin: center left;
+}
+
+::view-transition-new(.slide-in-forward) {
+  transform: translateX(100%) scale(0.95);
+  opacity: 0;
+  animation: slide-in-forward 0.25s ease-in-out both;
+}
+
+::view-transition-old(.slide-in-forward) {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+  animation: slide-out-back 0.25s ease-in-out both;
+}
+
+::view-transition-new(.slide-in-back) {
+  transform: translateX(-100%) scale(0.95);
+  opacity: 0;
+  animation: slide-in-back 0.25s ease-in-out both;
+}
+
+::view-transition-old(.slide-in-back) {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+  animation: slide-out-forward 0.25s ease-in-out both;
+}
+
+@keyframes slide-in-forward {
+  from {
+    transform: translateX(100%) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-back {
+  from {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%) scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-back {
+  from {
+    transform: translateX(-100%) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-forward {
+  from {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%) scale(0.95);
     opacity: 0;
   }
 }

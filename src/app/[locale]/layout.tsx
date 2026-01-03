@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { routing } from "@/i18n/routing";
 import { EmbedderServiceProvider } from "@/providers/embedder-service-provider";
+import { HistoryProvider } from "@/providers/history-provider";
 
 import "./globals.css";
 
@@ -34,14 +35,20 @@ export default async function RootLayout({
       <head />
       <body className="antialiased">
         <NextIntlClientProvider>
-          <EmbedderServiceProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <AppHeader />
-              {children}
-              <AppFooter />
-              <Toaster />
-            </ThemeProvider>
-          </EmbedderServiceProvider>
+          <HistoryProvider>
+            <EmbedderServiceProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+              >
+                <AppHeader />
+                {children}
+                <AppFooter />
+                <Toaster />
+              </ThemeProvider>
+            </EmbedderServiceProvider>
+          </HistoryProvider>
         </NextIntlClientProvider>
       </body>
     </html>

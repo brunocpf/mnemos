@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
 import Link from "next/link";
 
 const localDataPoints = [
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
               Your notes stay on your device
             </h1>
             <Link
-              href="/"
+              href={"/" as Route}
               className="text-primary hover:text-primary/80 text-sm font-medium"
             >
               ← Back to Mnemos

@@ -77,7 +77,7 @@ export default function Home() {
       <ActionFooter
         placeholder="Search notes..."
         buttonLabel="New Note"
-        buttonHref="/note"
+        buttonHref={"/note" as Route}
         searchValue={searchQuery}
         onSearchChange={handleSearchChange}
         isSearching={isSearching}

@@ -2,7 +2,13 @@ import { BackButton } from "@/components/back-button";
 import { NoteView } from "@/components/note-view";
 import { decodeSearchHighlight } from "@/lib/search-highlight";
 
-export default async function NotePage({ searchParams }: PageProps<"/note">) {
+export default async function NotePage({
+  searchParams,
+}: {
+  searchParams:
+    | { [key: string]: string | undefined }
+    | Promise<{ [key: string]: string | undefined } | null>;
+}) {
   const searchParamsResolved = await searchParams;
   const noteId =
     typeof searchParamsResolved?.noteId === "string"
