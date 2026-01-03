@@ -33,7 +33,7 @@ export function AppHeader() {
   };
 
   return (
-    <header className="top-0 z-50 flex w-full">
+    <header className="sticky top-0 z-50 flex w-full">
       <div
         className="bg-background/90 mn-header-bg-scroll absolute inset-0 mask-[linear-gradient(to_bottom,black_40%,transparent)] [view-transition-class:fixed-bg] [view-transition-name:app-header-bg]"
         aria-hidden="true"

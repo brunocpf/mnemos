@@ -129,10 +129,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground fixed h-dvh w-dvw overflow-hidden;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr auto;
+    @apply bg-background text-foreground;
   }
   html,
   body {

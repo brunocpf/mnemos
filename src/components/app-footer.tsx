@@ -1,6 +1,7 @@
 "use client";
 
 import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,15 +11,43 @@ import {
 } from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
 
+function useIOSKeyboardOffset() {
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const set = (e: Event) => {
+      const bottomCovered = Math.max(
+        0,
+        window.innerHeight - (vv.height + vv.offsetTop),
+      );
+      console.log("vv resize/scroll/orientationchange", { e, bottomCovered });
+      document.documentElement.style.setProperty("--kb", `${bottomCovered}px`);
+    };
+
+    vv.addEventListener("resize", set);
+    vv.addEventListener("scroll", set);
+    window.addEventListener("orientationchange", set);
+    set(new Event("init"));
+
+    return () => {
+      vv.removeEventListener("resize", set);
+      vv.removeEventListener("scroll", set);
+      window.removeEventListener("orientationchange", set);
+      document.documentElement.style.removeProperty("--kb");
+    };
+  }, []);
+}
+
 export function AppFooter() {
-  //const [inputFocused, setInputFocused] = useState(false);
+  useIOSKeyboardOffset();
 
   return (
     <footer
       className={cn(
         "text-muted-foreground from-background bottom-0 z-50 w-full bg-linear-to-t to-transparent py-4 text-sm [view-transition-class:fixed] [view-transition-name:app-footer]",
         {
-          fixed: false,
+          fixed: true,
           // absolute: inputFocused,
         },
       )}
