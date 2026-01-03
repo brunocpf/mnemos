@@ -31,7 +31,7 @@
     "comlink": "^4.4.2",
     "dexie": "^4.2.1",
     "dexie-observable": "^4.0.1-beta.13",
-    "dexie-react-hooks": "^4.2.0",
+    "dexie-react-hooks": "^4.2.1-beta.1",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lodash": "^4.17.21",

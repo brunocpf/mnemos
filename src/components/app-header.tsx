@@ -33,9 +33,9 @@ export function AppHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex w-full">
+    <header className="top-0 z-50 flex w-full">
       <div
-        className="bg-background/90 absolute inset-0 animate-[header-reveal_ease-in-out_both] mask-[linear-gradient(to_bottom,black_40%,transparent)] [animation-range:calc(var(--spacing)*5)_calc(var(--spacing)*7)] [animation-timeline:scroll(root)] [view-transition-class:fixed-bg] [view-transition-name:app-header-bg]"
+        className="bg-background/90 mn-header-bg-scroll absolute inset-0 mask-[linear-gradient(to_bottom,black_40%,transparent)] [view-transition-class:fixed-bg] [view-transition-name:app-header-bg]"
         aria-hidden="true"
       />
       <div className="isolate mx-auto grid w-full max-w-5xl grid-cols-[auto_1fr_auto] place-items-center px-6 py-4 [view-transition-class:fixed-fg] [view-transition-name:app-header-fg]">
@@ -56,7 +56,7 @@ export function AppHeader() {
         </Activity>
         <Activity mode={title ? "visible" : "hidden"}>
           <ViewTransition default="fixed-fg">
-            <h2 className="col-start-2 animate-[header-title-reveal_ease-in-out_both] text-sm font-semibold select-none [animation-range:calc(var(--spacing)*5)_calc(var(--spacing)*7)] [animation-timeline:scroll(root)]">
+            <h2 className="mn-header-title-scroll col-start-2 text-sm font-semibold select-none">
               {title}
             </h2>
           </ViewTransition>
