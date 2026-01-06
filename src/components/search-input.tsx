@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -25,6 +26,27 @@ export default function SearchInput() {
   const pathname = usePathname();
 
   const t = useTranslations("SearchInput");
+
+  const commitSearchToUrl = (rawValue: string) => {
+    startTransition(() => {
+      addTransitionType("search-param-update");
+      const currentSerialized = searchParams.toString();
+      const params = new URLSearchParams(currentSerialized);
+
+      const value = rawValue.trim();
+      if (value) {
+        params.set("search", value);
+      } else {
+        params.delete("search");
+      }
+
+      const next = params.toString();
+      if (next === currentSerialized) return;
+      router.replace(next ? `${pathname}?${next}` : pathname, {
+        scroll: false,
+      });
+    });
+  };
 
   return (
     <div
@@ -47,7 +69,7 @@ export default function SearchInput() {
           suppressHydrationWarning
           aria-label={t("Search Notes")}
           placeholder={t("Search notes")}
-          className="text-base"
+          className="mn-no-native-search-cancel text-base"
           type="search"
           inputMode="search"
           onFocus={(e) => {
@@ -57,22 +79,7 @@ export default function SearchInput() {
           }}
           onBlur={(e) => {
             setSearchFocused(false);
-            startTransition(() => {
-              addTransitionType("search-param-update");
-              const currentSerialized = searchParams.toString();
-              const params = new URLSearchParams(currentSerialized);
-              if (e.target.value.trim()) {
-                params.set("search", e.target.value);
-              } else {
-                params.delete("search");
-              }
-
-              const next = params.toString();
-              if (next === currentSerialized) return;
-              router.replace(next ? `${pathname}?${next}` : pathname, {
-                scroll: false,
-              });
-            });
+            commitSearchToUrl(e.target.value);
           }}
           onKeyDown={(e) => {
             if (!isScrollingRef.current) {
@@ -91,6 +98,32 @@ export default function SearchInput() {
             }
           }}
         />
+
+        <InputGroupAddon
+          align="inline-end"
+          aria-hidden={searchValue.length === 0}
+          className={
+            searchValue.length === 0
+              ? "pointer-events-none opacity-0"
+              : undefined
+          }
+        >
+          <InputGroupButton
+            aria-label={t("Clear")}
+            size="icon-sm"
+            onMouseDown={(e) => {
+              // Keep focus on the input (avoid triggering onBlur).
+              e.preventDefault();
+            }}
+            onClick={() => {
+              setSearchValue("");
+              commitSearchToUrl("");
+              inputRef.current?.focus();
+            }}
+          >
+            <IconX />
+          </InputGroupButton>
+        </InputGroupAddon>
       </InputGroup>
       {searchFocused ? (
         <Button

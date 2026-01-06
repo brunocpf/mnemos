@@ -143,6 +143,14 @@
   .search-highlight {
     @apply text-foreground rounded-sm bg-amber-200/70 dark:bg-amber-300/30;
   }
+
+  input.mn-no-native-search-cancel[type="search"]::-webkit-search-cancel-button,
+  input.mn-no-native-search-cancel[type="search"]::-webkit-search-decoration,
+  input.mn-no-native-search-cancel[type="search"]::-webkit-search-results-button,
+  input.mn-no-native-search-cancel[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
 }
 
 @layer utilities {
