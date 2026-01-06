@@ -10,10 +10,13 @@ import {
 } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useBoundingClientCustomProperties } from "@/hooks/use-bounding-client-vars";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useHistoryStack } from "@/providers/history-provider";
 
 export function AppHeader() {
+  const headerRef = useBoundingClientCustomProperties("mn-header");
+
   const pathname = usePathname();
   const router = useRouter();
   const { previous, pop } = useHistoryStack();
@@ -33,11 +36,11 @@ export function AppHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex w-full">
-      <div
-        className="from-background/90 mn-header-bg-scroll absolute inset-0 bg-linear-to-b to-transparent backdrop-blur-xs [view-transition-class:fixed-bg] [view-transition-name:app-header-bg]"
-        aria-hidden="true"
-      />
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-50 flex w-full pt-[env(safe-area-inset-top)]"
+    >
+      <div className="bg-background/70 mn-header-bg-scroll absolute inset-0 mask-[linear-gradient(to_bottom,black,rgba(1,1,1,0.9),rgba(1,1,1,0.01))] backdrop-blur-xs" />
       <div className="isolate mx-auto grid w-full max-w-5xl grid-cols-[auto_1fr_auto] place-items-center px-6 py-4 [view-transition-class:fixed-fg] [view-transition-name:app-header-fg]">
         <Activity
           mode={!!pageToGoBack && pathname !== "/" ? "visible" : "hidden"}
@@ -48,7 +51,7 @@ export function AppHeader() {
               className="col-start-1 cursor-pointer"
               onClick={handleBack}
               variant="outline"
-              size="icon"
+              size="icon-xl"
             >
               <IconChevronLeft />
             </Button>

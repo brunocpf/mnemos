@@ -55,19 +55,6 @@ export async function permanentlyDeleteNote(id: Note["id"]) {
   );
 }
 
-export function useNotes() {
-  const notesResult = useLiveQuery(
-    () => db.notes.where("deleted").equals(0).reverse().sortBy("updatedAt"),
-    [],
-    dexieLoading,
-  );
-
-  return {
-    data: notesResult === dexieLoading ? undefined : notesResult,
-    isLoading: notesResult === dexieLoading,
-  };
-}
-
 export function useNoteById(id?: Note["id"]) {
   const noteResult = useLiveQuery(
     () => (id === undefined ? undefined : db.notes.get(id)),

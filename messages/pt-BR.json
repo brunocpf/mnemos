@@ -1,7 +1,16 @@
 {
   "Shared": {
     "Go Back": "Voltar",
-    "Search": "Pesquisar",
     "Your Notes": "Suas Anotações"
+  },
+  "SearchInput": {
+    "Search": "Pesquisar",
+    "Search Notes": "Pesquisar Anotações",
+    "Search notes": "Pesquisar anotações...",
+    "Start voice input": "Iniciar entrada de voz",
+    "Stop voice input": "Parar entrada de voz",
+    "Listening": "Ouvindo",
+    "Cancel": "Cancelar",
+    "New Note": "Nova Anotação"
   }
 }

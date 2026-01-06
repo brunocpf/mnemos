@@ -1,7 +1,16 @@
 {
   "Shared": {
     "Go Back": "Go Back",
-    "Search": "Search",
     "Your Notes": "Your Notes"
+  },
+  "SearchInput": {
+    "Search": "Search",
+    "Search Notes": "Search Notes",
+    "Search notes": "Search notes...",
+    "Start voice input": "Start voice input",
+    "Stop voice input": "Stop voice input",
+    "Listening": "Listening",
+    "Cancel": "Cancel",
+    "New Note": "New Note"
   }
 }

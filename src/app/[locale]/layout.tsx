@@ -10,10 +10,11 @@ import { Toaster } from "@/components/ui/sonner";
 import { routing } from "@/i18n/routing";
 import { EmbedderServiceProvider } from "@/providers/embedder-service-provider";
 import { HistoryProvider } from "@/providers/history-provider";
+import { SearchValueProvider } from "@/providers/search-value-provider";
 
 import "./globals.css";
 
-const fontSans = Figtree({ subsets: ["latin"], variable: "--font-sans" });
+const font = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,7 +24,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  interactiveWidget: "overlays-content",
+  maximumScale: 1,
+  userScalable: false,
+  interactiveWidget: "resizes-visual",
   viewportFit: "cover",
 };
 
@@ -38,7 +41,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang={locale} className={fontSans.variable} suppressHydrationWarning>
+    <html lang={locale} className={font.variable} suppressHydrationWarning>
       <head />
       <body className="antialiased">
         <NextIntlClientProvider>
@@ -49,10 +52,12 @@ export default async function RootLayout({
                 defaultTheme="system"
                 enableSystem
               >
-                <AppHeader />
-                {children}
-                <AppFooter />
-                <Toaster />
+                <SearchValueProvider>
+                  <AppHeader />
+                  {children}
+                  <AppFooter />
+                  <Toaster />
+                </SearchValueProvider>
               </ThemeProvider>
             </EmbedderServiceProvider>
           </HistoryProvider>

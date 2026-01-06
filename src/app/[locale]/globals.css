@@ -74,12 +74,6 @@
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
   --radius: 0.625rem;
-  --mn-scroll-range-header-start: calc(var(--spacing) * 5);
-  --mn-scroll-range-header-end: calc(var(--spacing) * 7);
-  --mn-scroll-range-page-title-start: calc(var(--spacing) * 3);
-  --mn-scroll-range-page-title-end: calc(var(--spacing) * 6);
-  --mn-scroll-margin-section-top: calc(var(--spacing) * 15);
-  --mn-scroll-margin-section-bottom: calc(var(--spacing) * 30);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -128,34 +122,36 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html,
   body {
     scrollbar-gutter: stable both-edges;
     scroll-snap-type: y proximity;
-    overscroll-behavior: none;
-    padding-bottom: env(safe-area-inset-bottom);
+    scroll-behavior: smooth;
+    overscroll-behavior: none contain;
   }
+
   html:focus-within,
   body:focus-within {
     scroll-snap-type: none;
   }
+
   .search-highlight {
     @apply text-foreground rounded-sm bg-amber-200/70 dark:bg-amber-300/30;
-  }
-
-  .mn-ios-keyboard-open {
-    background: red;
   }
 }
 
 @layer utilities {
-  /*.mn-snap-section {
+  .mn-snap-section {
+    --mn-scroll-margin-section-top: var(--mn-header-h, 0px);
+    --mn-scroll-margin-section-bottom: var(--mn-footer-h, 0px);
     scroll-margin-top: var(--mn-scroll-margin-section-top);
     scroll-margin-bottom: var(--mn-scroll-margin-section-bottom);
-  }*/
+  }
 
   .mn-header-bg-scroll {
     opacity: 0;
@@ -176,6 +172,8 @@
 @media (overflow-block: scroll) {
   @layer utilities {
     .mn-header-bg-scroll {
+      --mn-scroll-range-header-start: calc(var(--mn-header-h) * 0.5);
+      --mn-scroll-range-header-end: var(--mn-header-h);
       animation: header-reveal ease-in-out both;
       animation-timeline: scroll(root);
       animation-range: var(--mn-scroll-range-header-start)
@@ -183,6 +181,8 @@
     }
 
     .mn-header-title-scroll {
+      --mn-scroll-range-header-start: calc(var(--mn-header-h) * 0.5);
+      --mn-scroll-range-header-end: var(--mn-header-h);
       animation: header-title-reveal ease-in-out both;
       animation-timeline: scroll(root);
       animation-range: var(--mn-scroll-range-header-start)
@@ -190,6 +190,8 @@
     }
 
     .mn-page-title-scroll {
+      --mn-scroll-range-page-title-start: calc(var(--mn-header-h) * 0.5);
+      --mn-scroll-range-page-title-end: var(--mn-header-h);
       animation: fade-out ease-in-out both;
       animation-timeline: scroll(root);
       animation-range: var(--mn-scroll-range-page-title-start)
