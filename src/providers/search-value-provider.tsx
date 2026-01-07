@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import {
+  type PropsWithChildren,
   createContext,
   use,
   useEffect,
@@ -20,7 +21,7 @@ export const SearchValueContext = createContext<SearchValueContextValue>({
   setSearchValue: () => {},
 });
 
-export function SearchValueProvider({ children }: React.PropsWithChildren) {
+export function SearchValueProvider({ children }: PropsWithChildren) {
   const searchParams = useSearchParams();
 
   const paramQuery = searchParams.get("search") ?? "";

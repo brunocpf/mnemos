@@ -3,6 +3,13 @@
     "Go Back": "Voltar",
     "Your Notes": "Suas Anotações"
   },
+  "Notes": {
+    "Your Notes": "Suas Anotações",
+    "No Notes": "Nenhuma Anotação",
+    "Start writing notes to see them here": "Escreva anotações para vê-las aqui.",
+    "Create your first note": "Crie sua primeira anotação",
+    "Loading your notes": "Carregando suas anotações..."
+  },
   "SearchInput": {
     "Search": "Pesquisar",
     "Search Notes": "Pesquisar Anotações",

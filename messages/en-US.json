@@ -3,6 +3,13 @@
     "Go Back": "Go Back",
     "Your Notes": "Your Notes"
   },
+  "Notes": {
+    "Your Notes": "Your Notes",
+    "No Notes": "No Notes",
+    "Start writing notes to see them here": "Start writing notes to see them here.",
+    "Create your first note": "Create your first note",
+    "Loading your notes": "Loading your notes..."
+  },
   "SearchInput": {
     "Search": "Search",
     "Search Notes": "Search Notes",

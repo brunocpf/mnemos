@@ -112,7 +112,6 @@ export default function SearchInput() {
             aria-label={t("Clear")}
             size="icon-sm"
             onMouseDown={(e) => {
-              // Keep focus on the input (avoid triggering onBlur).
               e.preventDefault();
             }}
             onClick={() => {
