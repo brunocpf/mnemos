@@ -12,7 +12,7 @@ export function useNotes(search: string): {
   error: Error | null;
 } {
   const allNotes = useLiveQuery(
-    () => db.notes.where("deleted").equals(0).toArray(),
+    () => db.notes.where("deleted").equals(0).reverse().sortBy("updatedAt"),
     [],
     loadingSymbol,
   );

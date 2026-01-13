@@ -145,7 +145,7 @@ export default function SearchInput() {
           aria-label={t("New Note")}
           onFocus={(e) => e.stopPropagation()}
           onClick={() => {
-            router.push("/note/new", {
+            router.push("/note", {
               scroll: true,
             });
           }}

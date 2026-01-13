@@ -9,6 +9,9 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
 
+import { AppFooterSlot } from "@/components/app-footer-slot";
+import { RichTextEditorToolbar } from "@/components/rich-text-editor-toolbar";
+import { LinkOpenButtonExtension } from "@/components/rich-text-editor/link-open-button-extension";
 import { SearchHighlightExtension } from "@/components/rich-text-editor/search-highlight-extension";
 
 interface RichTextEditorProps {
@@ -53,6 +56,7 @@ export function RichTextEditor({
         inline: false,
         allowBase64: true,
       }),
+      LinkOpenButtonExtension,
       SearchHighlightExtension.configure({ terms: [] }),
     ],
     content: value,
@@ -60,7 +64,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          "ProseMirror prose prose-sm dark:prose-invert max-w-none focus:outline-none",
+          "ProseMirror prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-dvh",
       },
     },
     onUpdate: ({ editor }) => {
@@ -90,5 +94,12 @@ export function RichTextEditor({
     };
   }, [editor, highlightTerms]);
 
-  return <EditorContent editor={editor} />;
+  return (
+    <>
+      <EditorContent editor={editor} />
+      <AppFooterSlot>
+        <RichTextEditorToolbar editor={editor} />
+      </AppFooterSlot>
+    </>
+  );
 }

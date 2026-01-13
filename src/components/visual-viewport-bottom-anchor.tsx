@@ -12,6 +12,7 @@ import useCoarsePointer from "@/hooks/use-coarse-pointer";
 import { cn } from "@/lib/utils";
 
 export interface VisualViewportBottomAnchorProps {
+  id?: string;
   Component?: React.ElementType;
   scrollBehavior?: "close-keyboard" | "hide-on-scroll";
   className?: string;
@@ -20,6 +21,7 @@ export interface VisualViewportBottomAnchorProps {
 
 // Inspired by: https://github.com/almond-bongbong/react-bottom-fixed
 export function VisualViewportBottomAnchor({
+  id,
   Component = "div",
   scrollBehavior = "hide-on-scroll",
   className,
@@ -188,6 +190,7 @@ export function VisualViewportBottomAnchor({
 
   return (
     <Component
+      id={id}
       ref={(el: HTMLElement | null) => {
         anchorRef.current = el;
 

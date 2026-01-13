@@ -3,7 +3,9 @@
 import { IconPencil } from "@tabler/icons-react";
 import { useTranslations } from "next-intl";
 
+import { AppFooterSlot } from "@/components/app-footer-slot";
 import { EmptyState } from "@/components/empty-state";
+import SearchInput from "@/components/search-input";
 import { Button } from "@/components/ui/button";
 import {
   EmptyContent,
@@ -92,7 +94,7 @@ export default function NotesList() {
             <Button
               variant="outline"
               onClick={() => {
-                router.push("/note/new", { scroll: true });
+                router.push("/note", { scroll: true });
               }}
             >
               {t("Create your first note")}
@@ -110,6 +112,9 @@ export default function NotesList() {
           ))}
         </ul>
       </div>
+      <AppFooterSlot>
+        <SearchInput />
+      </AppFooterSlot>
     </div>
   );
 }

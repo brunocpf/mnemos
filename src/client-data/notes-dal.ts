@@ -4,7 +4,7 @@ import { db } from "@/client-data/db";
 import { Note } from "@/client-data/note";
 import { dexieLoading } from "@/lib/dexie-loading";
 
-export async function addNote(
+export async function createNote(
   note: Omit<Note, "id" | "deleted" | "createdAt" | "updatedAt" | "deletedAt">,
 ) {
   return await db.notes.add({

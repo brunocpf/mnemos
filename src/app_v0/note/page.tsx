@@ -1,5 +1,5 @@
 import { BackButton } from "@/components/back-button";
-import { NoteView } from "@/components/note-view";
+import { NoteView } from "@/components/note-view-v1";
 import { decodeSearchHighlight } from "@/lib/search-highlight";
 
 export default async function NotePage({

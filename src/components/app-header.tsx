@@ -28,7 +28,7 @@ export function AppHeader() {
   const title =
     {
       "/": t("Your Notes"),
-      "/note/new": t("New Note"),
+      "/note": t("New Note"),
     }[pathname] || "Mnemos";
 
   const handleBack = () => {
