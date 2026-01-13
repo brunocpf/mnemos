@@ -25,7 +25,11 @@ export function AppHeader() {
   const parentPath = pathname.split("/").slice(0, -1).join("/") || "/";
   const pageToGoBack = previous || parentPath;
 
-  const title = pathname === "/" ? t("Your Notes") : "Mnemos";
+  const title =
+    {
+      "/": t("Your Notes"),
+      "/note/new": t("New Note"),
+    }[pathname] || "Mnemos";
 
   const handleBack = () => {
     startTransition(() => {
@@ -38,7 +42,7 @@ export function AppHeader() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-50 flex w-full pt-[env(safe-area-inset-top)]"
+      className="sticky top-0 z-50 flex w-full snap-start pt-[env(safe-area-inset-top)]"
     >
       <div className="bg-background/70 mn-header-bg-scroll absolute inset-0 mask-[linear-gradient(to_bottom,black,rgba(1,1,1,0.9),rgba(1,1,1,0.01))] backdrop-blur-xs" />
       <div className="isolate mx-auto grid w-full max-w-5xl grid-cols-[auto_1fr_auto] place-items-center px-6 py-4 [view-transition-class:fixed-fg] [view-transition-name:app-header-fg]">
@@ -48,7 +52,7 @@ export function AppHeader() {
           <ViewTransition default="fixed-fg">
             <Button
               aria-label={t("Go Back")}
-              className="col-start-1 cursor-pointer"
+              className="col-start-1"
               onClick={handleBack}
               variant="outline"
               size="icon-xl"
@@ -66,9 +70,13 @@ export function AppHeader() {
         </Activity>
         <Button
           variant="outline"
-          size="icon"
+          size="icon-xl"
           aria-label="Submit"
-          className="col-start-3 cursor-pointer"
+          className="col-start-3"
+          onFocus={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
         >
           <IconDots />
         </Button>

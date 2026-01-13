@@ -15,6 +15,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useNotes } from "@/hooks/use-notes";
+import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useSearchValue } from "@/providers/search-value-provider";
 
@@ -23,6 +24,7 @@ export default function NotesList() {
   const { searchValue } = useSearchValue();
   const debouncedSearchValue = useDebounce(searchValue, 150);
   const { data: notes, isLoading, error } = useNotes(debouncedSearchValue);
+  const router = useRouter();
 
   const safeNotes = notes ?? [];
 
@@ -48,7 +50,7 @@ export default function NotesList() {
       <div
         className={cn(
           paneBaseClassName,
-          "delay-300 data-[active=false]:delay-0",
+          "delay-500 data-[active=false]:delay-0",
         )}
         data-active={state === "loading"}
       >
@@ -87,7 +89,12 @@ export default function NotesList() {
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button variant="outline" size="sm">
+            <Button
+              variant="outline"
+              onClick={() => {
+                router.push("/note/new", { scroll: true });
+              }}
+            >
               {t("Create your first note")}
             </Button>
           </EmptyContent>
@@ -97,7 +104,9 @@ export default function NotesList() {
       <div className={paneBaseClassName} data-active={state === "list"}>
         <ul className="space-y-3">
           {safeNotes.map((note) => (
-            <li key={note.id}>{note.content}</li>
+            <li className="[content-visibility:auto]" key={note.id}>
+              {note.content}
+            </li>
           ))}
         </ul>
       </div>

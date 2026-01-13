@@ -41,7 +41,12 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang={locale} className={font.variable} suppressHydrationWarning>
+    <html
+      className={`h-dvh snap-none overflow-y-auto scroll-smooth focus-within:snap-none ${font.variable}`}
+      lang={locale}
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+    >
       <head />
       <body className="antialiased">
         <NextIntlClientProvider>

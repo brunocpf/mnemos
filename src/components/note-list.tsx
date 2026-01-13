@@ -3,7 +3,6 @@
 import { ReactNode, useMemo } from "react";
 
 import type { Note } from "@/client-data/note";
-import { useNotes } from "@/client-data/notes-dal";
 import { NoteListItem } from "@/components/note-list-item";
 import { Spinner } from "@/components/ui/spinner";
 import type { SemanticMatch } from "@/hooks/use-semantic-search";
@@ -21,7 +20,10 @@ export function NoteList({
   isSearching,
   error,
 }: NoteListProps) {
-  const { data: notes, isLoading } = useNotes();
+  const { data: notes, isLoading } = {
+    data: [] as Note[],
+    isLoading: false,
+  }; // useNotes();
 
   const trimmedQuery = searchQuery.trim();
   const noteMap = useMemo(() => {

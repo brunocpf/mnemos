@@ -113,6 +113,7 @@ export default function SearchInput() {
             size="icon-sm"
             onMouseDown={(e) => {
               e.preventDefault();
+              e.stopPropagation();
             }}
             onClick={() => {
               setSearchValue("");
@@ -142,8 +143,11 @@ export default function SearchInput() {
           size="icon-xl"
           type="button"
           aria-label={t("New Note")}
+          onFocus={(e) => e.stopPropagation()}
           onClick={() => {
-            window.scrollTo({ top: 0, behavior: "instant" });
+            router.push("/note/new", {
+              scroll: true,
+            });
           }}
         >
           <IconPencilPlus />

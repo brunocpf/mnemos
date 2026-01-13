@@ -130,15 +130,8 @@
   html,
   body {
     scrollbar-gutter: stable both-edges;
-    scroll-snap-type: y proximity;
-    scroll-behavior: smooth;
     overscroll-behavior: none contain;
     touch-action: pan-y;
-  }
-
-  html:focus-within,
-  body:focus-within {
-    scroll-snap-type: none;
   }
 
   input.mn-no-native-search-cancel[type="search"]::-webkit-search-cancel-button,
@@ -166,19 +159,12 @@
 }
 
 @layer utilities {
-  .search-highlight {
-    @apply text-foreground rounded-sm bg-amber-200/70 dark:bg-amber-300/30;
-  }
-
   @view-transition {
     navigation: auto;
   }
 
-  .mn-snap-section {
-    --mn-scroll-margin-section-top: var(--mn-header-h, 0px);
-    --mn-scroll-margin-section-bottom: var(--mn-footer-h, 0px);
-    scroll-margin-top: var(--mn-scroll-margin-section-top);
-    scroll-margin-bottom: var(--mn-scroll-margin-section-bottom);
+  .search-highlight {
+    @apply text-foreground rounded-sm bg-amber-200/70 dark:bg-amber-300/30;
   }
 
   .mn-header-bg-scroll {
