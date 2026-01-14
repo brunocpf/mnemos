@@ -51,13 +51,13 @@ export function NotesListItem({ note }: NotesListItemProps) {
 
   const handleDelete = () => {
     deleteNote(note.id);
-    toast.info(t("Note deleted"), {
+    toast.info(t("toasts.noteDeleted"), {
       position: "top-center",
       action: {
-        label: t("Undo"),
+        label: t("actions.undo"),
         onClick: () => {
           restoreNote(note.id);
-          toast.info(t("Note restored"), {
+          toast.info(t("toasts.noteRestored"), {
             position: "top-center",
           });
         },
@@ -80,7 +80,7 @@ export function NotesListItem({ note }: NotesListItemProps) {
     }
     const firstLine = content.split("\n")[0].trim().slice(0, 100);
 
-    return firstLine.length > 0 ? firstLine : t("Untitled");
+    return firstLine.length > 0 ? firstLine : t("placeholders.untitled");
   }, [note.title, content, t]);
 
   const form = useForm({
@@ -96,7 +96,7 @@ export function NotesListItem({ note }: NotesListItemProps) {
       await updateNoteTitle(note.id, updatedTitle);
 
       // flush embedding for this note
-      toast.success(t("Note renamed"), { position: "top-center" });
+      toast.success(t("toasts.noteRenamed"), { position: "top-center" });
     },
   });
 
@@ -146,7 +146,7 @@ export function NotesListItem({ note }: NotesListItemProps) {
             render={
               <ContextMenuItem nativeButton={false} inset>
                 <IconEdit />
-                {t("Rename")}
+                {t("actions.rename")}
               </ContextMenuItem>
             }
           />
@@ -157,7 +157,7 @@ export function NotesListItem({ note }: NotesListItemProps) {
             onClick={handleDelete}
           >
             <IconTrash />
-            {t("Delete")}
+            {t("actions.delete")}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
@@ -170,8 +170,10 @@ export function NotesListItem({ note }: NotesListItemProps) {
           className="flex flex-col gap-4"
         >
           <DialogHeader>
-            <DialogTitle>{t("Rename")}</DialogTitle>
-            <DialogDescription>{t("Rename this note")}</DialogDescription>
+            <DialogTitle>{t("actions.rename")}</DialogTitle>
+            <DialogDescription>
+              {t("dialogs.rename.description")}
+            </DialogDescription>
           </DialogHeader>
           <form.Field name="newTitle">
             {(field) => {
@@ -201,7 +203,7 @@ export function NotesListItem({ note }: NotesListItemProps) {
             <DialogClose
               render={
                 <Button className="cursor-pointer" type="submit">
-                  {t("Confirm")}
+                  {t("actions.confirm")}
                 </Button>
               }
             />

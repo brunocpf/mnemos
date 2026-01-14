@@ -33,7 +33,7 @@ export function NoteView({ noteId }: NoteViewProps) {
         content: value,
       });
       setCurrentNoteId(noteIdToPersist);
-      toast.success(t("Note created"), { position: "top-center" });
+      toast.success(t("toasts.noteCreated"), { position: "top-center" });
     } else if (noteIdToPersist) {
       const contentChanged = noteData?.content !== value;
       if (contentChanged) {
@@ -54,13 +54,15 @@ export function NoteView({ noteId }: NoteViewProps) {
         <Activity mode={showLoading ? "visible" : "hidden"}>
           <div className="flex items-center gap-2 opacity-100 delay-500 starting:opacity-0">
             <Spinner />
-            <span>{t("Loading note")}</span>
+            <span>{t("loading.note")}</span>
           </div>
         </Activity>
         <Activity mode={noteDoesNotExist ? "visible" : "hidden"}>
-          <h1 className="text-3xl font-semibold">{t("Note not found")}</h1>
+          <h1 className="text-3xl font-semibold">
+            {t("errors.notFound.title")}
+          </h1>
           <p className="text-muted-foreground">
-            {t("It may have been deleted or never existed")}
+            {t("errors.notFound.description")}
           </p>
         </Activity>
         <Activity mode={showEditor ? "visible" : "hidden"}>

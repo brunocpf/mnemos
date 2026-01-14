@@ -39,8 +39,8 @@ export function AppHeader() {
 
   const title =
     {
-      "/": t("Your Notes"),
-      "/note": t("Note"),
+      "/": t("navigation.yourNotes"),
+      "/note": t("navigation.note"),
     }[pathname] || "Mnemos";
 
   const handleBack = () => {
@@ -67,7 +67,7 @@ export function AppHeader() {
         >
           <ViewTransition default="fixed-fg">
             <Button
-              aria-label={t("Go Back")}
+              aria-label={t("navigation.goBack")}
               className="col-start-1"
               onClick={handleBack}
               variant="outline"
@@ -90,7 +90,7 @@ export function AppHeader() {
               <Button
                 variant="outline"
                 size="icon-xl"
-                aria-label={t("Menu")}
+                aria-label={t("navigation.menu")}
                 className="col-start-3"
                 onFocus={(e) => {
                   e.stopPropagation();
@@ -104,19 +104,19 @@ export function AppHeader() {
           <DropdownMenuContent align="end" side="bottom" sideOffset={8}>
             <DropdownMenuItem onClick={handleNewNote}>
               <IconPencilPlus />
-              {t("New note")}
+              {t("navigation.newNote")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => router.push("/privacy-policy", { scroll: true })}
             >
               <IconShieldLock />
-              {t("Privacy Policy")}
+              {t("navigation.privacyPolicy")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => router.push("/settings", { scroll: true })}
             >
               <IconSettings />
-              {t("Settings")}
+              {t("navigation.settings")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

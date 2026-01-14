@@ -67,8 +67,8 @@ export default function SearchInput() {
             setSearchValue(e.target.value);
           }}
           suppressHydrationWarning
-          aria-label={t("Search Notes")}
-          placeholder={t("Search notes")}
+          aria-label={t("labels.searchNotes")}
+          placeholder={t("placeholders.searchNotes")}
           className="mn-no-native-search-cancel text-base"
           type="search"
           inputMode="search"
@@ -109,7 +109,7 @@ export default function SearchInput() {
           }
         >
           <InputGroupButton
-            aria-label={t("Clear")}
+            aria-label={t("actions.clear")}
             size="icon-sm"
             onMouseDown={(e) => {
               e.preventDefault();
@@ -130,7 +130,7 @@ export default function SearchInput() {
           variant="outline"
           size="icon-xl"
           type="button"
-          aria-label={t("Cancel")}
+          aria-label={t("actions.cancel")}
           onClick={() => {
             inputRef.current?.blur();
           }}
@@ -142,7 +142,7 @@ export default function SearchInput() {
           variant="outline"
           size="icon-xl"
           type="button"
-          aria-label={t("New Note")}
+          aria-label={t("actions.newNote")}
           onFocus={(e) => e.stopPropagation()}
           onClick={() => {
             router.push("/note", {

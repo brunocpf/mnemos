@@ -1,76 +1,187 @@
 {
   "Shared": {
-    "Go Back": "Go Back",
-    "Your Notes": "Your Notes",
-    "Note": "Note",
-    "Menu": "Menu",
-    "New note": "New note",
-    "Privacy Policy": "Privacy Policy",
-    "Settings": "Settings"
+    "navigation": {
+      "goBack": "Go Back",
+      "yourNotes": "Your Notes",
+      "note": "Note",
+      "menu": "Menu",
+      "newNote": "New note",
+      "privacyPolicy": "Privacy Policy",
+      "settings": "Settings"
+    }
   },
   "Notes": {
-    "Your Notes": "Your Notes",
-    "No Notes": "No Notes",
-    "Start writing notes to see them here": "Start writing notes to see them here.",
-    "Create your first note": "Create your first note",
-    "Loading your notes": "Loading your notes...",
-    "Error loading notes": "Error loading notes",
-    "Note deleted": "Note deleted",
-    "Note restored": "Note restored",
-    "Undo": "Undo",
-    "Note renamed": "Note renamed",
-    "Rename": "Rename",
-    "Delete": "Delete",
-    "Rename this note": "Rename this note.",
-    "Confirm": "Confirm",
-    "Untitled": "Untitled"
+    "titles": {
+      "yourNotes": "Your Notes"
+    },
+    "emptyState": {
+      "title": "No Notes",
+      "description": "Start writing notes to see them here.",
+      "actions": {
+        "createFirstNote": "Create your first note"
+      }
+    },
+    "loading": {
+      "notes": "Loading your notes..."
+    },
+    "errors": {
+      "loadingNotes": "Error loading notes"
+    },
+    "toasts": {
+      "noteDeleted": "Note deleted",
+      "noteRestored": "Note restored",
+      "noteRenamed": "Note renamed"
+    },
+    "actions": {
+      "undo": "Undo",
+      "rename": "Rename",
+      "delete": "Delete",
+      "confirm": "Confirm"
+    },
+    "placeholders": {
+      "untitled": "Untitled"
+    },
+    "dialogs": {
+      "rename": {
+        "description": "Rename this note."
+      }
+    }
   },
   "NoteView": {
-    "Note created": "Note created",
-    "Loading note": "Loading note...",
-    "Note not found": "Note not found",
-    "It may have been deleted or never existed": "It may have been deleted or never existed"
+    "toasts": {
+      "noteCreated": "Note created"
+    },
+    "loading": {
+      "note": "Loading note..."
+    },
+    "errors": {
+      "notFound": {
+        "title": "Note not found",
+        "description": "It may have been deleted or never existed"
+      }
+    }
   },
   "SearchInput": {
-    "Search": "Search",
-    "Search Notes": "Search Notes",
-    "Search notes": "Search notes...",
-    "Start voice input": "Start voice input",
-    "Stop voice input": "Stop voice input",
-    "Listening": "Listening",
-    "Clear": "Clear",
-    "Cancel": "Cancel",
-    "New Note": "New Note"
+    "labels": {
+      "search": "Search",
+      "searchNotes": "Search Notes"
+    },
+    "placeholders": {
+      "searchNotes": "Search notes..."
+    },
+    "actions": {
+      "startVoiceInput": "Start voice input",
+      "stopVoiceInput": "Stop voice input",
+      "clear": "Clear",
+      "cancel": "Cancel",
+      "newNote": "New Note"
+    },
+    "status": {
+      "listening": "Listening"
+    }
   },
   "RichTextEditorToolbar": {
-    "Undo": "Undo",
-    "Redo": "Redo",
-    "Text style": "Text style",
-    "Normal": "Normal",
-    "Heading 1": "Heading 1",
-    "Heading 2": "Heading 2",
-    "Heading 3": "Heading 3",
-    "Clear formatting": "Clear formatting",
-    "Bold": "Bold",
-    "Italic": "Italic",
-    "Underline": "Underline",
-    "Strikethrough": "Strikethrough",
-    "Inline code": "Inline code",
-    "Bullet list": "Bullet list",
-    "Numbered list": "Numbered list",
-    "Blockquote": "Blockquote",
-    "Text alignment": "Text alignment",
-    "Left": "Left",
-    "Center": "Center",
-    "Right": "Right",
-    "Justify": "Justify",
-    "Add link": "Add link",
-    "Remove link": "Remove link",
-    "Enter URL": "Enter URL",
-    "Insert image": "Insert image",
-    "Image URL": "Image URL",
-    "Insert from URL": "Insert from URL",
-    "Image URL (base64 or https://)": "Image URL (base64 or https://)",
-    "Insert (advanced)": "Insert (advanced)"
+    "actions": {
+      "undo": "Undo",
+      "redo": "Redo",
+      "clearFormatting": "Clear formatting"
+    },
+    "textStyle": {
+      "label": "Text style",
+      "options": {
+        "normal": "Normal",
+        "heading1": "Heading 1",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3"
+      }
+    },
+    "marks": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strikethrough": "Strikethrough",
+      "inlineCode": "Inline code"
+    },
+    "lists": {
+      "bulletList": "Bullet list",
+      "numberedList": "Numbered list"
+    },
+    "blocks": {
+      "blockquote": "Blockquote"
+    },
+    "alignment": {
+      "label": "Text alignment",
+      "options": {
+        "left": "Left",
+        "center": "Center",
+        "right": "Right",
+        "justify": "Justify"
+      }
+    },
+    "link": {
+      "actions": {
+        "add": "Add link",
+        "remove": "Remove link"
+      },
+      "prompts": {
+        "enterUrl": "Enter URL"
+      }
+    },
+    "image": {
+      "actions": {
+        "insert": "Insert image",
+        "insertFromUrl": "Insert from URL",
+        "insertAdvanced": "Insert (advanced)"
+      },
+      "prompts": {
+        "url": "Image URL",
+        "urlAdvanced": "Image URL (base64 or https://)"
+      }
+    }
+  },
+  "SettingsView": {
+    "pageDescription": "Decide where Mnemos runs heavy AI workloads and how often you hear about local indexing hiccups.",
+    "preferencesUpdated": "Preferences updated",
+    "summaries": {
+      "title": "Summaries",
+      "description": "Choose whether to summarize notes locally, remotely, or with an automatic fallback.",
+      "label": "Summaries run on",
+      "options": {
+        "localOnly": {
+          "label": "Local only",
+          "description": "Run the Phi-3.5 summarizer entirely on this device."
+        },
+        "allowFallback": {
+          "label": "Allow fallback",
+          "description": "Try the local worker first, then call the cloud helper if it fails."
+        },
+        "serverOnly": {
+          "label": "Server only",
+          "description": "Always send summaries to Mnemos' server action (requires internet)."
+        }
+      }
+    },
+    "embeddings": {
+      "title": "Embeddings",
+      "description": "Control how Mnemos indexes notes for semantic search and when to fall back to the cloud.",
+      "label": "Embeddings run on",
+      "options": {
+        "localOnly": {
+          "label": "Local only",
+          "description": "Derive embeddings with the on-device transformer."
+        },
+        "allowFallback": {
+          "label": "Allow fallback",
+          "description": "Retry in the cloud when the local worker errors or times out."
+        }
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Mute local indexing error toasts once you are confident in your setup.",
+      "toggleTitle": "Hide local indexing alerts",
+      "toggleDescription": "Prevent Mnemos from showing fallback prompts when embeddings fail."
+    },
+    "privacyPrompt": "Looking for a privacy refresher? Head over to the <link>privacy policy</link>."
   }
 }

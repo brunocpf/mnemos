@@ -5,7 +5,7 @@ import NotesList from "@/components/notes-list";
 
 export default async function Home() {
   const t = await getTranslations("Shared");
-  const title = t("Your Notes");
+  const title = t("navigation.yourNotes");
 
   return (
     <ViewTransition

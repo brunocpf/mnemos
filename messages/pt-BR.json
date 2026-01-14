@@ -1,76 +1,187 @@
 {
   "Shared": {
-    "Go Back": "Voltar",
-    "Your Notes": "Suas Anotações",
-    "Note": "Anotação",
-    "Menu": "Menu",
-    "New note": "Nova anotação",
-    "Privacy Policy": "Política de Privacidade",
-    "Settings": "Configurações"
+    "navigation": {
+      "goBack": "Voltar",
+      "yourNotes": "Suas Anotações",
+      "note": "Anotação",
+      "menu": "Menu",
+      "newNote": "Nova anotação",
+      "privacyPolicy": "Política de Privacidade",
+      "settings": "Configurações"
+    }
   },
   "Notes": {
-    "Your Notes": "Suas Anotações",
-    "No Notes": "Nenhuma Anotação",
-    "Start writing notes to see them here": "Escreva anotações para vê-las aqui.",
-    "Create your first note": "Crie sua primeira anotação",
-    "Loading your notes": "Carregando suas anotações...",
-    "Error loading notes": "Erro ao carregar anotações",
-    "Note deleted": "Anotação deletada",
-    "Note restored": "Anotação restaurada",
-    "Undo": "Desfazer",
-    "Note renamed": "Anotação renomeada",
-    "Rename": "Renomear",
-    "Delete": "Deletar",
-    "Rename this note": "Renomeie esta anotação.",
-    "Confirm": "Confirmar",
-    "Untitled": "Sem título"
+    "titles": {
+      "yourNotes": "Suas Anotações"
+    },
+    "emptyState": {
+      "title": "Nenhuma Anotação",
+      "description": "Escreva anotações para vê-las aqui.",
+      "actions": {
+        "createFirstNote": "Crie sua primeira anotação"
+      }
+    },
+    "loading": {
+      "notes": "Carregando suas anotações..."
+    },
+    "errors": {
+      "loadingNotes": "Erro ao carregar anotações"
+    },
+    "toasts": {
+      "noteDeleted": "Anotação deletada",
+      "noteRestored": "Anotação restaurada",
+      "noteRenamed": "Anotação renomeada"
+    },
+    "actions": {
+      "undo": "Desfazer",
+      "rename": "Renomear",
+      "delete": "Deletar",
+      "confirm": "Confirmar"
+    },
+    "placeholders": {
+      "untitled": "Sem título"
+    },
+    "dialogs": {
+      "rename": {
+        "description": "Renomeie esta anotação."
+      }
+    }
   },
   "NoteView": {
-    "Note created": "Anotação criada",
-    "Loading note": "Carregando anotação...",
-    "Note not found": "Anotação não encontrada",
-    "It may have been deleted or never existed": "Pode ter sido deletada ou nunca existiu"
+    "toasts": {
+      "noteCreated": "Anotação criada"
+    },
+    "loading": {
+      "note": "Carregando anotação..."
+    },
+    "errors": {
+      "notFound": {
+        "title": "Anotação não encontrada",
+        "description": "Pode ter sido deletada ou nunca existiu"
+      }
+    }
   },
   "SearchInput": {
-    "Search": "Pesquisar",
-    "Search Notes": "Pesquisar Anotações",
-    "Search notes": "Pesquisar anotações...",
-    "Start voice input": "Iniciar entrada de voz",
-    "Stop voice input": "Parar entrada de voz",
-    "Listening": "Ouvindo",
-    "Clear": "Limpar",
-    "Cancel": "Cancelar",
-    "New Note": "Nova Anotação"
+    "labels": {
+      "search": "Pesquisar",
+      "searchNotes": "Pesquisar Anotações"
+    },
+    "placeholders": {
+      "searchNotes": "Pesquisar anotações..."
+    },
+    "actions": {
+      "startVoiceInput": "Iniciar entrada de voz",
+      "stopVoiceInput": "Parar entrada de voz",
+      "clear": "Limpar",
+      "cancel": "Cancelar",
+      "newNote": "Nova Anotação"
+    },
+    "status": {
+      "listening": "Ouvindo"
+    }
   },
   "RichTextEditorToolbar": {
-    "Undo": "Desfazer",
-    "Redo": "Refazer",
-    "Text style": "Estilo do texto",
-    "Normal": "Normal",
-    "Heading 1": "Título 1",
-    "Heading 2": "Título 2",
-    "Heading 3": "Título 3",
-    "Clear formatting": "Limpar formatação",
-    "Bold": "Negrito",
-    "Italic": "Itálico",
-    "Underline": "Sublinhado",
-    "Strikethrough": "Tachado",
-    "Inline code": "Código inline",
-    "Bullet list": "Lista com marcadores",
-    "Numbered list": "Lista numerada",
-    "Blockquote": "Citação",
-    "Text alignment": "Alinhamento",
-    "Left": "Esquerda",
-    "Center": "Centro",
-    "Right": "Direita",
-    "Justify": "Justificar",
-    "Add link": "Adicionar link",
-    "Remove link": "Remover link",
-    "Enter URL": "Digite a URL",
-    "Insert image": "Inserir imagem",
-    "Image URL": "URL da imagem",
-    "Insert from URL": "Inserir por URL",
-    "Image URL (base64 or https://)": "URL da imagem (base64 ou https://)",
-    "Insert (advanced)": "Inserir (avançado)"
+    "actions": {
+      "undo": "Desfazer",
+      "redo": "Refazer",
+      "clearFormatting": "Limpar formatação"
+    },
+    "textStyle": {
+      "label": "Estilo do texto",
+      "options": {
+        "normal": "Normal",
+        "heading1": "Título 1",
+        "heading2": "Título 2",
+        "heading3": "Título 3"
+      }
+    },
+    "marks": {
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "underline": "Sublinhado",
+      "strikethrough": "Tachado",
+      "inlineCode": "Código inline"
+    },
+    "lists": {
+      "bulletList": "Lista com marcadores",
+      "numberedList": "Lista numerada"
+    },
+    "blocks": {
+      "blockquote": "Citação"
+    },
+    "alignment": {
+      "label": "Alinhamento",
+      "options": {
+        "left": "Esquerda",
+        "center": "Centro",
+        "right": "Direita",
+        "justify": "Justificar"
+      }
+    },
+    "link": {
+      "actions": {
+        "add": "Adicionar link",
+        "remove": "Remover link"
+      },
+      "prompts": {
+        "enterUrl": "Digite a URL"
+      }
+    },
+    "image": {
+      "actions": {
+        "insert": "Inserir imagem",
+        "insertFromUrl": "Inserir por URL",
+        "insertAdvanced": "Inserir (avançado)"
+      },
+      "prompts": {
+        "url": "URL da imagem",
+        "urlAdvanced": "URL da imagem (base64 ou https://)"
+      }
+    }
+  },
+  "SettingsView": {
+    "pageDescription": "Decida onde o Mnemos executa cargas pesadas de IA e com que frequência você é avisado sobre falhas de indexação local.",
+    "preferencesUpdated": "Preferências atualizadas",
+    "summaries": {
+      "title": "Resumos",
+      "description": "Escolha se os resumos são gerados localmente, remotamente ou com fallback automático.",
+      "label": "Os resumos rodam em",
+      "options": {
+        "localOnly": {
+          "label": "Somente local",
+          "description": "Execute o resumidor Phi-3.5 inteiramente neste dispositivo."
+        },
+        "allowFallback": {
+          "label": "Permitir fallback",
+          "description": "Tente primeiro o worker local e, se falhar, use o helper na nuvem."
+        },
+        "serverOnly": {
+          "label": "Somente servidor",
+          "description": "Sempre envie resumos para a server action do Mnemos (requer internet)."
+        }
+      }
+    },
+    "embeddings": {
+      "title": "Embeddings",
+      "description": "Controle como o Mnemos indexa anotações para busca semântica e quando recorrer à nuvem.",
+      "label": "Embeddings rodam em",
+      "options": {
+        "localOnly": {
+          "label": "Somente local",
+          "description": "Gere embeddings com o transformer no dispositivo."
+        },
+        "allowFallback": {
+          "label": "Permitir fallback",
+          "description": "Tente novamente na nuvem quando o worker local falhar ou expirar."
+        }
+      }
+    },
+    "notifications": {
+      "title": "Notificações",
+      "description": "Silencie os toasts de erro de indexação local quando você estiver confiante na sua configuração.",
+      "toggleTitle": "Ocultar alertas de indexação local",
+      "toggleDescription": "Evite que o Mnemos mostre avisos de fallback quando embeddings falharem."
+    },
+    "privacyPrompt": "Quer revisar a privacidade? Veja a <link>política de privacidade</link>."
   }
 }

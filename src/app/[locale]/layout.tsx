@@ -11,6 +11,7 @@ import { routing } from "@/i18n/routing";
 import { EmbedderServiceProvider } from "@/providers/embedder-service-provider";
 import { HistoryProvider } from "@/providers/history-provider";
 import { SearchValueProvider } from "@/providers/search-value-provider";
+import { SettingsProvider } from "@/providers/settings-provider";
 
 import "./globals.css";
 
@@ -57,12 +58,14 @@ export default async function RootLayout({
                 defaultTheme="system"
                 enableSystem
               >
-                <SearchValueProvider>
-                  <AppHeader />
-                  {children}
-                  <AppFooter />
-                  <Toaster />
-                </SearchValueProvider>
+                <SettingsProvider>
+                  <SearchValueProvider>
+                    <AppHeader />
+                    {children}
+                    <AppFooter />
+                    <Toaster />
+                  </SearchValueProvider>
+                </SettingsProvider>
               </ThemeProvider>
             </EmbedderServiceProvider>
           </HistoryProvider>

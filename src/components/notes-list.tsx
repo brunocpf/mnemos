@@ -53,13 +53,13 @@ export default function NotesList() {
           <EmptyState className="opacity-100 transition-opacity delay-500 starting:opacity-0">
             <div className="flex items-center justify-center gap-2 text-sm">
               <Spinner />
-              <span>{t("Loading your notes")}</span>
+              <span>{t("loading.notes")}</span>
             </div>
           </EmptyState>
         </Activity>
         <Activity mode={state === "error" ? "visible" : "hidden"}>
           <EmptyState>
-            <div>{`${t("Error loading notes")}: ${error?.message}`}</div>
+            <div>{`${t("errors.loadingNotes")}: ${error?.message}`}</div>
           </EmptyState>
         </Activity>
         <Activity mode={state === "filtered-empty" ? "visible" : "hidden"}>
@@ -73,10 +73,8 @@ export default function NotesList() {
               <EmptyMedia variant="icon">
                 <IconPencil />
               </EmptyMedia>
-              <EmptyTitle>{t("No Notes")}</EmptyTitle>
-              <EmptyDescription>
-                {t("Start writing notes to see them here")}
-              </EmptyDescription>
+              <EmptyTitle>{t("emptyState.title")}</EmptyTitle>
+              <EmptyDescription>{t("emptyState.description")}</EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
               <Button
@@ -85,7 +83,7 @@ export default function NotesList() {
                   router.push("/note", { scroll: true });
                 }}
               >
-                {t("Create your first note")}
+                {t("emptyState.actions.createFirstNote")}
               </Button>
             </EmptyContent>
           </EmptyState>
