@@ -1,4 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
+import { startTransition, useEffect, useState } from "react";
 
 import { db } from "@/client-data/db";
 import { Note } from "@/client-data/note";
@@ -11,15 +12,22 @@ export function useNotes(search: string): {
   isLoading: boolean;
   error: Error | null;
 } {
+  const [isLoading, setIsLoading] = useState(true);
   const allNotes = useLiveQuery(
     () => db.notes.where("deleted").equals(0).reverse().sortBy("updatedAt"),
     [],
     loadingSymbol,
   );
 
-  const dbIsLoading = allNotes === loadingSymbol;
+  useEffect(() => {
+    const dbIsLoading = allNotes === loadingSymbol;
 
-  const isLoading = dbIsLoading;
+    if (isLoading !== dbIsLoading) {
+      startTransition(() => {
+        setIsLoading(dbIsLoading);
+      });
+    }
+  }, [allNotes, isLoading]);
 
   return {
     data: allNotes === loadingSymbol ? undefined : allNotes,

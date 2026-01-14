@@ -10,8 +10,8 @@ import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
 
 import { AppFooterSlot } from "@/components/app-footer-slot";
-import { RichTextEditorToolbar } from "@/components/rich-text-editor-toolbar";
 import { LinkOpenButtonExtension } from "@/components/rich-text-editor/link-open-button-extension";
+import { RichTextEditorToolbar } from "@/components/rich-text-editor/rich-text-editor-toolbar";
 import { SearchHighlightExtension } from "@/components/rich-text-editor/search-highlight-extension";
 
 interface RichTextEditorProps {

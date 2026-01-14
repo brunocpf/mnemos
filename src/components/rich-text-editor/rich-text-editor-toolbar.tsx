@@ -25,6 +25,7 @@ import {
   IconUnlink,
 } from "@tabler/icons-react";
 import type { Editor } from "@tiptap/react";
+import { useTranslations } from "next-intl";
 import { redoDepth, undoDepth } from "prosemirror-history";
 import { useEffect, useState } from "react";
 
@@ -44,6 +45,7 @@ interface RichTextEditorToolbarProps {
 }
 
 export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
+  const t = useTranslations("RichTextEditorToolbar");
   const [, forceRender] = useState(0);
 
   useEffect(() => {
@@ -83,7 +85,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
         ? "H2"
         : headingValue === "h3"
           ? "H3"
-          : "Normal";
+          : t("Normal");
 
   const alignValue = !editor
     ? "left"
@@ -107,8 +109,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Undo"
-          title="Undo"
+          aria-label={t("Undo")}
+          title={t("Undo")}
           disabled={!editor || !canUndo}
           onMouseDown={preventMouseDown}
           onClick={() => {
@@ -122,8 +124,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Redo"
-          title="Redo"
+          aria-label={t("Redo")}
+          title={t("Redo")}
           disabled={!editor || !canRedo}
           onMouseDown={preventMouseDown}
           onClick={() => {
@@ -146,8 +148,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
                 variant="ghost"
                 size="sm"
                 className="gap-1.5"
-                aria-label="Text style"
-                title="Text style"
+                aria-label={t("Text style")}
+                title={t("Text style")}
                 onMouseDown={preventMouseDown}
               >
                 <span className="min-w-12 text-left">{headingLabel}</span>
@@ -164,7 +166,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
                 <span className="text-muted-foreground inline-flex size-5 items-center justify-center">
                   <span className="text-xs font-semibold">Aa</span>
                 </span>
-                Normal
+                {t("Normal")}
               </span>
               <span
                 className={cn(
@@ -181,7 +183,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
                 editor?.chain().focus().toggleHeading({ level: 1 }).run()
               }
             >
-              <IconH1 /> Heading 1
+              <IconH1 /> {t("Heading 1")}
               <span
                 className={cn(
                   "text-muted-foreground ml-auto text-xs",
@@ -197,7 +199,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
                 editor?.chain().focus().toggleHeading({ level: 2 }).run()
               }
             >
-              <IconH2 /> Heading 2
+              <IconH2 /> {t("Heading 2")}
               <span
                 className={cn(
                   "text-muted-foreground ml-auto text-xs",
@@ -213,7 +215,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
                 editor?.chain().focus().toggleHeading({ level: 3 }).run()
               }
             >
-              <IconH3 /> Heading 3
+              <IconH3 /> {t("Heading 3")}
               <span
                 className={cn(
                   "text-muted-foreground ml-auto text-xs",
@@ -230,8 +232,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Clear formatting"
-          title="Clear formatting"
+          aria-label={t("Clear formatting")}
+          title={t("Clear formatting")}
           disabled={!editor}
           onMouseDown={preventMouseDown}
           onClick={() =>
@@ -249,8 +251,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Bold"
-          title="Bold"
+          aria-label={t("Bold")}
+          title={t("Bold")}
           disabled={!editor}
           aria-pressed={!!editor && editor.isActive("bold")}
           className={cn(!!editor && editor.isActive("bold") && "bg-muted")}
@@ -263,8 +265,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Italic"
-          title="Italic"
+          aria-label={t("Italic")}
+          title={t("Italic")}
           disabled={!editor}
           aria-pressed={!!editor && editor.isActive("italic")}
           className={cn(!!editor && editor.isActive("italic") && "bg-muted")}
@@ -277,8 +279,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Underline"
-          title="Underline"
+          aria-label={t("Underline")}
+          title={t("Underline")}
           disabled={!editor}
           aria-pressed={!!editor && editor.isActive("underline")}
           className={cn(!!editor && editor.isActive("underline") && "bg-muted")}
@@ -291,8 +293,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Strikethrough"
-          title="Strikethrough"
+          aria-label={t("Strikethrough")}
+          title={t("Strikethrough")}
           disabled={!editor}
           aria-pressed={!!editor && editor.isActive("strike")}
           className={cn(!!editor && editor.isActive("strike") && "bg-muted")}
@@ -305,8 +307,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Inline code"
-          title="Inline code"
+          aria-label={t("Inline code")}
+          title={t("Inline code")}
           disabled={!editor}
           aria-pressed={!!editor && editor.isActive("code")}
           className={cn(!!editor && editor.isActive("code") && "bg-muted")}
@@ -324,8 +326,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Bullet list"
-          title="Bullet list"
+          aria-label={t("Bullet list")}
+          title={t("Bullet list")}
           disabled={!editor}
           aria-pressed={!!editor && editor.isActive("bulletList")}
           className={cn(
@@ -340,8 +342,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Numbered list"
-          title="Numbered list"
+          aria-label={t("Numbered list")}
+          title={t("Numbered list")}
           disabled={!editor}
           aria-pressed={!!editor && editor.isActive("orderedList")}
           className={cn(
@@ -356,8 +358,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label="Blockquote"
-          title="Blockquote"
+          aria-label={t("Blockquote")}
+          title={t("Blockquote")}
           disabled={!editor}
           aria-pressed={!!editor && editor.isActive("blockquote")}
           className={cn(
@@ -380,8 +382,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Text alignment"
-                title="Text alignment"
+                aria-label={t("Text alignment")}
+                title={t("Text alignment")}
                 onMouseDown={preventMouseDown}
               >
                 {alignValue === "center" ? (
@@ -401,7 +403,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
               onMouseDown={preventMouseDown}
               onClick={() => editor?.chain().focus().setTextAlign("left").run()}
             >
-              <IconAlignLeft /> Left
+              <IconAlignLeft /> {t("Left")}
               <span
                 className={cn(
                   "text-muted-foreground ml-auto text-xs",
@@ -417,7 +419,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
                 editor?.chain().focus().setTextAlign("center").run()
               }
             >
-              <IconAlignCenter /> Center
+              <IconAlignCenter /> {t("Center")}
               <span
                 className={cn(
                   "text-muted-foreground ml-auto text-xs",
@@ -433,7 +435,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
                 editor?.chain().focus().setTextAlign("right").run()
               }
             >
-              <IconAlignRight /> Right
+              <IconAlignRight /> {t("Right")}
               <span
                 className={cn(
                   "text-muted-foreground ml-auto text-xs",
@@ -449,7 +451,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
                 editor?.chain().focus().setTextAlign("justify").run()
               }
             >
-              <IconAlignJustified /> Justify
+              <IconAlignJustified /> {t("Justify")}
               <span
                 className={cn(
                   "text-muted-foreground ml-auto text-xs",
@@ -470,8 +472,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label={isLinkActive ? "Remove link" : "Add link"}
-          title={isLinkActive ? "Remove link" : "Add link"}
+          aria-label={isLinkActive ? t("Remove link") : t("Add link")}
+          title={isLinkActive ? t("Remove link") : t("Add link")}
           disabled={!editor}
           aria-pressed={isLinkActive}
           className={cn(isLinkActive && "bg-muted")}
@@ -487,7 +489,10 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
             const previousUrl = editor.getAttributes("link").href as
               | string
               | undefined;
-            const url = window.prompt("Enter URL", previousUrl ?? "https://");
+            const url = window.prompt(
+              t("Enter URL"),
+              previousUrl ?? "https://",
+            );
             if (url === null) return;
 
             const trimmed = url.trim();
@@ -514,8 +519,8 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Insert image"
-                title="Insert image"
+                aria-label={t("Insert image")}
+                title={t("Insert image")}
                 disabled={!editor}
                 onMouseDown={preventMouseDown}
               >
@@ -528,26 +533,26 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
               onMouseDown={preventMouseDown}
               onClick={() => {
                 if (!editor) return;
-                const url = window.prompt("Image URL");
+                const url = window.prompt(t("Image URL"));
                 if (!url) return;
 
                 editor.chain().focus().setImage({ src: url.trim() }).run();
               }}
             >
-              <IconPhoto /> Insert from URL
+              <IconPhoto /> {t("Insert from URL")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onMouseDown={preventMouseDown}
               onClick={() => {
                 if (!editor) return;
-                const url = window.prompt("Image URL (base64 or https://)");
+                const url = window.prompt(t("Image URL (base64 or https://)"));
                 if (!url) return;
 
                 editor.chain().focus().setImage({ src: url.trim() }).run();
               }}
             >
-              <IconPhoto /> Insert (advanced)
+              <IconPhoto /> {t("Insert (advanced)")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

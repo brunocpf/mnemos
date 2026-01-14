@@ -1,6 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Activity, useState, ViewTransition } from "react";
+import { toast } from "sonner";
 
 import { createNote, updateNote } from "@/client-data/notes-dal";
 import { NoteEditorForm } from "@/components/note-editor-form";
@@ -11,7 +13,8 @@ export interface NoteViewProps {
   noteId?: string;
 }
 
-export default function NoteView({ noteId }: NoteViewProps) {
+export function NoteView({ noteId }: NoteViewProps) {
+  const t = useTranslations("NoteView");
   const [currentNoteId, setCurrentNoteId] = useState(() => noteId);
   const { data: noteData, isLoading: noteIsLoading } = useNoteById(
     currentNoteId ?? "",
@@ -30,8 +33,12 @@ export default function NoteView({ noteId }: NoteViewProps) {
         content: value,
       });
       setCurrentNoteId(noteIdToPersist);
+      toast.success(t("Note created"), { position: "top-center" });
     } else if (noteIdToPersist) {
-      await updateNote(noteIdToPersist, { content: value });
+      const contentChanged = noteData?.content !== value;
+      if (contentChanged) {
+        await updateNote(noteIdToPersist, { content: value });
+      }
     }
 
     // trigger scheduled embedding here
@@ -47,13 +54,13 @@ export default function NoteView({ noteId }: NoteViewProps) {
         <Activity mode={showLoading ? "visible" : "hidden"}>
           <div className="flex items-center gap-2 opacity-100 delay-500 starting:opacity-0">
             <Spinner />
-            <span>Loading note...</span>
+            <span>{t("Loading note")}</span>
           </div>
         </Activity>
         <Activity mode={noteDoesNotExist ? "visible" : "hidden"}>
-          <h1 className="text-3xl font-semibold">Note not found</h1>
+          <h1 className="text-3xl font-semibold">{t("Note not found")}</h1>
           <p className="text-muted-foreground">
-            It may have been deleted or never existed.
+            {t("It may have been deleted or never existed")}
           </p>
         </Activity>
         <Activity mode={showEditor ? "visible" : "hidden"}>

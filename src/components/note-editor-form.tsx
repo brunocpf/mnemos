@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 
 import { noteSchema } from "@/client-data/note";
-import { RichTextEditor } from "@/components/rich-text-editor";
+import { RichTextEditor } from "@/components/rich-text-editor/rich-text-editor";
 import { Field, FieldError } from "@/components/ui/field";
 
 const formSchema = z.object({

@@ -1,6 +1,12 @@
 "use client";
 
-import { IconChevronLeft, IconDots } from "@tabler/icons-react";
+import {
+  IconChevronLeft,
+  IconDots,
+  IconPencilPlus,
+  IconSettings,
+  IconShieldLock,
+} from "@tabler/icons-react";
 import { useTranslations } from "next-intl";
 import {
   Activity,
@@ -10,6 +16,12 @@ import {
 } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useBoundingClientCustomProperties } from "@/hooks/use-bounding-client-vars";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useHistoryStack } from "@/providers/history-provider";
@@ -28,7 +40,7 @@ export function AppHeader() {
   const title =
     {
       "/": t("Your Notes"),
-      "/note": t("New Note"),
+      "/note": t("Note"),
     }[pathname] || "Mnemos";
 
   const handleBack = () => {
@@ -37,6 +49,10 @@ export function AppHeader() {
       pop();
       router.push(pageToGoBack, { scroll: true });
     });
+  };
+
+  const handleNewNote = () => {
+    router.push(`/note?new=${Date.now()}`, { scroll: true });
   };
 
   return (
@@ -68,18 +84,47 @@ export function AppHeader() {
             </h2>
           </ViewTransition>
         </Activity>
-        <Button
-          variant="outline"
-          size="icon-xl"
-          aria-label="Submit"
-          className="col-start-3"
-          onFocus={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-          }}
-        >
-          <IconDots />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                size="icon-xl"
+                aria-label={t("Menu")}
+                className="col-start-3"
+                onFocus={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+              >
+                <IconDots />
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="end" side="bottom" sideOffset={8}>
+            <DropdownMenuItem
+              onClick={handleNewNote}
+              className="cursor-pointer"
+            >
+              <IconPencilPlus />
+              {t("New note")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => router.push("/privacy-policy", { scroll: true })}
+              className="cursor-pointer"
+            >
+              <IconShieldLock />
+              {t("Privacy Policy")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => router.push("/settings", { scroll: true })}
+              className="cursor-pointer"
+            >
+              <IconSettings />
+              {t("Settings")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

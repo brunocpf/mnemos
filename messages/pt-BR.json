@@ -2,14 +2,34 @@
   "Shared": {
     "Go Back": "Voltar",
     "Your Notes": "Suas Anotações",
-    "New Note": "Nova Anotação"
+    "Note": "Anotação",
+    "Menu": "Menu",
+    "New note": "Nova anotação",
+    "Privacy Policy": "Política de Privacidade",
+    "Settings": "Configurações"
   },
   "Notes": {
     "Your Notes": "Suas Anotações",
     "No Notes": "Nenhuma Anotação",
     "Start writing notes to see them here": "Escreva anotações para vê-las aqui.",
     "Create your first note": "Crie sua primeira anotação",
-    "Loading your notes": "Carregando suas anotações..."
+    "Loading your notes": "Carregando suas anotações...",
+    "Error loading notes": "Erro ao carregar anotações",
+    "Note deleted": "Anotação deletada",
+    "Note restored": "Anotação restaurada",
+    "Undo": "Desfazer",
+    "Note renamed": "Anotação renomeada",
+    "Rename": "Renomear",
+    "Delete": "Deletar",
+    "Rename this note": "Renomeie esta anotação.",
+    "Confirm": "Confirmar",
+    "Untitled": "Sem título"
+  },
+  "NoteView": {
+    "Note created": "Anotação criada",
+    "Loading note": "Carregando anotação...",
+    "Note not found": "Anotação não encontrada",
+    "It may have been deleted or never existed": "Pode ter sido deletada ou nunca existiu"
   },
   "SearchInput": {
     "Search": "Pesquisar",
@@ -21,5 +41,36 @@
     "Clear": "Limpar",
     "Cancel": "Cancelar",
     "New Note": "Nova Anotação"
+  },
+  "RichTextEditorToolbar": {
+    "Undo": "Desfazer",
+    "Redo": "Refazer",
+    "Text style": "Estilo do texto",
+    "Normal": "Normal",
+    "Heading 1": "Título 1",
+    "Heading 2": "Título 2",
+    "Heading 3": "Título 3",
+    "Clear formatting": "Limpar formatação",
+    "Bold": "Negrito",
+    "Italic": "Itálico",
+    "Underline": "Sublinhado",
+    "Strikethrough": "Tachado",
+    "Inline code": "Código inline",
+    "Bullet list": "Lista com marcadores",
+    "Numbered list": "Lista numerada",
+    "Blockquote": "Citação",
+    "Text alignment": "Alinhamento",
+    "Left": "Esquerda",
+    "Center": "Centro",
+    "Right": "Direita",
+    "Justify": "Justificar",
+    "Add link": "Adicionar link",
+    "Remove link": "Remover link",
+    "Enter URL": "Digite a URL",
+    "Insert image": "Inserir imagem",
+    "Image URL": "URL da imagem",
+    "Insert from URL": "Inserir por URL",
+    "Image URL (base64 or https://)": "URL da imagem (base64 ou https://)",
+    "Insert (advanced)": "Inserir (avançado)"
   }
 }

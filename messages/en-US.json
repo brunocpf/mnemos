@@ -2,14 +2,34 @@
   "Shared": {
     "Go Back": "Go Back",
     "Your Notes": "Your Notes",
-    "New Note": "New Note"
+    "Note": "Note",
+    "Menu": "Menu",
+    "New note": "New note",
+    "Privacy Policy": "Privacy Policy",
+    "Settings": "Settings"
   },
   "Notes": {
     "Your Notes": "Your Notes",
     "No Notes": "No Notes",
     "Start writing notes to see them here": "Start writing notes to see them here.",
     "Create your first note": "Create your first note",
-    "Loading your notes": "Loading your notes..."
+    "Loading your notes": "Loading your notes...",
+    "Error loading notes": "Error loading notes",
+    "Note deleted": "Note deleted",
+    "Note restored": "Note restored",
+    "Undo": "Undo",
+    "Note renamed": "Note renamed",
+    "Rename": "Rename",
+    "Delete": "Delete",
+    "Rename this note": "Rename this note.",
+    "Confirm": "Confirm",
+    "Untitled": "Untitled"
+  },
+  "NoteView": {
+    "Note created": "Note created",
+    "Loading note": "Loading note...",
+    "Note not found": "Note not found",
+    "It may have been deleted or never existed": "It may have been deleted or never existed"
   },
   "SearchInput": {
     "Search": "Search",
@@ -21,5 +41,36 @@
     "Clear": "Clear",
     "Cancel": "Cancel",
     "New Note": "New Note"
+  },
+  "RichTextEditorToolbar": {
+    "Undo": "Undo",
+    "Redo": "Redo",
+    "Text style": "Text style",
+    "Normal": "Normal",
+    "Heading 1": "Heading 1",
+    "Heading 2": "Heading 2",
+    "Heading 3": "Heading 3",
+    "Clear formatting": "Clear formatting",
+    "Bold": "Bold",
+    "Italic": "Italic",
+    "Underline": "Underline",
+    "Strikethrough": "Strikethrough",
+    "Inline code": "Inline code",
+    "Bullet list": "Bullet list",
+    "Numbered list": "Numbered list",
+    "Blockquote": "Blockquote",
+    "Text alignment": "Text alignment",
+    "Left": "Left",
+    "Center": "Center",
+    "Right": "Right",
+    "Justify": "Justify",
+    "Add link": "Add link",
+    "Remove link": "Remove link",
+    "Enter URL": "Enter URL",
+    "Insert image": "Insert image",
+    "Image URL": "Image URL",
+    "Insert from URL": "Insert from URL",
+    "Image URL (base64 or https://)": "Image URL (base64 or https://)",
+    "Insert (advanced)": "Insert (advanced)"
   }
 }
