@@ -2,12 +2,12 @@
 
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useForm } from "@tanstack/react-form";
-import { haptic } from "ios-haptics";
 import markdownToTxt from "markdown-to-txt";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Activity, useMemo } from "react";
 import { toast } from "sonner";
+import { triggerHaptic } from "tactus";
 import { z } from "zod";
 
 import { Note, noteSchema } from "@/client-data/note";
@@ -103,10 +103,8 @@ export function NotesListItem({ note }: NotesListItemProps) {
   return (
     <Dialog>
       <ContextMenu
-        onOpenChange={(open) => {
-          if (open) {
-            haptic();
-          }
+        onOpenChange={() => {
+          setTimeout(() => triggerHaptic(), 50);
         }}
       >
         <ContextMenuTrigger

@@ -102,23 +102,18 @@ export function AppHeader() {
             }
           />
           <DropdownMenuContent align="end" side="bottom" sideOffset={8}>
-            <DropdownMenuItem
-              onClick={handleNewNote}
-              className="cursor-pointer"
-            >
+            <DropdownMenuItem onClick={handleNewNote}>
               <IconPencilPlus />
               {t("New note")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => router.push("/privacy-policy", { scroll: true })}
-              className="cursor-pointer"
             >
               <IconShieldLock />
               {t("Privacy Policy")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => router.push("/settings", { scroll: true })}
-              className="cursor-pointer"
             >
               <IconSettings />
               {t("Settings")}
