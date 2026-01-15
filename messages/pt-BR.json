@@ -22,7 +22,8 @@
       }
     },
     "loading": {
-      "notes": "Carregando suas anotações..."
+      "notes": "Carregando suas anotações...",
+      "search": "Pesquisando suas anotações..."
     },
     "errors": {
       "loadingNotes": "Erro ao carregar anotações"
@@ -224,6 +225,88 @@
           "enableFallback": "Habilitar fallback",
           "fallbackUnavailable": "Fallback indisponível"
         }
+      }
+    }
+  },
+  "PrivacyPolicy": {
+    "metadata": {
+      "title": "Política de Privacidade",
+      "description": "Saiba como o Mnemos lida, armazena e protege suas anotações."
+    },
+    "kicker": "Política de Privacidade",
+    "heroTitle": "Suas anotações ficam no seu dispositivo",
+    "intro": "Mnemos foi criado como um caderno com foco em privacidade, pensado para rodar no seu dispositivo. Esta página explica quais dados são criados, onde ficam armazenados e em quais casos limitados eles podem sair do seu navegador.",
+    "lastUpdated": "Última atualização: {date}",
+    "localDataPoints": [
+      {
+        "title": "Anotações, rascunhos e anexos",
+        "description": "Seu conteúdo escrito fica inteiramente no seu navegador usando IndexedDB. Não há sincronização em segundo plano nem armazenamento remoto."
+      },
+      {
+        "title": "Chunks e embeddings",
+        "description": "Os chunks de busca semântica e os vetores gerados no seu dispositivo ficam armazenados no seu dispositivo. Se você optar por fallback remoto, apenas o texto do chunk necessário para aquela solicitação é enviado para gerar o embedding, e o vetor resultante volta imediatamente para o IndexedDB."
+      },
+      {
+        "title": "Preferências e caches",
+        "description": "Seleção de tema, flags de recursos e caches de modelos ficam no armazenamento do navegador para preservar sua experiência offline."
+      }
+    ],
+    "aiDisclosures": [
+      {
+        "title": "Apenas solicitações explícitas de IA",
+        "description": "Quando você aciona uma ação de IA (ex.: Perguntar ao Mnemos ou Resumir), o texto específico que você envia é encaminhado ao modelo em nuvem configurado para que ele responda."
+      },
+      {
+        "title": "Sem uploads inesperados",
+        "description": "Mnemos nunca envia suas anotações ou embeddings automaticamente. Cada chamada externa indica claramente a carga útil antes de sair do seu dispositivo."
+      },
+      {
+        "title": "Fallback de embeddings com confirmação",
+        "description": "Se o seu dispositivo não conseguir executar o modelo de embeddings, o app pausa a ação e pergunta se você quer recorrer à geração remota de embeddings antes de qualquer texto ser transmitido."
+      },
+      {
+        "title": "Visibilidade de rede",
+        "description": "Todas as requisições remotas usam HTTPS e podem ser inspecionadas pelo painel de rede do seu navegador para total transparência."
+      }
+    ],
+    "userControls": [
+      {
+        "title": "Apague dados a qualquer momento",
+        "description": "Use os controles de armazenamento do seu navegador para limpar IndexedDB/localStorage ou delete anotações individualmente dentro do app."
+      },
+      {
+        "title": "Funcione totalmente offline",
+        "description": "Mnemos continua funcionando sem conexão, evitando transferência acidental de dados e permitindo que você audite o uso de rede por conta própria."
+      },
+      {
+        "title": "Auditabilidade",
+        "description": "Todo o código é open-source, então você pode verificar o modelo de armazenamento ou rodar sua própria build."
+      }
+    ],
+    "sections": {
+      "onDevice": {
+        "title": "Dados armazenados no seu dispositivo",
+        "description": "Tudo abaixo é armazenado diretamente no seu dispositivo usando IndexedDB/localStorage. O Mnemos não transmite esses dados a menos que você os exporte explicitamente ou opte pelo fallback remoto de embeddings descrito abaixo.",
+        "implementationDetail": "Detalhe de implementação: quando o fallback está habilitado, o Mnemos envia o texto e os IDs dos chunks afetados para a ação de embed no servidor em {path} apenas pelo tempo necessário para gerar vetores e, em seguida, armazena os embeddings retornados de volta no IndexedDB."
+      },
+      "dataLeaves": {
+        "title": "Quando os dados saem do seu dispositivo",
+        "description": "Mnemos só contata serviços remotos quando você solicita explicitamente uma operação com IA. Essas chamadas se limitam ao texto que você envia e aos metadados necessários para cumprir a solicitação. Se o seu hardware não conseguir gerar embeddings localmente, o Mnemos pausa o fluxo e pergunta se você quer habilitar a geração remota antes de qualquer coisa sair do dispositivo.",
+        "noAnalytics": "Mnemos não coleta analytics, identificadores de publicidade ou cookies de rastreamento. Se você auto-hospedar ou direcionar chamadas de IA para terceiros, as políticas deles governarão os dados transmitidos."
+      },
+      "controls": {
+        "title": "Seus controles",
+        "description": "Você decide quando e como suas informações são mantidas."
+      },
+      "children": {
+        "title": "Privacidade de crianças",
+        "description": "Mnemos é feito para produtividade de adultos e não é destinado a crianças menores de 13 anos. Se você for pai/mãe ou responsável e acreditar que uma criança forneceu dados, você pode limpar o armazenamento do navegador ou pedir ajuda abaixo."
+      },
+      "contact": {
+        "title": "Contato",
+        "descriptionPrefix": "Dúvidas ou solicitações? Abra uma issue no ",
+        "linkText": "repositório no GitHub",
+        "descriptionSuffix": "ou fale com os mantenedores pelos canais listados no README."
       }
     }
   }

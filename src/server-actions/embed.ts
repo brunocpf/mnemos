@@ -45,6 +45,5 @@ export async function embedQuery(text: string) {
   });
 
   const data = Array.from(tensor.data);
-
   return data;
 }

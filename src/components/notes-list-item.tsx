@@ -4,7 +4,6 @@ import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useForm } from "@tanstack/react-form";
 import markdownToTxt from "markdown-to-txt";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { Activity, useMemo } from "react";
 import { toast } from "sonner";
 import { triggerHaptic } from "tactus";
@@ -36,17 +35,23 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { SemanticMatch } from "@/hooks/use-semantic-search";
+import { Link } from "@/i18n/navigation";
 import { defaultFormatter } from "@/lib/dateFormatters";
+import { encodeSearchHighlight } from "@/lib/search-highlight";
+
+import { HighlightedSnippet } from "./highlighted-snippet";
 
 interface NotesListItemProps {
   note: Note;
+  match?: SemanticMatch;
 }
 
 const formSchema = z.object({
   newTitle: noteSchema.shape.title.nonoptional(),
 });
 
-export function NotesListItem({ note }: NotesListItemProps) {
+export function NotesListItem({ note, match }: NotesListItemProps) {
   const t = useTranslations("Notes");
 
   const handleDelete = () => {
@@ -71,14 +76,14 @@ export function NotesListItem({ note }: NotesListItemProps) {
   };
 
   const content = useMemo(
-    () => markdownToTxt(note.content.slice(0, 200)),
+    () => markdownToTxt(note.content.slice(0, 300)),
     [note.content],
   );
   const title = useMemo(() => {
     if (note.title && note.title.trim().length > 0) {
       return note.title;
     }
-    const firstLine = content.split("\n")[0].trim().slice(0, 100);
+    const firstLine = content.split("\n")[0].trim().slice(0, 300);
 
     return firstLine.length > 0 ? firstLine : t("placeholders.untitled");
   }, [note.title, content, t]);
@@ -100,6 +105,20 @@ export function NotesListItem({ note }: NotesListItemProps) {
     },
   });
 
+  const highlightParam = useMemo(() => {
+    if (!match) return undefined;
+
+    return encodeSearchHighlight({
+      noteId: match.noteId,
+      chunkId: match.chunkId,
+      snippet: match.snippet,
+      highlights: match.highlights,
+      leadingEllipsis: match.leadingEllipsis,
+      trailingEllipsis: match.trailingEllipsis,
+      terms: match.terms,
+    });
+  }, [match]);
+
   return (
     <Dialog>
       <ContextMenu
@@ -117,7 +136,9 @@ export function NotesListItem({ note }: NotesListItemProps) {
                 <Link
                   href={{
                     pathname: "/note",
-                    query: { noteId: note.id },
+                    query: highlightParam
+                      ? { noteId: note.id, highlight: highlightParam }
+                      : { noteId: note.id },
                   }}
                 />
               }
@@ -132,9 +153,19 @@ export function NotesListItem({ note }: NotesListItemProps) {
                   </p>
                 </div>
                 <Activity mode={note.content ? "visible" : "hidden"}>
-                  <p className="text-muted-foreground mt-3 min-w-0 truncate text-sm">
-                    {content}
-                  </p>
+                  {match ? (
+                    <HighlightedSnippet
+                      className="text-muted-foreground mt-3 block truncate"
+                      text={match.snippet || content}
+                      highlights={match.highlights}
+                      leadingEllipsis={match.leadingEllipsis}
+                      trailingEllipsis={match.trailingEllipsis}
+                    />
+                  ) : (
+                    <p className="text-muted-foreground mt-3 min-w-0 truncate text-sm">
+                      {content}
+                    </p>
+                  )}
                 </Activity>
               </div>
             </Button>

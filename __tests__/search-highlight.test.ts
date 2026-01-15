@@ -26,7 +26,7 @@ describe("search highlight serialization", () => {
 
   it("returns null when payload fails validation", () => {
     const invalidPayload = encodeURIComponent(JSON.stringify({ noteId: 123 }));
-    expect(decodeSearchHighlight(invalidPayload)).toBeNull();
+    expect(decodeSearchHighlight(invalidPayload)).toBeUndefined();
   });
 });
 

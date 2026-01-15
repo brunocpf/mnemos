@@ -22,7 +22,8 @@
       }
     },
     "loading": {
-      "notes": "Loading your notes..."
+      "notes": "Loading your notes...",
+      "search": "Searching your notes..."
     },
     "errors": {
       "loadingNotes": "Error loading notes"
@@ -224,6 +225,88 @@
           "enableFallback": "Enable Fallback",
           "fallbackUnavailable": "Fallback Unavailable"
         }
+      }
+    }
+  },
+  "PrivacyPolicy": {
+    "metadata": {
+      "title": "Privacy Policy",
+      "description": "Learn how Mnemos handles, stores, and protects your notes."
+    },
+    "kicker": "Privacy Policy",
+    "heroTitle": "Your notes stay on your device",
+    "intro": "Mnemos is built as a privacy-first notebook designed to run on your device. This page explains what data is created, where it lives, and the limited cases where it can leave your browser.",
+    "lastUpdated": "Last updated: {date}",
+    "localDataPoints": [
+      {
+        "title": "Notes, drafts, and attachments",
+        "description": "Your written content lives entirely inside your browser using IndexedDB. No background sync or remote storage is performed."
+      },
+      {
+        "title": "Chunks and embeddings",
+        "description": "Semantic-search chunks and the vectors generated on your device are stored on your device. If you opt into remote fallback, only the chunk text needed for that request is sent upstream for embedding and the resulting vector immediately returns to IndexedDB."
+      },
+      {
+        "title": "Preferences and caches",
+        "description": "Theme selection, feature flags, and model caches are kept in your browser storage to preserve your experience offline."
+      }
+    ],
+    "aiDisclosures": [
+      {
+        "title": "Explicit AI requests only",
+        "description": "When you trigger an AI action (e.g., Ask Mnemos or Summarize), the specific text you submit is sent to the configured cloud model so it can respond."
+      },
+      {
+        "title": "No surprise uploads",
+        "description": "Mnemos never uploads your notes or embeddings automatically. Each outbound call clearly indicates the payload before it leaves your device."
+      },
+      {
+        "title": "Prompted embedding fallback",
+        "description": "If your device cannot run the embedding model, the app pauses the action and asks whether you want to fall back to remote embedding generation before any text is transmitted."
+      },
+      {
+        "title": "Network visibility",
+        "description": "All remote requests use HTTPS and can be inspected via your browser's network panel for full transparency."
+      }
+    ],
+    "userControls": [
+      {
+        "title": "Delete data at any time",
+        "description": "Use your browser's storage controls to clear IndexedDB/localStorage or delete notes individually inside the app."
+      },
+      {
+        "title": "Operate fully offline",
+        "description": "Mnemos remains functional without connectivity, preventing accidental data transfer and letting you audit network usage yourself."
+      },
+      {
+        "title": "Auditability",
+        "description": "The entire codebase is open-source, so you can verify the storage model or run your own build."
+      }
+    ],
+    "sections": {
+      "onDevice": {
+        "title": "Data stored on your device",
+        "description": "Everything below is stored directly on your device using IndexedDB/localStorage. Mnemos does not transmit these assets unless you explicitly export them or opt into the remote embedding fallback described below.",
+        "implementationDetail": "Implementation detail: when fallback is enabled, Mnemos posts the affected chunk text and IDs to the server-side embed action in {path} only long enough to generate vectors, then stores the returned embeddings back in IndexedDB."
+      },
+      "dataLeaves": {
+        "title": "When data leaves your device",
+        "description": "Mnemos only contacts remote services when you explicitly request an AI-powered operation. Those calls are limited to the text you send and the metadata needed to fulfill the request. If your hardware cannot run embeddings on your device, Mnemos pauses the workflow and asks whether you want to enable remote embedding generation before anything leaves the device.",
+        "noAnalytics": "Mnemos does not collect analytics, advertising identifiers, or tracking cookies. If you self-host or point AI calls to a third party, their policies will govern the transmitted data."
+      },
+      "controls": {
+        "title": "Your controls",
+        "description": "You decide when and how your information is retained."
+      },
+      "children": {
+        "title": "Children's privacy",
+        "description": "Mnemos is designed for adult productivity use and is not intended for children under 13. If you are a parent or guardian and believe a child has provided data, you can clear the browser storage or reach out for help below."
+      },
+      "contact": {
+        "title": "Contact",
+        "descriptionPrefix": "Questions or requests? Open an issue on the ",
+        "linkText": "GitHub repository",
+        "descriptionSuffix": "or reach the maintainers via the channels listed in the README."
       }
     }
   }

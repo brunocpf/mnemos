@@ -2,41 +2,50 @@
 
 import { IconSparkles2 } from "@tabler/icons-react";
 import { useTranslations } from "next-intl";
-import { Activity, useEffect, useRef, useState, ViewTransition } from "react";
+import {
+  Activity,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  ViewTransition,
+} from "react";
 import Markdown from "react-markdown";
 import { toast } from "sonner";
 
 import { createNote, updateNote } from "@/client-data/notes-dal";
+import { AppHeaderContentSlot } from "@/components/app-header-content-slot";
+import { HighlightedSnippet } from "@/components/highlighted-snippet";
 import { NoteEditorForm } from "@/components/note-editor-form";
-import { Spinner } from "@/components/ui/spinner";
-import { useNoteById } from "@/hooks/use-note-by-id";
-import { Link } from "@/i18n/navigation";
-import { useEmbedder } from "@/providers/embedder-provider";
-import { useSummarizer } from "@/providers/summarizer-provider";
-
-import { AppHeaderContentSlot } from "./app-header-content-slot";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog";
+} from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
+import { useNoteById } from "@/hooks/use-note-by-id";
+import { Link } from "@/i18n/navigation";
+import { SearchHighlightPayload } from "@/lib/search-highlight";
+import { useEmbedder } from "@/providers/embedder-provider";
+import { useSummarizer } from "@/providers/summarizer-provider";
 
 export interface NoteViewProps {
   noteId?: string;
+  highlight?: SearchHighlightPayload;
 }
 
-export function NoteView({ noteId }: NoteViewProps) {
+export function NoteView({ noteId, highlight }: NoteViewProps) {
   const t = useTranslations("NoteView");
-  const { summarize, isReady } = useSummarizer();
-  const { schedule, flush } = useEmbedder();
+  const { summarize, isReady: summarizerIsReady } = useSummarizer();
+  const { schedule, flush, isReady: embedderIsReady } = useEmbedder();
   const [currentNoteId, setCurrentNoteId] = useState(() => noteId);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
   const [becameReadyWhileDialogOpen, setBecameReadyWhileDialogOpen] =
     useState(false);
-  const lastIsReadyRef = useRef(isReady);
+  const lastSummarizerIsReadyRef = useRef(summarizerIsReady);
   const [summaryState, setSummaryState] = useState<
     | { status: "idle" }
     | { status: "loading" }
@@ -50,21 +59,26 @@ export function NoteView({ noteId }: NoteViewProps) {
   const showLoading = !!noteId && noteIsLoading;
   const noteDoesNotExist = !!noteId && !noteIsLoading && !noteData;
   const showEditor = !showLoading && !noteDoesNotExist;
+  const highlightForNote = useMemo(() => {
+    if (!highlight) return undefined;
+    if (!currentNoteId) return undefined;
+    return highlight.noteId === currentNoteId ? highlight : undefined;
+  }, [currentNoteId, highlight]);
 
   const canSummarize = !!noteData?.content?.trim();
 
   useEffect(() => {
     if (!isSummaryDialogOpen) return;
 
-    const wasReady = lastIsReadyRef.current;
-    if (!wasReady && isReady && summaryState.status === "idle") {
+    const wasReady = lastSummarizerIsReadyRef.current;
+    if (!wasReady && summarizerIsReady && summaryState.status === "idle") {
       setTimeout(() => {
         setBecameReadyWhileDialogOpen(true);
       }, 0);
     }
 
-    lastIsReadyRef.current = isReady;
-  }, [isReady, isSummaryDialogOpen, summaryState.status]);
+    lastSummarizerIsReadyRef.current = summarizerIsReady;
+  }, [summarizerIsReady, isSummaryDialogOpen, summaryState.status]);
 
   const handleSummaryDialogOpenChange = (open: boolean) => {
     setIsSummaryDialogOpen(open);
@@ -73,7 +87,7 @@ export function NoteView({ noteId }: NoteViewProps) {
       setBecameReadyWhileDialogOpen(false);
     }
 
-    lastIsReadyRef.current = isReady;
+    lastSummarizerIsReadyRef.current = summarizerIsReady;
   };
 
   const handleSummarize = async () => {
@@ -82,7 +96,7 @@ export function NoteView({ noteId }: NoteViewProps) {
     setIsSummaryDialogOpen(true);
     setBecameReadyWhileDialogOpen(false);
 
-    if (!isReady) {
+    if (!summarizerIsReady) {
       setSummaryState({ status: "idle" });
       return;
     }
@@ -128,13 +142,13 @@ export function NoteView({ noteId }: NoteViewProps) {
       }
     }
 
-    if (noteIdToPersist) {
+    if (noteIdToPersist && embedderIsReady) {
       schedule({ id: noteIdToPersist, content: value });
     }
   };
 
   const handleBlur = () => {
-    if (currentNoteId) {
+    if (currentNoteId && embedderIsReady) {
       flush({ id: currentNoteId, content: noteData?.content ?? "" });
     }
   };
@@ -157,12 +171,26 @@ export function NoteView({ noteId }: NoteViewProps) {
           </p>
         </Activity>
         <Activity mode={showEditor ? "visible" : "hidden"}>
+          {highlightForNote && (
+            <div className="border-primary/20 bg-primary/5 text-foreground/90 mb-4 rounded-2xl border px-4 py-3 text-sm">
+              <p className="text-primary mb-2 text-xs font-semibold tracking-[0.2em] uppercase">
+                Search match
+              </p>
+              <HighlightedSnippet
+                text={highlightForNote.snippet}
+                highlights={highlightForNote.highlights}
+                leadingEllipsis={highlightForNote.leadingEllipsis}
+                trailingEllipsis={highlightForNote.trailingEllipsis}
+              />
+            </div>
+          )}
           <NoteEditorForm
             key={noteId ? (noteData?.id ?? "unloaded-note") : "new-note"}
             noteId={currentNoteId}
             initialContent={noteData?.content ?? ""}
             onChange={handlePersist}
             onBlur={handleBlur}
+            highlightTerms={highlightForNote?.terms}
           />
         </Activity>
       </ViewTransition>
@@ -189,7 +217,7 @@ export function NoteView({ noteId }: NoteViewProps) {
           <DialogHeader>
             <DialogTitle>{t("dialogs.summary.title")}</DialogTitle>
             <ViewTransition>
-              <Activity mode={!isReady ? "visible" : "hidden"}>
+              <Activity mode={!summarizerIsReady ? "visible" : "hidden"}>
                 <DialogDescription>
                   {t("dialogs.summary.unavailable")}{" "}
                   <Link href="/settings">
@@ -228,7 +256,7 @@ export function NoteView({ noteId }: NoteViewProps) {
           <ViewTransition>
             <Activity
               mode={
-                isReady && summaryState.status === "success"
+                summarizerIsReady && summaryState.status === "success"
                   ? "visible"
                   : "hidden"
               }

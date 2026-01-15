@@ -115,6 +115,17 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
   >(new Map());
   const queryVersionRef = useRef(0);
 
+  const isSupersededQueryError = useCallback((error: unknown) => {
+    if (error instanceof DOMException && error.name === "AbortError")
+      return true;
+    if (
+      error instanceof Error &&
+      error.message === "Embedding query was superseded."
+    )
+      return true;
+    return false;
+  }, []);
+
   const getErrorMessage = useCallback(
     (error: unknown) =>
       error instanceof Error ? error.message : String(error),
@@ -123,7 +134,6 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
 
   const showEmbeddingErrorToast = useCallback(
     (opts: { allowFallback: boolean; performFallback: () => void }) => {
-      console.log("showEmbeddingErrorToast", opts);
       if (opts.allowFallback && navigator.onLine) {
         if (settings.dismissEmbeddingErrorMessages) return;
 
@@ -271,7 +281,6 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
         });
 
         const allowFallback = settings.embeddingHost === "allow-fallback";
-        console.log({ allowFallback });
 
         const performFallback = () => {
           void performServerSideEmbeddings({
@@ -441,9 +450,6 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
         if (!embeddingWorkerApi) {
           throw new Error("Embedding worker is not available");
         }
-        if (!modelDownloadState?.isReady) {
-          throw new Error("Embedding model is still loading");
-        }
 
         const res = await withTimeout(
           embeddingWorkerApi.embedQuery({ version, text: normalized }),
@@ -452,7 +458,12 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
         );
 
         if (res === null) {
-          throw new Error("Embedding query was superseded.");
+          // Another embedQuery call started after this one.
+          // This is an expected cancellation signal; callers should ignore it.
+          throw new DOMException(
+            "Embedding query was superseded.",
+            "AbortError",
+          );
         }
 
         return new Float32Array(res.vectorBuffer);
@@ -461,7 +472,12 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
       try {
         return await callLocal();
       } catch (error: unknown) {
+        if (isSupersededQueryError(error)) {
+          throw error;
+        }
+
         const message = getErrorMessage(error);
+
         await db.localEmbeddingErrors.add({
           id: crypto.randomUUID(),
           type: "EMBED_QUERY",
@@ -472,12 +488,14 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
         if (allowFallback && navigator.onLine) {
           try {
             const fallback = await performFallback();
+
             showEmbeddingErrorToast({
               allowFallback,
               performFallback: () => {
                 void performFallback();
               },
             });
+
             return fallback;
           } catch {
             // fall through
@@ -496,7 +514,7 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
     [
       embeddingWorkerApi,
       getErrorMessage,
-      modelDownloadState?.isReady,
+      isSupersededQueryError,
       settings.embeddingHost,
       showEmbeddingErrorToast,
     ],

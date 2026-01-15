@@ -21,19 +21,20 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
     return this.modelId;
   }
 
-  async init() {
-    await super.init();
-  }
-
   async embedChunks(request: {
     noteId: string;
     version: number;
     items: { chunkId: string; text: string }[];
   }) {
-    console.log("EmbeddingWorkerService.embedChunks", request);
     this.latestByNote.set(request.noteId, request.version);
 
-    if (!this.pipeline) {
+    if (!this.pipelinePromise) {
+      this.init();
+    }
+
+    const extractor = await this.pipelinePromise;
+
+    if (!extractor) {
       throw new Error("Embedding pipeline is not initialized.");
     }
 
@@ -44,7 +45,7 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
         return null;
       }
 
-      const tensor = await this.pipeline(item.text, {
+      const tensor = await extractor(item.text, {
         pooling: "mean",
         normalize: true,
       });
@@ -74,11 +75,17 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
   async embedQuery(request: { version: number; text: string }) {
     this.latestQueryVersion = request.version;
 
-    if (!this.pipeline) {
+    if (!this.pipelinePromise) {
+      this.init();
+    }
+
+    const extractor = await this.pipelinePromise;
+
+    if (!extractor) {
       throw new Error("Embedding pipeline is not initialized.");
     }
 
-    const tensor = await this.pipeline(request.text, {
+    const tensor = await extractor(request.text, {
       pooling: "mean",
       normalize: true,
     });

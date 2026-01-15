@@ -68,6 +68,7 @@ export function SummarizerProvider({ children }: PropsWithChildren) {
 
     async function initWorker() {
       setModelDownloadState(undefined);
+
       await summarizerWorkerApi?.init();
       subscriptionId = await summarizerWorkerApi?.subscribeDownloadState(
         proxy((state) => {

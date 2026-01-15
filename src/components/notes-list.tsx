@@ -53,7 +53,11 @@ export default function NotesList() {
           <EmptyState className="opacity-100 transition-opacity delay-500 starting:opacity-0">
             <div className="flex items-center justify-center gap-2 text-sm">
               <Spinner />
-              <span>{t("loading.notes")}</span>
+              <span>
+                {Boolean(searchValue)
+                  ? t("loading.search")
+                  : t("loading.notes")}
+              </span>
             </div>
           </EmptyState>
         </Activity>
@@ -90,15 +94,15 @@ export default function NotesList() {
         </Activity>
         <Activity mode={state === "list" ? "visible" : "hidden"}>
           <ul className="space-y-3">
-            {safeNotes.map((note, index) => (
+            {safeNotes.map((noteEntry, index) => (
               <li
                 className="[content-visibility:auto]"
-                key={note.id}
+                key={noteEntry.note.id}
                 style={{
                   transitionDelay: `${index * 50}ms`,
                 }}
               >
-                <NotesListItem note={note} />
+                <NotesListItem note={noteEntry.note} match={noteEntry.match} />
               </li>
             ))}
           </ul>

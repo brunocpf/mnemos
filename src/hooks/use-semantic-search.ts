@@ -39,7 +39,7 @@ export function useSemanticSearch(
   query: string,
   options: UseSemanticSearchOptions = {},
 ) {
-  const { embedQuery, modelId } = useEmbedder();
+  const { embedQuery, modelId, isReady } = useEmbedder();
   const [matches, setMatches] = useState<SemanticMatch[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -66,12 +66,16 @@ export function useSemanticSearch(
     latestSearchRef.current = searchId;
 
     async function runSearch() {
+      if (!isReady) {
+        return;
+      }
+
       setIsSearching(true);
       setError(null);
 
       try {
         if (!modelId) {
-          throw new Error("Embedding model is not ready yet.");
+          throw new Error("Embedding model is not ready.");
         }
         const queryVector = await embedQuery(normalizedQuery);
         if (cancelled || latestSearchRef.current !== searchId) return;
@@ -159,6 +163,15 @@ export function useSemanticSearch(
 
         setMatches(enrichedMatches);
       } catch (err) {
+        if (
+          err instanceof DOMException &&
+          (err.name === "AbortError" ||
+            err.message === "Embedding query was superseded.")
+        ) {
+          return;
+        }
+
+        console.log(err);
         if (cancelled || latestSearchRef.current !== searchId) return;
 
         const error =
@@ -178,11 +191,12 @@ export function useSemanticSearch(
     return () => {
       cancelled = true;
     };
-  }, [query, embedQuery, modelId, oversamplingFactor, topK]);
+  }, [query, embedQuery, modelId, oversamplingFactor, topK, isReady]);
 
   return {
     matches,
     isSearching,
     error,
+    isReady,
   };
 }
