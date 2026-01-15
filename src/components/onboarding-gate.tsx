@@ -76,11 +76,11 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
                 <CardContent className="space-y-4">
                   <ul className="text-muted-foreground list-disc space-y-2 pl-5">
                     <li>
-                      Create notes locally (stored in your browser via
+                      Create notes on your device (stored in your browser via
                       IndexedDB).
                     </li>
                     <li>
-                      Search by meaning using on-device embeddings (works
+                      Search by meaning using embeddings on your device (works
                       offline).
                     </li>
                     <li>
@@ -90,8 +90,8 @@ export function OnboardingGate({ children }: { children: React.ReactNode }) {
                   </ul>
 
                   <p className="text-muted-foreground text-sm">
-                    Tip: the first run may download an on-device embedding
-                    model.
+                    Tip: the first run may download an embedding model to your
+                    device.
                   </p>
                 </CardContent>
 

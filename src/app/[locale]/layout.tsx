@@ -12,6 +12,7 @@ import { EmbedderServiceProvider } from "@/providers/embedder-service-provider";
 import { HistoryProvider } from "@/providers/history-provider";
 import { SearchValueProvider } from "@/providers/search-value-provider";
 import { SettingsProvider } from "@/providers/settings-provider";
+import { SummarizerProvider } from "@/providers/summarizer-provider";
 
 import "./globals.css";
 
@@ -59,12 +60,14 @@ export default async function RootLayout({
                 enableSystem
               >
                 <SettingsProvider>
-                  <SearchValueProvider>
-                    <AppHeader />
-                    {children}
-                    <AppFooter />
-                    <Toaster />
-                  </SearchValueProvider>
+                  <SummarizerProvider>
+                    <SearchValueProvider>
+                      <AppHeader />
+                      {children}
+                      <AppFooter />
+                      <Toaster />
+                    </SearchValueProvider>
+                  </SummarizerProvider>
                 </SettingsProvider>
               </ThemeProvider>
             </EmbedderServiceProvider>

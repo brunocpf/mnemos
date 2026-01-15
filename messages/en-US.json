@@ -48,6 +48,21 @@
     }
   },
   "NoteView": {
+    "actions": {
+      "summarize": "Summarize"
+    },
+    "dialogs": {
+      "summary": {
+        "title": "Summary",
+        "loading": "Generating summary...",
+        "unavailable": "Summarization is currently unavailable.",
+        "availableNow": "Summarization is now available. Close this dialog and try again.",
+        "openSettings": "Open settings",
+        "generatedLocally": "Generated on your device.",
+        "generatedViaServer": "Generated in the cloud.",
+        "errorFallback": "Could not generate a summary."
+      }
+    },
     "toasts": {
       "noteCreated": "Note created"
     },
@@ -140,24 +155,24 @@
     }
   },
   "SettingsView": {
-    "pageDescription": "Decide where Mnemos runs heavy AI workloads and how often you hear about local indexing hiccups.",
+    "pageDescription": "Decide where Mnemos runs heavy AI workloads and how often you hear about indexing hiccups on your device.",
     "preferencesUpdated": "Preferences updated",
     "summaries": {
       "title": "Summaries",
-      "description": "Choose whether to summarize notes locally, remotely, or with an automatic fallback.",
+      "description": "Choose whether to summarize notes on your device, remotely, or with an automatic fallback.",
       "label": "Summaries run on",
       "options": {
         "localOnly": {
-          "label": "Local only",
+          "label": "On your device only",
           "description": "Run the Phi-3.5 summarizer entirely on this device."
         },
         "allowFallback": {
           "label": "Allow fallback",
-          "description": "Try the local worker first, then call the cloud helper if it fails."
+          "description": "Try on your device first, then call the cloud helper if it fails."
         },
         "serverOnly": {
-          "label": "Server only",
-          "description": "Always send summaries to Mnemos' server action (requires internet)."
+          "label": "Cloud only",
+          "description": "Always send summaries to the cloud (requires internet)."
         }
       }
     },
@@ -167,19 +182,19 @@
       "label": "Embeddings run on",
       "options": {
         "localOnly": {
-          "label": "Local only",
-          "description": "Derive embeddings with the on-device transformer."
+          "label": "On your device only",
+          "description": "Generate embeddings on your device."
         },
         "allowFallback": {
           "label": "Allow fallback",
-          "description": "Retry in the cloud when the local worker errors or times out."
+          "description": "Retry in the cloud when processing on your device fails or times out."
         }
       }
     },
     "notifications": {
       "title": "Notifications",
-      "description": "Mute local indexing error toasts once you are confident in your setup.",
-      "toggleTitle": "Hide local indexing alerts",
+      "description": "Mute indexing error toasts from your device once you are confident in your setup.",
+      "toggleTitle": "Hide indexing alerts from your device",
       "toggleDescription": "Prevent Mnemos from showing fallback prompts when embeddings fail."
     },
     "privacyPrompt": "Looking for a privacy refresher? Head over to the <link>privacy policy</link>."

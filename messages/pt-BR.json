@@ -48,6 +48,21 @@
     }
   },
   "NoteView": {
+    "actions": {
+      "summarize": "Resumir"
+    },
+    "dialogs": {
+      "summary": {
+        "title": "Resumo",
+        "loading": "Gerando resumo...",
+        "unavailable": "A sumarização está indisponível no momento.",
+        "availableNow": "A sumarização agora está disponível. Feche este diálogo e tente novamente.",
+        "openSettings": "Abrir configurações",
+        "generatedLocally": "Gerado no seu dispositivo.",
+        "generatedViaServer": "Gerado na nuvem.",
+        "errorFallback": "Não foi possível gerar um resumo."
+      }
+    },
     "toasts": {
       "noteCreated": "Anotação criada"
     },
@@ -140,24 +155,24 @@
     }
   },
   "SettingsView": {
-    "pageDescription": "Decida onde o Mnemos executa cargas pesadas de IA e com que frequência você é avisado sobre falhas de indexação local.",
+    "pageDescription": "Decida onde o Mnemos executa cargas pesadas de IA e com que frequência você é avisado sobre falhas de indexação no seu dispositivo.",
     "preferencesUpdated": "Preferências atualizadas",
     "summaries": {
       "title": "Resumos",
-      "description": "Escolha se os resumos são gerados localmente, remotamente ou com fallback automático.",
+      "description": "Escolha se os resumos são gerados no seu dispositivo, remotamente ou com fallback automático.",
       "label": "Os resumos rodam em",
       "options": {
         "localOnly": {
-          "label": "Somente local",
+          "label": "Somente no seu dispositivo",
           "description": "Execute o resumidor Phi-3.5 inteiramente neste dispositivo."
         },
         "allowFallback": {
           "label": "Permitir fallback",
-          "description": "Tente primeiro o worker local e, se falhar, use o helper na nuvem."
+          "description": "Tente no seu dispositivo primeiro e, se falhar, use o helper na nuvem."
         },
         "serverOnly": {
-          "label": "Somente servidor",
-          "description": "Sempre envie resumos para a server action do Mnemos (requer internet)."
+          "label": "Somente nuvem",
+          "description": "Sempre envie resumos para a nuvem (requer internet)."
         }
       }
     },
@@ -167,19 +182,19 @@
       "label": "Embeddings rodam em",
       "options": {
         "localOnly": {
-          "label": "Somente local",
-          "description": "Gere embeddings com o transformer no dispositivo."
+          "label": "Somente no seu dispositivo",
+          "description": "Gere embeddings no seu dispositivo."
         },
         "allowFallback": {
           "label": "Permitir fallback",
-          "description": "Tente novamente na nuvem quando o worker local falhar ou expirar."
+          "description": "Tente novamente na nuvem quando o processamento no seu dispositivo falhar ou expirar."
         }
       }
     },
     "notifications": {
       "title": "Notificações",
-      "description": "Silencie os toasts de erro de indexação local quando você estiver confiante na sua configuração.",
-      "toggleTitle": "Ocultar alertas de indexação local",
+      "description": "Silencie os toasts de erro de indexação no seu dispositivo quando você estiver confiante na sua configuração.",
+      "toggleTitle": "Ocultar alertas de indexação no seu dispositivo",
       "toggleDescription": "Evite que o Mnemos mostre avisos de fallback quando embeddings falharem."
     },
     "privacyPrompt": "Quer revisar a privacidade? Veja a <link>política de privacidade</link>."

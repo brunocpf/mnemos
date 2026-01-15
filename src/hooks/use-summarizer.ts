@@ -73,13 +73,15 @@ export function useSummarizer(options?: { localTimeoutMs?: number }) {
 
       if (preference === "local-only") {
         if (!isWorkerReady) {
-          throw new Error("The local summarization model is still loading.");
+          throw new Error(
+            "The summarization model on your device is still loading.",
+          );
         }
 
         return withTimeout(
           summarizeLocally(text),
           localTimeoutMs,
-          `Local summarization timed out after ${localTimeoutMs}ms.`,
+          `Summarization on your device timed out after ${localTimeoutMs}ms.`,
         );
       }
 
@@ -88,11 +90,11 @@ export function useSummarizer(options?: { localTimeoutMs?: number }) {
           return await withTimeout(
             summarizeLocally(text),
             localTimeoutMs,
-            `Local summarization timed out after ${localTimeoutMs}ms.`,
+            `Summarization on your device timed out after ${localTimeoutMs}ms.`,
           );
         } catch (error) {
           console.warn(
-            "Local summarization failed, falling back to server.",
+            "Summarization on your device failed, falling back to the cloud.",
             error,
           );
         }

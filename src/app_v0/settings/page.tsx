@@ -46,20 +46,19 @@ const summarizerOptions: Array<{
 }> = [
   {
     value: "local-only",
-    label: "Local only",
+    label: "On your device only",
     description: "Run the Phi-3.5 summarizer entirely on this device.",
   },
   {
     value: "allow-fallback",
     label: "Allow fallback",
     description:
-      "Try the local worker first, then call the cloud helper if it fails.",
+      "Try on your device first, then call the cloud helper if it fails.",
   },
   {
     value: "server-only",
-    label: "Server only",
-    description:
-      "Always send summaries to Mnemos' server action (requires internet).",
+    label: "Cloud only",
+    description: "Always send summaries to the cloud (requires internet).",
   },
 ];
 
@@ -70,14 +69,14 @@ const embeddingOptions: Array<{
 }> = [
   {
     value: "local-only",
-    label: "Local only",
-    description: "Derive embeddings with the on-device transformer.",
+    label: "On your device only",
+    description: "Generate embeddings on your device.",
   },
   {
     value: "allow-fallback",
     label: "Allow fallback",
     description:
-      "Retry in the cloud when the local worker errors or times out.",
+      "Retry in the cloud when processing on your device fails or times out.",
   },
 ];
 
@@ -182,7 +181,7 @@ export default function SettingsPage() {
         </div>
         <p className="text-muted-foreground text-sm">
           Decide where Mnemos runs heavy AI workloads and how often you hear
-          about local indexing hiccups.
+          about indexing hiccups on your device.
         </p>
       </div>
 
@@ -191,8 +190,8 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle>Summaries</CardTitle>
             <CardDescription>
-              Choose whether to summarize notes locally, remotely, or with an
-              automatic fallback.
+              Choose whether to summarize notes on your device, remotely, or
+              with an automatic fallback.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -237,9 +236,11 @@ export default function SettingsPage() {
                         ? modelDownloadPercent
                         : null
                     }
-                    aria-label="Local summarizer model download progress"
+                    aria-label="Summarizer model download progress (on your device)"
                   >
-                    <ProgressLabel>Local model download</ProgressLabel>
+                    <ProgressLabel>
+                      Model download (on your device)
+                    </ProgressLabel>
                     <ProgressValue>
                       {(formattedValue, value) => {
                         if (typeof modelDownloadPercent === "number") {
@@ -340,13 +341,15 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle>Notifications</CardTitle>
             <CardDescription>
-              Mute local indexing error toasts once you are confident in your
-              setup.
+              Mute indexing error toasts from your device once you are confident
+              in your setup.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-between gap-4">
             <div>
-              <p className="font-medium">Hide local indexing alerts</p>
+              <p className="font-medium">
+                Hide indexing alerts from your device
+              </p>
               <p className="text-muted-foreground text-sm">
                 Prevent Mnemos from showing fallback prompts when embeddings
                 fail.

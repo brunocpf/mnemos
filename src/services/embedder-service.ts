@@ -188,7 +188,7 @@ export class EmbedderService {
           const errorMessage =
             err instanceof Error
               ? err.message
-              : "An unknown error occurred during server-side embedding.";
+              : "An unknown error occurred during cloud embedding.";
           if (pending) {
             this.pendingQuery.delete(latestQueryVersion);
             pending.reject(new Error(errorMessage));
@@ -336,7 +336,7 @@ export class EmbedderService {
                 true,
               );
               toast.info(
-                "You will no longer see error messages about local indexing failures.",
+                "You will no longer see error messages about indexing failures on your device.",
                 {
                   position: "top-center",
                 },

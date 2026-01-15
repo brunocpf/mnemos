@@ -37,11 +37,18 @@ export function AppHeader() {
   const parentPath = pathname.split("/").slice(0, -1).join("/") || "/";
   const pageToGoBack = previous || parentPath;
 
-  const title =
-    {
-      "/": t("navigation.yourNotes"),
-      "/note": t("navigation.note"),
-    }[pathname] || "Mnemos";
+  const title = {
+    "/": t("navigation.yourNotes"),
+    "/settings": t("navigation.settings"),
+  }[pathname];
+
+  const content = title ? (
+    <h2 className="mn-header-title-scroll text-sm font-semibold select-none">
+      {title}
+    </h2>
+  ) : (
+    <div id="app-header-content-slot" />
+  );
 
   const handleBack = () => {
     startTransition(() => {
@@ -77,13 +84,11 @@ export function AppHeader() {
             </Button>
           </ViewTransition>
         </Activity>
-        <Activity mode={title ? "visible" : "hidden"}>
-          <ViewTransition default="fixed-fg">
-            <h2 className="mn-header-title-scroll col-start-2 text-sm font-semibold select-none">
-              {title}
-            </h2>
-          </ViewTransition>
-        </Activity>
+        <div className="col-start-2">
+          <Activity mode={content ? "visible" : "hidden"}>
+            <ViewTransition default="fixed-fg">{content}</ViewTransition>
+          </Activity>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
