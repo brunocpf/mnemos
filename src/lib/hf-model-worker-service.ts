@@ -18,6 +18,7 @@ export type ModelDownloadState = {
 };
 
 export class HfModelWorkerService<T extends PipelineType> {
+  protected isInitializing: boolean;
   protected pipeline?: AllTasks[T];
   protected modelId: string;
   protected pipelineOptions: PretrainedModelOptions;
@@ -38,6 +39,7 @@ export class HfModelWorkerService<T extends PipelineType> {
     this.modelId = modelId;
     this.pipelineOptions = pipelineOptions;
     this.pipelineType = pipelineType;
+    this.isInitializing = false;
 
     this.modelDownloadState = {
       isReady: false,
@@ -49,6 +51,12 @@ export class HfModelWorkerService<T extends PipelineType> {
   }
 
   async init() {
+    if (this.pipeline !== undefined || this.isInitializing) {
+      return;
+    }
+
+    this.isInitializing = true;
+
     this.pipeline = await pipeline<T>(this.pipelineType, this.modelId, {
       ...this.pipelineOptions,
       progress_callback: (progress) => {
@@ -123,6 +131,8 @@ export class HfModelWorkerService<T extends PipelineType> {
         this.notifySubscribers();
       },
     });
+
+    this.isInitializing = false;
   }
 
   subscribeDownloadState(callback: (state: ModelDownloadState) => void) {

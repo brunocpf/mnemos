@@ -11,6 +11,7 @@ import { NoteEditorForm } from "@/components/note-editor-form";
 import { Spinner } from "@/components/ui/spinner";
 import { useNoteById } from "@/hooks/use-note-by-id";
 import { Link } from "@/i18n/navigation";
+import { useEmbedder } from "@/providers/embedder-provider";
 import { useSummarizer } from "@/providers/summarizer-provider";
 
 import { AppHeaderContentSlot } from "./app-header-content-slot";
@@ -30,6 +31,7 @@ export interface NoteViewProps {
 export function NoteView({ noteId }: NoteViewProps) {
   const t = useTranslations("NoteView");
   const { summarize, isReady } = useSummarizer();
+  const { schedule, flush } = useEmbedder();
   const [currentNoteId, setCurrentNoteId] = useState(() => noteId);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
   const [becameReadyWhileDialogOpen, setBecameReadyWhileDialogOpen] =
@@ -126,11 +128,15 @@ export function NoteView({ noteId }: NoteViewProps) {
       }
     }
 
-    // trigger scheduled embedding here
+    if (noteIdToPersist) {
+      schedule({ id: noteIdToPersist, content: value });
+    }
   };
 
   const handleBlur = () => {
-    // trigger embedding flush
+    if (currentNoteId) {
+      flush({ id: currentNoteId, content: noteData?.content ?? "" });
+    }
   };
 
   return (

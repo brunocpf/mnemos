@@ -157,6 +157,17 @@
   "SettingsView": {
     "pageDescription": "Decida onde o Mnemos executa cargas pesadas de IA e com que frequência você é avisado sobre falhas de indexação no seu dispositivo.",
     "preferencesUpdated": "Preferências atualizadas",
+    "modelDownload": {
+      "title": "Arquivos do modelo",
+      "readyIndicator": {
+        "ready": "Modelo pronto",
+        "notReady": "Modelo não pronto"
+      },
+      "status": {
+        "ready": "Pronto",
+        "downloading": "Baixando..."
+      }
+    },
     "summaries": {
       "title": "Resumos",
       "description": "Escolha se os resumos são gerados no seu dispositivo, remotamente ou com fallback automático.",
@@ -198,5 +209,22 @@
       "toggleDescription": "Evite que o Mnemos mostre avisos de fallback quando embeddings falharem."
     },
     "privacyPrompt": "Quer revisar a privacidade? Veja a <link>política de privacidade</link>."
+  },
+  "Embedder": {
+    "toasts": {
+      "deviceIndexingError": {
+        "title": "Ocorreu um erro ao indexar no seu dispositivo.",
+        "descriptionFallbacking": "Usando indexação remota como fallback.",
+        "descriptionOnlineNoFallback": "Você pode perder a funcionalidade de busca. Você pode habilitar um fallback para indexação remota (requer conexão com a internet).",
+        "descriptionOffline": "Você pode perder a funcionalidade de busca.",
+        "dismissedInfo": "Você não verá mais mensagens de erro sobre falhas de indexação no seu dispositivo.",
+        "fallbackEnabledInfo": "Fallback habilitado. Se ocorrer um erro, a indexação será feita remotamente. Você pode mudar essa configuração depois.",
+        "actions": {
+          "dismiss": "Dispensar",
+          "enableFallback": "Habilitar fallback",
+          "fallbackUnavailable": "Fallback indisponível"
+        }
+      }
+    }
   }
 }

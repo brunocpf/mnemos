@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { startTransition } from "react";
+import { startTransition, useMemo } from "react";
 import { toast } from "sonner";
 
 import type { Settings } from "@/client-data/settings";
@@ -14,6 +14,11 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from "@/components/ui/progress";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -22,12 +27,16 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "@/i18n/navigation";
+import { useEmbedder } from "@/providers/embedder-provider";
 import { useSettings } from "@/providers/settings-provider";
+import { useSummarizer } from "@/providers/summarizer-provider";
 
 export function SettingsView() {
   const tShared = useTranslations("Shared");
   const t = useTranslations("SettingsView");
   const { settings, changeSetting } = useSettings();
+  const { modelDownloadState: summarizerDownloadState } = useSummarizer();
+  const { modelDownloadState: embedderDownloadState } = useEmbedder();
 
   const summarizerOptions: {
     value: Settings["summarizerHost"];
@@ -78,6 +87,38 @@ export function SettingsView() {
 
     toast.success(t("preferencesUpdated"), { position: "top-center" });
   };
+
+  const shouldShowSummarizerProgress =
+    settings.summarizerHost === "local-only" ||
+    settings.summarizerHost === "allow-fallback";
+
+  const shouldShowEmbedderProgress =
+    settings.embeddingHost === "local-only" ||
+    settings.embeddingHost === "allow-fallback";
+
+  const summarizerFileEntries = useMemo(() => {
+    const fileStates = summarizerDownloadState?.fileStates ?? {};
+    const entries = Object.entries(fileStates).sort(([a], [b]) =>
+      a.localeCompare(b),
+    );
+
+    if (entries.length > 0) return entries;
+    if (!summarizerDownloadState) return [];
+
+    return [["model", { status: "download" as const }]] as const;
+  }, [summarizerDownloadState]);
+
+  const embedderFileEntries = useMemo(() => {
+    const fileStates = embedderDownloadState?.fileStates ?? {};
+    const entries = Object.entries(fileStates).sort(([a], [b]) =>
+      a.localeCompare(b),
+    );
+
+    if (entries.length > 0) return entries;
+    if (!embedderDownloadState) return [];
+
+    return [["model", { status: "download" as const }]] as const;
+  }, [embedderDownloadState]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -130,6 +171,69 @@ export function SettingsView() {
                 ))}
               </SelectContent>
             </Select>
+
+            {shouldShowSummarizerProgress && (
+              <div className="space-y-2">
+                <p className="text-muted-foreground text-xs">
+                  {summarizerDownloadState?.isReady
+                    ? t("modelDownload.readyIndicator.ready")
+                    : t("modelDownload.readyIndicator.notReady")}
+                </p>
+                {summarizerFileEntries.map(([fileName, fileState]) => {
+                  const label =
+                    fileName === "model"
+                      ? t("modelDownload.title")
+                      : (fileName.split("/").pop() ?? fileName);
+                  const rawPercent =
+                    fileState.status !== "download"
+                      ? fileState.progress
+                      : undefined;
+                  const percent =
+                    typeof rawPercent === "number"
+                      ? rawPercent
+                      : fileState.status === "done"
+                        ? 100
+                        : undefined;
+                  const isReady = !!summarizerDownloadState?.isReady;
+                  const value = isReady
+                    ? 100
+                    : typeof percent === "number"
+                      ? percent
+                      : null;
+
+                  const percentLabel = isReady
+                    ? "100%"
+                    : typeof percent === "number"
+                      ? `${Math.round(percent)}%`
+                      : "";
+
+                  const statusLabel =
+                    fileState.status === "done"
+                      ? t("modelDownload.status.ready")
+                      : t("modelDownload.status.downloading");
+
+                  return (
+                    <Progress
+                      key={fileName}
+                      value={value}
+                      className="gap-1"
+                      aria-label={label}
+                    >
+                      <ProgressLabel className="text-xs font-medium">
+                        {label}
+                      </ProgressLabel>
+                      <ProgressValue className="text-xs">
+                        {() =>
+                          percentLabel
+                            ? `${percentLabel} \u00b7 ${statusLabel}`
+                            : statusLabel
+                        }
+                      </ProgressValue>
+                    </Progress>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -174,6 +278,69 @@ export function SettingsView() {
                 ))}
               </SelectContent>
             </Select>
+
+            {shouldShowEmbedderProgress && (
+              <div className="space-y-2">
+                <p className="text-muted-foreground text-xs">
+                  {embedderDownloadState?.isReady
+                    ? t("modelDownload.readyIndicator.ready")
+                    : t("modelDownload.readyIndicator.notReady")}
+                </p>
+                {embedderFileEntries.map(([fileName, fileState]) => {
+                  const label =
+                    fileName === "model"
+                      ? t("modelDownload.title")
+                      : (fileName.split("/").pop() ?? fileName);
+                  const rawPercent =
+                    fileState.status !== "download"
+                      ? fileState.progress
+                      : undefined;
+                  const percent =
+                    typeof rawPercent === "number"
+                      ? rawPercent
+                      : fileState.status === "done"
+                        ? 100
+                        : undefined;
+                  const isReady = !!embedderDownloadState?.isReady;
+                  const value = isReady
+                    ? 100
+                    : typeof percent === "number"
+                      ? percent
+                      : null;
+
+                  const percentLabel = isReady
+                    ? "100%"
+                    : typeof percent === "number"
+                      ? `${Math.round(percent)}%`
+                      : "";
+
+                  const statusLabel =
+                    fileState.status === "done"
+                      ? t("modelDownload.status.ready")
+                      : t("modelDownload.status.downloading");
+
+                  return (
+                    <Progress
+                      key={fileName}
+                      value={value}
+                      className="gap-1"
+                      aria-label={label}
+                    >
+                      <ProgressLabel className="text-xs font-medium">
+                        {label}
+                      </ProgressLabel>
+                      <ProgressValue className="text-xs">
+                        {() =>
+                          percentLabel
+                            ? `${percentLabel} \u00b7 ${statusLabel}`
+                            : statusLabel
+                        }
+                      </ProgressValue>
+                    </Progress>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 

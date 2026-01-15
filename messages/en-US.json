@@ -157,6 +157,17 @@
   "SettingsView": {
     "pageDescription": "Decide where Mnemos runs heavy AI workloads and how often you hear about indexing hiccups on your device.",
     "preferencesUpdated": "Preferences updated",
+    "modelDownload": {
+      "title": "Model files",
+      "readyIndicator": {
+        "ready": "Model ready",
+        "notReady": "Model not ready"
+      },
+      "status": {
+        "ready": "Ready",
+        "downloading": "Downloading..."
+      }
+    },
     "summaries": {
       "title": "Summaries",
       "description": "Choose whether to summarize notes on your device, remotely, or with an automatic fallback.",
@@ -198,5 +209,22 @@
       "toggleDescription": "Prevent Mnemos from showing fallback prompts when embeddings fail."
     },
     "privacyPrompt": "Looking for a privacy refresher? Head over to the <link>privacy policy</link>."
+  },
+  "Embedder": {
+    "toasts": {
+      "deviceIndexingError": {
+        "title": "An error has occurred while indexing on your device.",
+        "descriptionFallbacking": "Falling back to remote indexing.",
+        "descriptionOnlineNoFallback": "You may lose search functionality. You can enable a fallback to remote indexing (requires internet connection).",
+        "descriptionOffline": "You may lose search functionality.",
+        "dismissedInfo": "You will no longer see error messages about indexing failures on your device.",
+        "fallbackEnabledInfo": "Fallback enabled. If an error occurs, indexing will be performed remotely. You can change this setting later.",
+        "actions": {
+          "dismiss": "Dismiss",
+          "enableFallback": "Enable Fallback",
+          "fallbackUnavailable": "Fallback Unavailable"
+        }
+      }
+    }
   }
 }

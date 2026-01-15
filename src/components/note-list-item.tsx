@@ -42,7 +42,7 @@ import { Input } from "@/components/ui/input";
 import type { SemanticMatch } from "@/hooks/use-semantic-search";
 import { defaultFormatter } from "@/lib/dateFormatters";
 import { encodeSearchHighlight } from "@/lib/search-highlight";
-import { useEmbedderService } from "@/providers/embedder-service-provider";
+import { useEmbedder } from "@/providers/embedder-provider";
 
 interface NoteListItemProps {
   note: Note;
@@ -54,7 +54,7 @@ const formSchema = z.object({
 });
 
 export function NoteListItem({ note, match }: NoteListItemProps) {
-  const embedder = useEmbedderService();
+  const embedder = useEmbedder();
 
   const handleDelete = () => {
     deleteNote(note.id);

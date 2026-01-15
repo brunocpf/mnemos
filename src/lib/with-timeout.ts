@@ -1,9 +1,13 @@
-export const withTimeout = async <T>(promise: Promise<T>, ms: number) => {
+export const withTimeout = async <T>(
+  promise: Promise<T>,
+  ms: number,
+  message?: string,
+) => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   const timeoutPromise = new Promise<T>((_, reject) => {
     timeoutId = setTimeout(() => {
-      reject(new Error(`Summarization on your device timed out after ${ms}ms`));
+      reject(new Error(message ?? `Timed out after ${ms}ms`));
     }, ms);
   });
 

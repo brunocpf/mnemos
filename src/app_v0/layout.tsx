@@ -5,7 +5,7 @@ import { Figtree } from "next/font/google";
 import { OnboardingGate } from "@/components/onboarding-gate";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { EmbedderServiceProvider } from "@/providers/embedder-service-provider";
+import { EmbedderProvider } from "@/providers/embedder-provider";
 
 import "./globals.css";
 
@@ -25,12 +25,12 @@ export default function RootLayout({
     <html lang="en" className={fontSans.variable} suppressHydrationWarning>
       <head />
       <body className="antialiased">
-        <EmbedderServiceProvider>
+        <EmbedderProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <OnboardingGate>{children}</OnboardingGate>
             <Toaster />
           </ThemeProvider>
-        </EmbedderServiceProvider>
+        </EmbedderProvider>
       </body>
     </html>
   );

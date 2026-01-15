@@ -15,9 +15,13 @@ import { ModelDownloadState } from "@/lib/hf-model-worker-service";
 import { withTimeout } from "@/lib/with-timeout";
 import { useSettings } from "@/providers/settings-provider";
 import { summarize } from "@/server-actions/summarize";
-import type { SummarizerWorkerApi } from "@/workers/summarizer.worker";
+import type { SummarizationWorkerApi } from "@/workers/summarization.worker";
 
-export interface SummarizerProviderContextValue {
+const modelId =
+  process.env.NEXT_PUBLIC_SUMMARIZATION_MODEL_ID ||
+  "onnx-community/Phi-3.5-mini-instruct-onnx-web";
+
+export interface SummarizerContextValue {
   summarize: (text: string) => Promise<
     | {
         status: "success";
@@ -34,26 +38,28 @@ export interface SummarizerProviderContextValue {
   modelId?: string;
   modelDownloadState?: ModelDownloadState;
 }
-export const SummarizerProviderContext =
-  createContext<SummarizerProviderContextValue>({
-    summarize: async () => {
-      throw new Error("Not implemented");
-    },
-    isReady: false,
-    modelId: "unknown",
-    modelDownloadState: undefined,
-  });
+export const SummarizerContext = createContext<SummarizerContextValue>({
+  summarize: async () => {
+    throw new Error("Not implemented");
+  },
+  isReady: false,
+  modelId: "unknown",
+  modelDownloadState: undefined,
+});
 
 export function SummarizerProvider({ children }: PropsWithChildren) {
   const { settings } = useSettings();
-  const [modelId, setModelId] = useState<string>();
-  const { proxy: summarizerWorkerApi } = useComlinkWorker<SummarizerWorkerApi>(
-    () =>
-      new Worker(new URL("@/workers/summarizer.worker.ts", import.meta.url), {
-        type: "module",
-      }),
-    [],
-  );
+  const { proxy: summarizerWorkerApi } =
+    useComlinkWorker<SummarizationWorkerApi>(
+      () =>
+        new Worker(
+          new URL("@/workers/summarization.worker.ts", import.meta.url),
+          {
+            type: "module",
+          },
+        ),
+      [],
+    );
   const [modelDownloadState, setModelDownloadState] =
     useState<ModelDownloadState>();
 
@@ -61,8 +67,8 @@ export function SummarizerProvider({ children }: PropsWithChildren) {
     let subscriptionId: number | undefined;
 
     async function initWorker() {
+      setModelDownloadState(undefined);
       await summarizerWorkerApi?.init();
-      setModelId(await summarizerWorkerApi?.model);
       subscriptionId = await summarizerWorkerApi?.subscribeDownloadState(
         proxy((state) => {
           setModelDownloadState(state);
@@ -81,7 +87,7 @@ export function SummarizerProvider({ children }: PropsWithChildren) {
     };
   }, [settings.summarizerHost, summarizerWorkerApi]);
 
-  const contextValue = useMemo<SummarizerProviderContextValue>(() => {
+  const contextValue = useMemo<SummarizerContextValue>(() => {
     const workerIsReady =
       summarizerWorkerApi !== null && !!modelDownloadState?.isReady;
     const serverIsReady = navigator.onLine;
@@ -156,20 +162,15 @@ export function SummarizerProvider({ children }: PropsWithChildren) {
       modelId,
       isReady,
     };
-  }, [
-    modelDownloadState,
-    modelId,
-    settings.summarizerHost,
-    summarizerWorkerApi,
-  ]);
+  }, [modelDownloadState, settings.summarizerHost, summarizerWorkerApi]);
 
   return (
-    <SummarizerProviderContext.Provider value={contextValue}>
+    <SummarizerContext.Provider value={contextValue}>
       {children}
-    </SummarizerProviderContext.Provider>
+    </SummarizerContext.Provider>
   );
 }
 
 export function useSummarizer() {
-  return use(SummarizerProviderContext);
+  return use(SummarizerContext);
 }

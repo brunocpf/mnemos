@@ -12,9 +12,9 @@ import { HighlightedSnippet } from "@/components/highlighted-snippet";
 import { NoteEditorForm } from "@/components/note-editor-form";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useSummarizer } from "@/hooks/use-summarizer";
 import type { SearchHighlightPayload } from "@/lib/search-highlight";
-import { useEmbedderService } from "@/providers/embedder-service-provider";
+import { useEmbedder } from "@/providers/embedder-provider";
+import { useSummarizer } from "@/providers/summarizer-provider";
 
 interface NoteViewProps {
   noteId?: string;
@@ -27,7 +27,7 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const { data: note, isLoading } = useNoteById(currentNoteId);
-  const embedder = useEmbedderService();
+  const embedder = useEmbedder();
   const { summarize, isReady: isSummarizerReady } = useSummarizer();
 
   const isCreatingNote = !currentNoteId;
@@ -97,8 +97,12 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
 
     try {
       setIsSummarizing(true);
-      const summaryText = await summarize(note.content);
-      setSummary(summaryText);
+      const result = await summarize(note.content);
+      if (result.status === "success") {
+        setSummary(result.result);
+      } else {
+        throw new Error(result.error);
+      }
     } catch (err) {
       const description =
         err instanceof Error ? err.message : "An unknown error occurred.";

@@ -8,7 +8,7 @@ import { AppHeader } from "@/components/app-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { routing } from "@/i18n/routing";
-import { EmbedderServiceProvider } from "@/providers/embedder-service-provider";
+import { EmbedderProvider } from "@/providers/embedder-provider";
 import { HistoryProvider } from "@/providers/history-provider";
 import { SearchValueProvider } from "@/providers/search-value-provider";
 import { SettingsProvider } from "@/providers/settings-provider";
@@ -53,13 +53,9 @@ export default async function RootLayout({
       <body className="antialiased">
         <NextIntlClientProvider>
           <HistoryProvider>
-            <EmbedderServiceProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-              >
-                <SettingsProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <SettingsProvider>
+                <EmbedderProvider>
                   <SummarizerProvider>
                     <SearchValueProvider>
                       <AppHeader />
@@ -68,9 +64,9 @@ export default async function RootLayout({
                       <Toaster />
                     </SearchValueProvider>
                   </SummarizerProvider>
-                </SettingsProvider>
-              </ThemeProvider>
-            </EmbedderServiceProvider>
+                </EmbedderProvider>
+              </SettingsProvider>
+            </ThemeProvider>
           </HistoryProvider>
         </NextIntlClientProvider>
       </body>

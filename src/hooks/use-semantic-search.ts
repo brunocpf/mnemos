@@ -10,7 +10,7 @@ import {
   type SearchHighlightPayload,
 } from "@/lib/search-highlight";
 import { topKPush } from "@/lib/top-k-push";
-import { useEmbedderService } from "@/providers/embedder-service-provider";
+import { useEmbedder } from "@/providers/embedder-provider";
 
 const DEFAULT_TOP_K = process.env.NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K
   ? parseInt(process.env.NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K, 10)
@@ -39,7 +39,7 @@ export function useSemanticSearch(
   query: string,
   options: UseSemanticSearchOptions = {},
 ) {
-  const { embedQuery, getModelId } = useEmbedderService();
+  const { embedQuery, modelId } = useEmbedder();
   const [matches, setMatches] = useState<SemanticMatch[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -70,7 +70,9 @@ export function useSemanticSearch(
       setError(null);
 
       try {
-        const modelId = getModelId();
+        if (!modelId) {
+          throw new Error("Embedding model is not ready yet.");
+        }
         const queryVector = await embedQuery(normalizedQuery);
         if (cancelled || latestSearchRef.current !== searchId) return;
 
@@ -176,7 +178,7 @@ export function useSemanticSearch(
     return () => {
       cancelled = true;
     };
-  }, [query, embedQuery, getModelId, oversamplingFactor, topK]);
+  }, [query, embedQuery, modelId, oversamplingFactor, topK]);
 
   return {
     matches,
