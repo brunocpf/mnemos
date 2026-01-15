@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { OnboardingGate } from "@/components/onboarding-gate";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { routing } from "@/i18n/routing";
@@ -59,6 +60,7 @@ export default async function RootLayout({
                   <SummarizerProvider>
                     <SearchValueProvider>
                       <AppHeader />
+                      <OnboardingGate />
                       {children}
                       <AppFooter />
                       <Toaster />

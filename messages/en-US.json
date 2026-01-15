@@ -211,6 +211,31 @@
     },
     "privacyPrompt": "Looking for a privacy refresher? Head over to the <link>privacy policy</link>."
   },
+  "Onboarding": {
+    "title": "Welcome to Mnemos",
+    "intro": "Mnemos is a notes app with smart search and summaries. You stay in control of whether AI runs on your device or uses the cloud.",
+    "what": {
+      "title": "What you can do",
+      "bullets": {
+        "capture": "Write and keep your notes in one place.",
+        "search": "Search your notes by meaning (not just exact words).",
+        "summaries": "Generate short summaries to catch up fast."
+      }
+    },
+    "ai": {
+      "title": "How AI works",
+      "onDeviceLabel": "On your device:",
+      "onDevice": "Some AI features can run locally, which usually means no internet is needed.",
+      "cloudLabel": "In the cloud (optional):",
+      "cloud": "If you enable it, Mnemos may send the text needed to create a summary or improve search to a cloud helper. This can be useful when your device is busy or doesn’t support a feature.",
+      "settingsHint": "You can change these choices anytime in Settings."
+    },
+    "actions": {
+      "privacy": "Read Privacy Policy",
+      "settings": "Open Settings",
+      "continue": "Continue"
+    }
+  },
   "Embedder": {
     "toasts": {
       "deviceIndexingError": {

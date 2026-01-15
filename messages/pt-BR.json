@@ -211,6 +211,31 @@
     },
     "privacyPrompt": "Quer revisar a privacidade? Veja a <link>política de privacidade</link>."
   },
+  "Onboarding": {
+    "title": "Boas-vindas ao Mnemos",
+    "intro": "Mnemos é um app de anotações com busca inteligente e resumos. Você mantém o controle sobre a IA: rodar no seu dispositivo ou usar a nuvem.",
+    "what": {
+      "title": "O que você pode fazer",
+      "bullets": {
+        "capture": "Escrever e manter suas anotações em um só lugar.",
+        "search": "Pesquisar suas anotações por significado (não apenas palavras exatas).",
+        "summaries": "Gerar resumos curtos para se atualizar rapidamente."
+      }
+    },
+    "ai": {
+      "title": "Como a IA funciona",
+      "onDeviceLabel": "No seu dispositivo:",
+      "onDevice": "Alguns recursos de IA podem rodar localmente, o que geralmente significa que não é necessário internet.",
+      "cloudLabel": "Na nuvem (opcional):",
+      "cloud": "Se você habilitar, o Mnemos pode enviar o texto necessário para criar um resumo ou melhorar a busca a um helper na nuvem. Isso pode ser útil quando seu dispositivo está ocupado ou não oferece suporte a um recurso.",
+      "settingsHint": "Você pode mudar essas escolhas a qualquer momento em Configurações."
+    },
+    "actions": {
+      "privacy": "Ler a Política de Privacidade",
+      "settings": "Abrir configurações",
+      "continue": "Continuar"
+    }
+  },
   "Embedder": {
     "toasts": {
       "deviceIndexingError": {
