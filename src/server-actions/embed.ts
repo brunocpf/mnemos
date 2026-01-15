@@ -3,7 +3,7 @@
 import { pipeline } from "@huggingface/transformers";
 
 const modelId =
-  process.env.NEXT_PUBLIC_CURRENT_EMBEDDING_MODEL_ID || "Supabase/gte-small";
+  process.env.NEXT_PUBLIC_EMBEDDING_MODEL_ID || "Supabase/gte-small";
 
 export async function embed(
   chunks: {
@@ -45,6 +45,5 @@ export async function embedQuery(text: string) {
   });
 
   const data = Array.from(tensor.data);
-
   return data;
 }

@@ -1,0 +1,346 @@
+{
+  "Manifest": {
+    "description": "Um app de anotações com foco em privacidade, com busca inteligente e resumos com IA."
+  },
+  "Metadata": {
+    "defaultTitle": "Mnemos",
+    "titleTemplate": "%s | Mnemos",
+    "description": "Um app de anotações com foco em privacidade, com busca inteligente e resumos com IA."
+  },
+  "Shared": {
+    "navigation": {
+      "goBack": "Voltar",
+      "yourNotes": "Suas Anotações",
+      "note": "Anotação",
+      "menu": "Menu",
+      "newNote": "Nova anotação",
+      "privacyPolicy": "Política de Privacidade",
+      "settings": "Configurações"
+    }
+  },
+  "Notes": {
+    "titles": {
+      "yourNotes": "Suas Anotações"
+    },
+    "emptyState": {
+      "title": "Nenhuma Anotação",
+      "description": "Escreva anotações para vê-las aqui.",
+      "actions": {
+        "createFirstNote": "Crie sua primeira anotação"
+      }
+    },
+    "loading": {
+      "notes": "Carregando suas anotações...",
+      "search": "Pesquisando suas anotações..."
+    },
+    "errors": {
+      "loadingNotes": "Erro ao carregar anotações"
+    },
+    "toasts": {
+      "noteDeleted": "Anotação deletada",
+      "noteRestored": "Anotação restaurada",
+      "noteRenamed": "Anotação renomeada"
+    },
+    "actions": {
+      "undo": "Desfazer",
+      "rename": "Renomear",
+      "delete": "Deletar",
+      "confirm": "Confirmar"
+    },
+    "placeholders": {
+      "untitled": "Sem título"
+    },
+    "dialogs": {
+      "rename": {
+        "description": "Renomeie esta anotação."
+      }
+    }
+  },
+  "NoteView": {
+    "actions": {
+      "summarize": "Resumir"
+    },
+    "dialogs": {
+      "summary": {
+        "title": "Resumo",
+        "loading": "Gerando resumo...",
+        "unavailable": "A sumarização está indisponível no momento.",
+        "availableNow": "A sumarização agora está disponível. Feche este diálogo e tente novamente.",
+        "openSettings": "Abrir configurações",
+        "generatedLocally": "Gerado no seu dispositivo.",
+        "generatedViaServer": "Gerado na nuvem.",
+        "errorFallback": "Não foi possível gerar um resumo."
+      }
+    },
+    "toasts": {
+      "noteCreated": "Anotação criada"
+    },
+    "loading": {
+      "note": "Carregando anotação..."
+    },
+    "errors": {
+      "notFound": {
+        "title": "Anotação não encontrada",
+        "description": "Pode ter sido deletada ou nunca existiu"
+      }
+    }
+  },
+  "SearchInput": {
+    "labels": {
+      "search": "Pesquisar",
+      "searchNotes": "Pesquisar Anotações"
+    },
+    "placeholders": {
+      "searchNotes": "Pesquisar anotações..."
+    },
+    "actions": {
+      "startVoiceInput": "Iniciar entrada de voz",
+      "stopVoiceInput": "Parar entrada de voz",
+      "clear": "Limpar",
+      "cancel": "Cancelar",
+      "newNote": "Nova Anotação"
+    },
+    "status": {
+      "listening": "Ouvindo"
+    }
+  },
+  "RichTextEditorToolbar": {
+    "actions": {
+      "undo": "Desfazer",
+      "redo": "Refazer",
+      "clearFormatting": "Limpar formatação"
+    },
+    "textStyle": {
+      "label": "Estilo do texto",
+      "options": {
+        "normal": "Normal",
+        "heading1": "Título 1",
+        "heading2": "Título 2",
+        "heading3": "Título 3"
+      }
+    },
+    "marks": {
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "underline": "Sublinhado",
+      "strikethrough": "Tachado",
+      "inlineCode": "Código inline"
+    },
+    "lists": {
+      "bulletList": "Lista com marcadores",
+      "numberedList": "Lista numerada"
+    },
+    "blocks": {
+      "blockquote": "Citação"
+    },
+    "alignment": {
+      "label": "Alinhamento",
+      "options": {
+        "left": "Esquerda",
+        "center": "Centro",
+        "right": "Direita",
+        "justify": "Justificar"
+      }
+    },
+    "link": {
+      "actions": {
+        "add": "Adicionar link",
+        "remove": "Remover link"
+      },
+      "prompts": {
+        "enterUrl": "Digite a URL"
+      }
+    },
+    "image": {
+      "actions": {
+        "insert": "Inserir imagem",
+        "insertFromUrl": "Inserir por URL",
+        "insertAdvanced": "Inserir (avançado)"
+      },
+      "prompts": {
+        "url": "URL da imagem",
+        "urlAdvanced": "URL da imagem (base64 ou https://)"
+      }
+    }
+  },
+  "SettingsView": {
+    "pageDescription": "Decida onde o Mnemos executa cargas pesadas de IA e com que frequência você é avisado sobre falhas de indexação no seu dispositivo.",
+    "preferencesUpdated": "Preferências atualizadas",
+    "modelDownload": {
+      "title": "Arquivos do modelo",
+      "readyIndicator": {
+        "ready": "Modelo pronto",
+        "notReady": "Modelo não pronto"
+      },
+      "status": {
+        "ready": "Pronto",
+        "downloading": "Baixando..."
+      }
+    },
+    "summaries": {
+      "title": "Resumos",
+      "description": "Escolha se os resumos são gerados no seu dispositivo, remotamente ou com fallback automático.",
+      "label": "Os resumos rodam em",
+      "options": {
+        "localOnly": {
+          "label": "Somente no seu dispositivo",
+          "description": "Execute o resumidor Phi-3.5 inteiramente neste dispositivo."
+        },
+        "allowFallback": {
+          "label": "Permitir fallback",
+          "description": "Tente no seu dispositivo primeiro e, se falhar, use o helper na nuvem."
+        },
+        "serverOnly": {
+          "label": "Somente nuvem",
+          "description": "Sempre envie resumos para a nuvem (requer internet)."
+        }
+      }
+    },
+    "embeddings": {
+      "title": "Embeddings",
+      "description": "Controle como o Mnemos indexa anotações para busca semântica e quando recorrer à nuvem.",
+      "label": "Embeddings rodam em",
+      "options": {
+        "localOnly": {
+          "label": "Somente no seu dispositivo",
+          "description": "Gere embeddings no seu dispositivo."
+        },
+        "allowFallback": {
+          "label": "Permitir fallback",
+          "description": "Tente novamente na nuvem quando o processamento no seu dispositivo falhar ou expirar."
+        }
+      }
+    },
+    "notifications": {
+      "title": "Notificações",
+      "description": "Silencie os toasts de erro de indexação no seu dispositivo quando você estiver confiante na sua configuração.",
+      "toggleTitle": "Ocultar alertas de indexação no seu dispositivo",
+      "toggleDescription": "Evite que o Mnemos mostre avisos de fallback quando embeddings falharem."
+    },
+    "privacyPrompt": "Quer revisar a privacidade? Veja a <link>política de privacidade</link>."
+  },
+  "Onboarding": {
+    "title": "Boas-vindas ao Mnemos",
+    "intro": "Mnemos é um app de anotações com busca inteligente e resumos. Você mantém o controle sobre a IA: rodar no seu dispositivo ou usar a nuvem.",
+    "what": {
+      "title": "O que você pode fazer",
+      "bullets": {
+        "capture": "Escrever e manter suas anotações em um só lugar.",
+        "search": "Pesquisar suas anotações por significado (não apenas palavras exatas).",
+        "summaries": "Gerar resumos curtos para se atualizar rapidamente."
+      }
+    },
+    "ai": {
+      "title": "Como a IA funciona",
+      "onDeviceLabel": "No seu dispositivo:",
+      "onDevice": "Alguns recursos de IA podem rodar localmente, o que geralmente significa que não é necessário internet.",
+      "cloudLabel": "Na nuvem (opcional):",
+      "cloud": "Se você habilitar, o Mnemos pode enviar o texto necessário para criar um resumo ou melhorar a busca a um helper na nuvem. Isso pode ser útil quando seu dispositivo está ocupado ou não oferece suporte a um recurso.",
+      "settingsHint": "Você pode mudar essas escolhas a qualquer momento em Configurações."
+    },
+    "actions": {
+      "privacy": "Ler a Política de Privacidade",
+      "settings": "Abrir configurações",
+      "continue": "Continuar"
+    }
+  },
+  "Embedder": {
+    "toasts": {
+      "deviceIndexingError": {
+        "title": "Ocorreu um erro ao indexar no seu dispositivo.",
+        "descriptionFallbacking": "Usando indexação remota como fallback.",
+        "descriptionOnlineNoFallback": "Você pode perder a funcionalidade de busca. Você pode habilitar um fallback para indexação remota (requer conexão com a internet).",
+        "descriptionOffline": "Você pode perder a funcionalidade de busca.",
+        "dismissedInfo": "Você não verá mais mensagens de erro sobre falhas de indexação no seu dispositivo.",
+        "fallbackEnabledInfo": "Fallback habilitado. Se ocorrer um erro, a indexação será feita remotamente. Você pode mudar essa configuração depois.",
+        "actions": {
+          "dismiss": "Dispensar",
+          "enableFallback": "Habilitar fallback",
+          "fallbackUnavailable": "Fallback indisponível"
+        }
+      }
+    }
+  },
+  "PrivacyPolicy": {
+    "metadata": {
+      "title": "Política de Privacidade",
+      "description": "Saiba como o Mnemos lida, armazena e protege suas anotações."
+    },
+    "kicker": "Política de Privacidade",
+    "heroTitle": "Suas anotações ficam no seu dispositivo",
+    "intro": "Mnemos foi criado como um caderno com foco em privacidade, pensado para rodar no seu dispositivo. Esta página explica quais dados são criados, onde ficam armazenados e em quais casos limitados eles podem sair do seu navegador.",
+    "lastUpdated": "Última atualização: {date}",
+    "localDataPoints": [
+      {
+        "title": "Anotações, rascunhos e anexos",
+        "description": "Seu conteúdo escrito fica inteiramente no seu navegador usando IndexedDB. Não há sincronização em segundo plano nem armazenamento remoto."
+      },
+      {
+        "title": "Chunks e embeddings",
+        "description": "Os chunks de busca semântica e os vetores gerados no seu dispositivo ficam armazenados no seu dispositivo. Se você optar por fallback remoto, apenas o texto do chunk necessário para aquela solicitação é enviado para gerar o embedding, e o vetor resultante volta imediatamente para o IndexedDB."
+      },
+      {
+        "title": "Preferências e caches",
+        "description": "Seleção de tema, flags de recursos e caches de modelos ficam no armazenamento do navegador para preservar sua experiência offline."
+      }
+    ],
+    "aiDisclosures": [
+      {
+        "title": "Apenas solicitações explícitas de IA",
+        "description": "Quando você aciona uma ação de IA (ex.: Perguntar ao Mnemos ou Resumir), o texto específico que você envia é encaminhado ao modelo em nuvem configurado para que ele responda."
+      },
+      {
+        "title": "Sem uploads inesperados",
+        "description": "Mnemos nunca envia suas anotações ou embeddings automaticamente. Cada chamada externa indica claramente a carga útil antes de sair do seu dispositivo."
+      },
+      {
+        "title": "Fallback de embeddings com confirmação",
+        "description": "Se o seu dispositivo não conseguir executar o modelo de embeddings, o app pausa a ação e pergunta se você quer recorrer à geração remota de embeddings antes de qualquer texto ser transmitido."
+      },
+      {
+        "title": "Visibilidade de rede",
+        "description": "Todas as requisições remotas usam HTTPS e podem ser inspecionadas pelo painel de rede do seu navegador para total transparência."
+      }
+    ],
+    "userControls": [
+      {
+        "title": "Apague dados a qualquer momento",
+        "description": "Use os controles de armazenamento do seu navegador para limpar IndexedDB/localStorage ou delete anotações individualmente dentro do app."
+      },
+      {
+        "title": "Funcione totalmente offline",
+        "description": "Mnemos continua funcionando sem conexão, evitando transferência acidental de dados e permitindo que você audite o uso de rede por conta própria."
+      },
+      {
+        "title": "Auditabilidade",
+        "description": "Todo o código é open-source, então você pode verificar o modelo de armazenamento ou rodar sua própria build."
+      }
+    ],
+    "sections": {
+      "onDevice": {
+        "title": "Dados armazenados no seu dispositivo",
+        "description": "Tudo abaixo é armazenado diretamente no seu dispositivo usando IndexedDB/localStorage. O Mnemos não transmite esses dados a menos que você os exporte explicitamente ou opte pelo fallback remoto de embeddings descrito abaixo.",
+        "implementationDetail": "Detalhe de implementação: quando o fallback está habilitado, o Mnemos envia o texto e os IDs dos chunks afetados para a ação de embed no servidor em {path} apenas pelo tempo necessário para gerar vetores e, em seguida, armazena os embeddings retornados de volta no IndexedDB."
+      },
+      "dataLeaves": {
+        "title": "Quando os dados saem do seu dispositivo",
+        "description": "Mnemos só contata serviços remotos quando você solicita explicitamente uma operação com IA. Essas chamadas se limitam ao texto que você envia e aos metadados necessários para cumprir a solicitação. Se o seu hardware não conseguir gerar embeddings localmente, o Mnemos pausa o fluxo e pergunta se você quer habilitar a geração remota antes de qualquer coisa sair do dispositivo.",
+        "noAnalytics": "Mnemos não coleta analytics, identificadores de publicidade ou cookies de rastreamento. Se você auto-hospedar ou direcionar chamadas de IA para terceiros, as políticas deles governarão os dados transmitidos."
+      },
+      "controls": {
+        "title": "Seus controles",
+        "description": "Você decide quando e como suas informações são mantidas."
+      },
+      "children": {
+        "title": "Privacidade de crianças",
+        "description": "Mnemos é feito para produtividade de adultos e não é destinado a crianças menores de 13 anos. Se você for pai/mãe ou responsável e acreditar que uma criança forneceu dados, você pode limpar o armazenamento do navegador ou pedir ajuda abaixo."
+      },
+      "contact": {
+        "title": "Contato",
+        "descriptionPrefix": "Dúvidas ou solicitações? Abra uma issue no ",
+        "linkText": "repositório no GitHub",
+        "descriptionSuffix": "ou fale com os mantenedores pelos canais listados no README."
+      }
+    }
+  }
+}

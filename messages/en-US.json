@@ -1,0 +1,346 @@
+{
+  "Manifest": {
+    "description": "A privacy-first notes app with AI-powered search and summaries."
+  },
+  "Metadata": {
+    "defaultTitle": "Mnemos",
+    "titleTemplate": "%s | Mnemos",
+    "description": "A privacy-first notes app with AI-powered search and summaries."
+  },
+  "Shared": {
+    "navigation": {
+      "goBack": "Go Back",
+      "yourNotes": "Your Notes",
+      "note": "Note",
+      "menu": "Menu",
+      "newNote": "New note",
+      "privacyPolicy": "Privacy Policy",
+      "settings": "Settings"
+    }
+  },
+  "Notes": {
+    "titles": {
+      "yourNotes": "Your Notes"
+    },
+    "emptyState": {
+      "title": "No Notes",
+      "description": "Start writing notes to see them here.",
+      "actions": {
+        "createFirstNote": "Create your first note"
+      }
+    },
+    "loading": {
+      "notes": "Loading your notes...",
+      "search": "Searching your notes..."
+    },
+    "errors": {
+      "loadingNotes": "Error loading notes"
+    },
+    "toasts": {
+      "noteDeleted": "Note deleted",
+      "noteRestored": "Note restored",
+      "noteRenamed": "Note renamed"
+    },
+    "actions": {
+      "undo": "Undo",
+      "rename": "Rename",
+      "delete": "Delete",
+      "confirm": "Confirm"
+    },
+    "placeholders": {
+      "untitled": "Untitled"
+    },
+    "dialogs": {
+      "rename": {
+        "description": "Rename this note."
+      }
+    }
+  },
+  "NoteView": {
+    "actions": {
+      "summarize": "Summarize"
+    },
+    "dialogs": {
+      "summary": {
+        "title": "Summary",
+        "loading": "Generating summary...",
+        "unavailable": "Summarization is currently unavailable.",
+        "availableNow": "Summarization is now available. Close this dialog and try again.",
+        "openSettings": "Open settings",
+        "generatedLocally": "Generated on your device.",
+        "generatedViaServer": "Generated in the cloud.",
+        "errorFallback": "Could not generate a summary."
+      }
+    },
+    "toasts": {
+      "noteCreated": "Note created"
+    },
+    "loading": {
+      "note": "Loading note..."
+    },
+    "errors": {
+      "notFound": {
+        "title": "Note not found",
+        "description": "It may have been deleted or never existed"
+      }
+    }
+  },
+  "SearchInput": {
+    "labels": {
+      "search": "Search",
+      "searchNotes": "Search Notes"
+    },
+    "placeholders": {
+      "searchNotes": "Search notes..."
+    },
+    "actions": {
+      "startVoiceInput": "Start voice input",
+      "stopVoiceInput": "Stop voice input",
+      "clear": "Clear",
+      "cancel": "Cancel",
+      "newNote": "New Note"
+    },
+    "status": {
+      "listening": "Listening"
+    }
+  },
+  "RichTextEditorToolbar": {
+    "actions": {
+      "undo": "Undo",
+      "redo": "Redo",
+      "clearFormatting": "Clear formatting"
+    },
+    "textStyle": {
+      "label": "Text style",
+      "options": {
+        "normal": "Normal",
+        "heading1": "Heading 1",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3"
+      }
+    },
+    "marks": {
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strikethrough": "Strikethrough",
+      "inlineCode": "Inline code"
+    },
+    "lists": {
+      "bulletList": "Bullet list",
+      "numberedList": "Numbered list"
+    },
+    "blocks": {
+      "blockquote": "Blockquote"
+    },
+    "alignment": {
+      "label": "Text alignment",
+      "options": {
+        "left": "Left",
+        "center": "Center",
+        "right": "Right",
+        "justify": "Justify"
+      }
+    },
+    "link": {
+      "actions": {
+        "add": "Add link",
+        "remove": "Remove link"
+      },
+      "prompts": {
+        "enterUrl": "Enter URL"
+      }
+    },
+    "image": {
+      "actions": {
+        "insert": "Insert image",
+        "insertFromUrl": "Insert from URL",
+        "insertAdvanced": "Insert (advanced)"
+      },
+      "prompts": {
+        "url": "Image URL",
+        "urlAdvanced": "Image URL (base64 or https://)"
+      }
+    }
+  },
+  "SettingsView": {
+    "pageDescription": "Decide where Mnemos runs heavy AI workloads and how often you hear about indexing hiccups on your device.",
+    "preferencesUpdated": "Preferences updated",
+    "modelDownload": {
+      "title": "Model files",
+      "readyIndicator": {
+        "ready": "Model ready",
+        "notReady": "Model not ready"
+      },
+      "status": {
+        "ready": "Ready",
+        "downloading": "Downloading..."
+      }
+    },
+    "summaries": {
+      "title": "Summaries",
+      "description": "Choose whether to summarize notes on your device, remotely, or with an automatic fallback.",
+      "label": "Summaries run on",
+      "options": {
+        "localOnly": {
+          "label": "On your device only",
+          "description": "Run the Phi-3.5 summarizer entirely on this device."
+        },
+        "allowFallback": {
+          "label": "Allow fallback",
+          "description": "Try on your device first, then call the cloud helper if it fails."
+        },
+        "serverOnly": {
+          "label": "Cloud only",
+          "description": "Always send summaries to the cloud (requires internet)."
+        }
+      }
+    },
+    "embeddings": {
+      "title": "Embeddings",
+      "description": "Control how Mnemos indexes notes for semantic search and when to fall back to the cloud.",
+      "label": "Embeddings run on",
+      "options": {
+        "localOnly": {
+          "label": "On your device only",
+          "description": "Generate embeddings on your device."
+        },
+        "allowFallback": {
+          "label": "Allow fallback",
+          "description": "Retry in the cloud when processing on your device fails or times out."
+        }
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Mute indexing error toasts from your device once you are confident in your setup.",
+      "toggleTitle": "Hide indexing alerts from your device",
+      "toggleDescription": "Prevent Mnemos from showing fallback prompts when embeddings fail."
+    },
+    "privacyPrompt": "Looking for a privacy refresher? Head over to the <link>privacy policy</link>."
+  },
+  "Onboarding": {
+    "title": "Welcome to Mnemos",
+    "intro": "Mnemos is a notes app with smart search and summaries. You stay in control of whether AI runs on your device or uses the cloud.",
+    "what": {
+      "title": "What you can do",
+      "bullets": {
+        "capture": "Write and keep your notes in one place.",
+        "search": "Search your notes by meaning (not just exact words).",
+        "summaries": "Generate short summaries to catch up fast."
+      }
+    },
+    "ai": {
+      "title": "How AI works",
+      "onDeviceLabel": "On your device:",
+      "onDevice": "Some AI features can run locally, which usually means no internet is needed.",
+      "cloudLabel": "In the cloud (optional):",
+      "cloud": "If you enable it, Mnemos may send the text needed to create a summary or improve search to a cloud helper. This can be useful when your device is busy or doesn’t support a feature.",
+      "settingsHint": "You can change these choices anytime in Settings."
+    },
+    "actions": {
+      "privacy": "Read Privacy Policy",
+      "settings": "Open Settings",
+      "continue": "Continue"
+    }
+  },
+  "Embedder": {
+    "toasts": {
+      "deviceIndexingError": {
+        "title": "An error has occurred while indexing on your device.",
+        "descriptionFallbacking": "Falling back to remote indexing.",
+        "descriptionOnlineNoFallback": "You may lose search functionality. You can enable a fallback to remote indexing (requires internet connection).",
+        "descriptionOffline": "You may lose search functionality.",
+        "dismissedInfo": "You will no longer see error messages about indexing failures on your device.",
+        "fallbackEnabledInfo": "Fallback enabled. If an error occurs, indexing will be performed remotely. You can change this setting later.",
+        "actions": {
+          "dismiss": "Dismiss",
+          "enableFallback": "Enable Fallback",
+          "fallbackUnavailable": "Fallback Unavailable"
+        }
+      }
+    }
+  },
+  "PrivacyPolicy": {
+    "metadata": {
+      "title": "Privacy Policy",
+      "description": "Learn how Mnemos handles, stores, and protects your notes."
+    },
+    "kicker": "Privacy Policy",
+    "heroTitle": "Your notes stay on your device",
+    "intro": "Mnemos is built as a privacy-first notebook designed to run on your device. This page explains what data is created, where it lives, and the limited cases where it can leave your browser.",
+    "lastUpdated": "Last updated: {date}",
+    "localDataPoints": [
+      {
+        "title": "Notes, drafts, and attachments",
+        "description": "Your written content lives entirely inside your browser using IndexedDB. No background sync or remote storage is performed."
+      },
+      {
+        "title": "Chunks and embeddings",
+        "description": "Semantic-search chunks and the vectors generated on your device are stored on your device. If you opt into remote fallback, only the chunk text needed for that request is sent upstream for embedding and the resulting vector immediately returns to IndexedDB."
+      },
+      {
+        "title": "Preferences and caches",
+        "description": "Theme selection, feature flags, and model caches are kept in your browser storage to preserve your experience offline."
+      }
+    ],
+    "aiDisclosures": [
+      {
+        "title": "Explicit AI requests only",
+        "description": "When you trigger an AI action (e.g., Ask Mnemos or Summarize), the specific text you submit is sent to the configured cloud model so it can respond."
+      },
+      {
+        "title": "No surprise uploads",
+        "description": "Mnemos never uploads your notes or embeddings automatically. Each outbound call clearly indicates the payload before it leaves your device."
+      },
+      {
+        "title": "Prompted embedding fallback",
+        "description": "If your device cannot run the embedding model, the app pauses the action and asks whether you want to fall back to remote embedding generation before any text is transmitted."
+      },
+      {
+        "title": "Network visibility",
+        "description": "All remote requests use HTTPS and can be inspected via your browser's network panel for full transparency."
+      }
+    ],
+    "userControls": [
+      {
+        "title": "Delete data at any time",
+        "description": "Use your browser's storage controls to clear IndexedDB/localStorage or delete notes individually inside the app."
+      },
+      {
+        "title": "Operate fully offline",
+        "description": "Mnemos remains functional without connectivity, preventing accidental data transfer and letting you audit network usage yourself."
+      },
+      {
+        "title": "Auditability",
+        "description": "The entire codebase is open-source, so you can verify the storage model or run your own build."
+      }
+    ],
+    "sections": {
+      "onDevice": {
+        "title": "Data stored on your device",
+        "description": "Everything below is stored directly on your device using IndexedDB/localStorage. Mnemos does not transmit these assets unless you explicitly export them or opt into the remote embedding fallback described below.",
+        "implementationDetail": "Implementation detail: when fallback is enabled, Mnemos posts the affected chunk text and IDs to the server-side embed action in {path} only long enough to generate vectors, then stores the returned embeddings back in IndexedDB."
+      },
+      "dataLeaves": {
+        "title": "When data leaves your device",
+        "description": "Mnemos only contacts remote services when you explicitly request an AI-powered operation. Those calls are limited to the text you send and the metadata needed to fulfill the request. If your hardware cannot run embeddings on your device, Mnemos pauses the workflow and asks whether you want to enable remote embedding generation before anything leaves the device.",
+        "noAnalytics": "Mnemos does not collect analytics, advertising identifiers, or tracking cookies. If you self-host or point AI calls to a third party, their policies will govern the transmitted data."
+      },
+      "controls": {
+        "title": "Your controls",
+        "description": "You decide when and how your information is retained."
+      },
+      "children": {
+        "title": "Children's privacy",
+        "description": "Mnemos is designed for adult productivity use and is not intended for children under 13. If you are a parent or guardian and believe a child has provided data, you can clear the browser storage or reach out for help below."
+      },
+      "contact": {
+        "title": "Contact",
+        "descriptionPrefix": "Questions or requests? Open an issue on the ",
+        "linkText": "GitHub repository",
+        "descriptionSuffix": "or reach the maintainers via the channels listed in the README."
+      }
+    }
+  }
+}

@@ -10,7 +10,7 @@ import {
   type SearchHighlightPayload,
 } from "@/lib/search-highlight";
 import { topKPush } from "@/lib/top-k-push";
-import { useEmbedderService } from "@/providers/embedder-service-provider";
+import { useEmbedder } from "@/providers/embedder-provider";
 
 const DEFAULT_TOP_K = process.env.NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K
   ? parseInt(process.env.NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K, 10)
@@ -39,7 +39,7 @@ export function useSemanticSearch(
   query: string,
   options: UseSemanticSearchOptions = {},
 ) {
-  const { embedQuery, getModelId } = useEmbedderService();
+  const { embedQuery, modelId, isReady } = useEmbedder();
   const [matches, setMatches] = useState<SemanticMatch[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -66,11 +66,17 @@ export function useSemanticSearch(
     latestSearchRef.current = searchId;
 
     async function runSearch() {
+      if (!isReady) {
+        return;
+      }
+
       setIsSearching(true);
       setError(null);
 
       try {
-        const modelId = getModelId();
+        if (!modelId) {
+          throw new Error("Embedding model is not ready.");
+        }
         const queryVector = await embedQuery(normalizedQuery);
         if (cancelled || latestSearchRef.current !== searchId) return;
 
@@ -157,6 +163,15 @@ export function useSemanticSearch(
 
         setMatches(enrichedMatches);
       } catch (err) {
+        if (
+          err instanceof DOMException &&
+          (err.name === "AbortError" ||
+            err.message === "Embedding query was superseded.")
+        ) {
+          return;
+        }
+
+        console.log(err);
         if (cancelled || latestSearchRef.current !== searchId) return;
 
         const error =
@@ -176,11 +191,12 @@ export function useSemanticSearch(
     return () => {
       cancelled = true;
     };
-  }, [query, embedQuery, getModelId, oversamplingFactor, topK]);
+  }, [query, embedQuery, modelId, oversamplingFactor, topK, isReady]);
 
   return {
     matches,
     isSearching,
     error,
+    isReady,
   };
 }

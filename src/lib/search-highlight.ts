@@ -34,8 +34,6 @@ export function decodeSearchHighlight(value: string) {
 
   if (searchHighlightParsed.success) {
     return searchHighlightParsed.data;
-  } else {
-    return null;
   }
 }
 

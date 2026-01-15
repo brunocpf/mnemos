@@ -8,7 +8,7 @@ const huggingface = createHuggingFace({
 });
 
 const model = huggingface(
-  process.env.SUMMARIZER_MODEL ?? "Qwen/Qwen3-30B-A3B-Instruct-2507",
+  process.env.SERVER_SUMMARIZER_MODEL ?? "Qwen/Qwen3-30B-A3B-Instruct-2507",
 );
 
 export async function summarize(text: string) {

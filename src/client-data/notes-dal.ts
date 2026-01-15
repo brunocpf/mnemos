@@ -1,10 +1,7 @@
-import { useLiveQuery } from "dexie-react-hooks";
-
 import { db } from "@/client-data/db";
 import { Note } from "@/client-data/note";
-import { dexieLoading } from "@/lib/dexie-loading";
 
-export async function addNote(
+export async function createNote(
   note: Omit<Note, "id" | "deleted" | "createdAt" | "updatedAt" | "deletedAt">,
 ) {
   return await db.notes.add({
@@ -53,35 +50,4 @@ export async function permanentlyDeleteNote(id: Note["id"]) {
       await db.notes.delete(id);
     },
   );
-}
-
-export function useNotes() {
-  const notesResult = useLiveQuery(
-    () => db.notes.where("deleted").equals(0).reverse().sortBy("updatedAt"),
-    [],
-    dexieLoading,
-  );
-
-  return {
-    data: notesResult === dexieLoading ? undefined : notesResult,
-    isLoading: notesResult === dexieLoading,
-  };
-}
-
-export function useNoteById(id?: Note["id"]) {
-  const noteResult = useLiveQuery(
-    () => (id === undefined ? undefined : db.notes.get(id)),
-    [id],
-    dexieLoading,
-  );
-
-  return {
-    data:
-      noteResult === dexieLoading
-        ? undefined
-        : noteResult?.deleted === 0
-          ? noteResult
-          : undefined,
-    isLoading: noteResult === dexieLoading,
-  };
 }
