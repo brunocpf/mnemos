@@ -1,4 +1,12 @@
 {
+  "Manifest": {
+    "description": "A privacy-first notes app with AI-powered search and summaries."
+  },
+  "Metadata": {
+    "defaultTitle": "Mnemos",
+    "titleTemplate": "%s | Mnemos",
+    "description": "A privacy-first notes app with AI-powered search and summaries."
+  },
   "Shared": {
     "navigation": {
       "goBack": "Go Back",

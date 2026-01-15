@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   experimental: {
     viewTransition: true,
   },
+  serverExternalPackages: ["esbuild-wasm"],
 };
 
 const withNextIntl = createNextIntlPlugin();

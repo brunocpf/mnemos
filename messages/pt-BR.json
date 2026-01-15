@@ -1,4 +1,12 @@
 {
+  "Manifest": {
+    "description": "Um app de anotações com foco em privacidade, com busca inteligente e resumos com IA."
+  },
+  "Metadata": {
+    "defaultTitle": "Mnemos",
+    "titleTemplate": "%s | Mnemos",
+    "description": "Um app de anotações com foco em privacidade, com busca inteligente e resumos com IA."
+  },
   "Shared": {
     "navigation": {
       "goBack": "Voltar",
