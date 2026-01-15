@@ -26,6 +26,10 @@ class SummarizationWorkerService extends HfModelWorkerService<"text-generation">
     const endTag = `</notes_${salt}>`;
 
     try {
+      if (!this.pipelinePromise) {
+        this.init();
+      }
+
       const generator = await this.pipelinePromise;
 
       if (!generator) {
