@@ -26,34 +26,40 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 ## Features
 
 ### Notes
+
 - Markdown-based editor
 - Local persistence using IndexedDB
 - Fast create, edit, and delete
 - Works fully offline
 
 ### Offline Semantic Search
+
 - Search notes by **meaning**, not keywords
 - Embeddings computed **on-device** in a Web Worker
 - Incremental indexing using deterministic chunking and hashing
 - Search remains available without a network connection
 
 ### AI-Assisted Insights (Opt-in)
+
 - One-click note summarization
 - Ask questions across multiple notes (RAG-style answers)
 - Answers include references to source notes
 - AI calls are user-initiated and transparent
 
 ### Privacy by Design
+
 - Notes never leave the device unless explicitly sent for AI processing
 - No background uploads or hidden sync
 - Clear disclosure when server-side AI is used
 
 ### Internationalization
+
 - UI localized in **English** and **Brazilian Portuguese**
 - Notes can be written in any language
 - AI responses follow the language of the user’s input
 
 ### PWA Experience
+
 - Installable on desktop and mobile
 - Offline support via Service Worker
 - Store-ready via PWABuilder
@@ -63,6 +69,7 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 ## Architecture Overview
 
 ### Client
+
 - **Next.js (App Router)**
 - IndexedDB (via Dexie) for notes, chunks, and embeddings
 - Web Workers for:
@@ -73,10 +80,12 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 ### AI Strategy
 
 #### Embeddings
+
 - **Primary:** On-device embeddings using a Hugging Face sentence transformer via `transformers.js`
 - **Fallback:** Optional server-side embeddings for devices that cannot reliably run local inference (opt-in)
 
 #### LLM (Server-side)
+
 - Hugging Face hosted model for:
   - note summarization
   - cross-note question answering
@@ -86,14 +95,15 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 
 ## Offline Behavior
 
-| Feature | Offline |
-|------|------|
-| Create / edit notes | ✅ |
-| Semantic search | ✅ |
-| Summarization | ❌ |
-| Ask across notes | ❌ |
+| Feature             | Offline |
+| ------------------- | ------- |
+| Create / edit notes | ✅      |
+| Semantic search     | ✅      |
+| Summarization       | ✅      |
+| Ask across notes    | ❌      |
 
 When offline:
+
 - AI actions are disabled or queued
 - The app remains fully usable for core note-taking and search
 
