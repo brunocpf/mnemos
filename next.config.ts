@@ -6,7 +6,11 @@ const nextConfig: NextConfig = {
   experimental: {
     viewTransition: true,
   },
-  serverExternalPackages: ["esbuild-wasm"],
+  serverExternalPackages: [
+    "esbuild-wasm",
+    "@huggingface/inference",
+    "@huggingface/transformers",
+  ],
 };
 
 const withNextIntl = createNextIntlPlugin();
