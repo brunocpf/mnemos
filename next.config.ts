@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     "esbuild-wasm",
     "@huggingface/inference",
     "@huggingface/transformers",
+    "onnxruntime-node",
   ],
 };
 
