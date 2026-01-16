@@ -10,14 +10,47 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     description: t("description"),
     icons: [
       {
-        src: "/manifest-icon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/img/android/android-launchericon-512-512.png",
+        type: "image/png",
+        sizes: "512x512",
       },
       {
-        src: "/manifest-icon-maskable.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/img/android/android-launchericon-192-192.png",
+        type: "image/png",
+        sizes: "192x192",
+      },
+      {
+        src: "/img/ios/192.png",
+        type: "image/png",
+        sizes: "192x192",
+      },
+      {
+        src: "/img/ios/512.png",
+        type: "image/png",
+        sizes: "512x512",
+      },
+      {
+        src: "/img/maskable/android/android-launchericon-512-512.png",
+        type: "image/png",
+        sizes: "512x512",
+        purpose: "maskable",
+      },
+      {
+        src: "/img/maskable/android/android-launchericon-192-192.png",
+        type: "image/png",
+        sizes: "192x192",
+        purpose: "maskable",
+      },
+      {
+        src: "/img/maskable/ios/192.png",
+        type: "image/png",
+        sizes: "192x192",
+        purpose: "maskable",
+      },
+      {
+        src: "/img/maskable/ios/512.png",
+        type: "image/png",
+        sizes: "512x512",
         purpose: "maskable",
       },
     ],
