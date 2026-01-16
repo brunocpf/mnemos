@@ -1,7 +1,7 @@
 /* eslint-disable check-file/folder-naming-convention */
 import type { Metadata } from "next";
 
-import "../[locale]/globals.css";
+import "../globals.css";
 
 export const metadata: Metadata = {
   title: "Offline",
