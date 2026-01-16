@@ -70,7 +70,7 @@
     "baseline-browser-mapping": "^2.9.11",
     "esbuild-wasm": "^0.27.2",
     "eslint": "^9.39.2",
-    "eslint-config-next": "16.1.1",
+    "eslint-config-next": "16.1.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-check-file": "^3.3.1",
     "husky": "^9.1.7",
