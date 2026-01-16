@@ -9,7 +9,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@ai-sdk/huggingface": "^1.0.2",
+    "@ai-sdk/huggingface": "^1.0.13",
     "@base-ui/react": "^1.0.0",
     "@huggingface/inference": "^4.13.5",
     "@huggingface/transformers": "^3.8.1",
