@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { startTransition, useEffect, useState } from "react";
+import { addTransitionType, startTransition, useEffect, useState } from "react";
 
 import { db } from "@/client-data/db";
 import { Note } from "@/client-data/note";
@@ -18,6 +18,8 @@ export function useNoteById(noteId: string): {
 
     if (isLoading !== dbIsLoading) {
       startTransition(() => {
+        addTransitionType("note-loading-state");
+
         setIsLoading(dbIsLoading);
       });
     }

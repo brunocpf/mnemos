@@ -2,11 +2,9 @@
 
 import { IconPencil } from "@tabler/icons-react";
 import { useTranslations } from "next-intl";
-import { Activity, ViewTransition } from "react";
+import { Activity, useDeferredValue, ViewTransition } from "react";
 
-import { AppFooterSlot } from "@/components/app-footer-slot";
 import { EmptyState } from "@/components/empty-state";
-import SearchInput from "@/components/search-input";
 import { Button } from "@/components/ui/button";
 import {
   EmptyContent,
@@ -27,7 +25,8 @@ export default function NotesList() {
   const t = useTranslations("Notes");
   const { searchValue } = useSearchValue();
   const debouncedSearchValue = useDebounce(searchValue, 150);
-  const { data: notes, isLoading, error } = useNotes(debouncedSearchValue);
+  const deferredSearchValue = useDeferredValue(debouncedSearchValue);
+  const { data: notes, isLoading, error } = useNotes(deferredSearchValue);
   const router = useRouter();
 
   const safeNotes = notes ?? [];
@@ -108,9 +107,6 @@ export default function NotesList() {
           </ul>
         </Activity>
       </ViewTransition>
-      <AppFooterSlot>
-        <SearchInput />
-      </AppFooterSlot>
     </div>
   );
 }

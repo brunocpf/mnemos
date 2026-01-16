@@ -3,7 +3,6 @@
 import { useSearchParams } from "next/navigation";
 import React, {
   createContext,
-  startTransition,
   useContext,
   useEffect,
   useMemo,
@@ -60,7 +59,7 @@ export function HistoryProvider({
     if (lastRef.current === key) return;
     lastRef.current = key;
 
-    startTransition(() => {
+    (() => {
       setState((prev) => {
         const truncated = prev.stack.slice(0, prev.index + 1);
         const deduped =
@@ -75,7 +74,7 @@ export function HistoryProvider({
 
         return { stack: trimmed, index: trimmed.length - 1 };
       });
-    });
+    })();
   }, [key, maxSize]);
 
   const api = useMemo<HistoryApi>(() => {

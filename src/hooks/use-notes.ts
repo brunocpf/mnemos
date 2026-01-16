@@ -1,5 +1,11 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { startTransition, useEffect, useMemo, useState } from "react";
+import {
+  addTransitionType,
+  startTransition,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import { db } from "@/client-data/db";
 import { Note } from "@/client-data/note";
@@ -53,6 +59,8 @@ export function useNotes(search: string) {
 
     if (isLoading !== newIsLoading) {
       startTransition(() => {
+        addTransitionType("notes-loading-state");
+
         setIsLoading(newIsLoading);
       });
     }

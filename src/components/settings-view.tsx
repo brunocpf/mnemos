@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { startTransition, useMemo } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
 import type { Settings } from "@/client-data/settings";
@@ -81,9 +81,9 @@ export function SettingsView() {
     key: K,
     value: Settings[K],
   ) => {
-    startTransition(() => {
+    (() => {
       changeSetting(key, value);
-    });
+    })();
 
     toast.success(t("preferencesUpdated"), { position: "top-center" });
   };
