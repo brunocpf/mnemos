@@ -264,7 +264,7 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
               }
             >
               <div className="grid gap-3">
-                <div className="prose dark:prose-invert prose-headings:mt-8 prose-headings:font-semibold prose-headings:text-black prose-h1:text-5xl prose-h2:text-4xl prose-h3:text-3xl prose-h4:text-2xl prose-h5:text-xl prose-h6:text-lg dark:prose-headings:text-white">
+                <div className="prose prose-sm dark:prose-invert prose-headings:mt-6 prose-headings:font-semibold prose-headings:text-foreground prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-sm prose-code:before:content-none prose-code:after:content-none max-h-[55dvh] overflow-y-auto">
                   <Markdown>
                     {summaryState.status === "success"
                       ? summaryState.result
