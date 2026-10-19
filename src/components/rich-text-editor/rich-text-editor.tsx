@@ -2,6 +2,7 @@
 
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import { Markdown } from "@tiptap/markdown";
@@ -31,6 +32,7 @@ export function RichTextEditor({
   highlightTerms,
 }: RichTextEditorProps) {
   const tToolbar = useTranslations("RichTextEditorToolbar");
+  const tNote = useTranslations("NoteView");
   const editor = useEditor({
     autofocus: autoFocus,
     immediatelyRender: false,
@@ -58,6 +60,7 @@ export function RichTextEditor({
         inline: false,
         allowBase64: true,
       }),
+      Placeholder.configure({ placeholder: tNote("editor.placeholder") }),
       LinkOpenButtonExtension.configure({
         label: tToolbar("link.actions.open"),
       }),
@@ -67,6 +70,9 @@ export function RichTextEditor({
     contentType: "markdown",
     editorProps: {
       attributes: {
+        "aria-label": tNote("editor.label"),
+        role: "textbox",
+        "aria-multiline": "true",
         class:
           "ProseMirror prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-dvh prose-li:marker:text-foreground/70 prose-code:before:content-none prose-code:after:content-none",
       },

@@ -86,7 +86,11 @@
         "description": "It may have been deleted or never existed"
       }
     },
-    "searchMatch": "Search match"
+    "searchMatch": "Search match",
+    "editor": {
+      "placeholder": "Start writing…",
+      "label": "Note content"
+    }
   },
   "SearchInput": {
     "labels": {

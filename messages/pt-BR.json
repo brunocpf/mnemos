@@ -86,7 +86,11 @@
         "description": "Pode ter sido deletada ou nunca existiu"
       }
     },
-    "searchMatch": "Trecho encontrado"
+    "searchMatch": "Trecho encontrado",
+    "editor": {
+      "placeholder": "Comece a escrever…",
+      "label": "Conteúdo da anotação"
+    }
   },
   "SearchInput": {
     "labels": {
