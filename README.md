@@ -41,10 +41,10 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 
 ### AI-Assisted Insights (Opt-in)
 
-- One-click note summarization
-- Ask questions across multiple notes (RAG-style answers)
-- Answers include references to source notes
-- AI calls are user-initiated and transparent
+- One-click note summarization, user-initiated
+  - **On device:** Phi-3.5-mini (ONNX web, q4f16) via `transformers.js` in a Web Worker
+  - **Server fallback:** Qwen3-30B (configurable) through the Hugging Face Inference API
+- Ask across notes (RAG-style answers with source references) is **planned, not implemented yet**
 
 ### Privacy by Design
 
@@ -81,17 +81,26 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 
 #### Embeddings
 
-- **Primary:** On-device embeddings using a Hugging Face sentence transformer via `transformers.js`
-- **Fallback:** Optional server-side embeddings for devices that cannot reliably run local inference (opt-in)
+- **Primary:** On-device embeddings (`Supabase/gte-small` by default) via `transformers.js`
+- **Fallback:** Optional server-side embeddings through the `embed` / `embedQuery` server actions, only when the user enables it in Settings
 
-#### LLM (Server-side)
+#### Summarization
 
-- Hugging Face hosted model for:
-  - note summarization
-  - cross-note question answering
-- Invoked only when the user requests AI assistance
+- **Primary:** On-device Phi-3.5-mini in a Web Worker
+- **Fallback:** The `summarize` server action (Hugging Face Inference)
 
----
+#### Settings
+
+| Setting | Options | Default |
+| --- | --- | --- |
+| Embeddings | `local-only`, `allow-fallback` | `local-only` |
+| Summarizer | `local-only`, `allow-fallback`, `server-only` | `allow-fallback` |
+
+`allow-fallback` tries the device first and falls back to the server when local inference fails (or, for summaries, takes over 30 s). With `local-only` nothing is ever sent to the server. `server-only` skips the local model and its download.
+
+#### Server action safeguards
+
+The server actions spend the deployer's `HF_API_TOKEN`, so they validate input with zod and enforce limits (see `src/lib/server-ai.ts`): at most 64 chunks per request, 2,000 characters per chunk or query, 20,000 characters per summary. They also apply a per-IP rate limit (60 embed requests/min, 10 summaries/min). The limiter is in-memory and best-effort: on serverless platforms each instance keeps its own counters, so it will not stop a determined attacker. Use platform-level rate limiting for stronger protection. Errors come back as typed results (`invalid_input`, `rate_limited`, `not_configured`, `upstream_error`) rather than thrown exceptions.
 
 ## Offline Behavior
 
@@ -99,12 +108,12 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 | ------------------- | ------- |
 | Create / edit notes | ✅      |
 | Semantic search     | ✅      |
-| Summarization       | ✅      |
-| Ask across notes    | ❌      |
+| Summarization       | ✅ (once the local model is downloaded; server fallback needs a network) |
+| Ask across notes    | Planned |
 
 When offline:
 
-- AI actions are disabled or queued
+- Server-backed AI actions are unavailable
 - The app remains fully usable for core note-taking and search
 
 ---
@@ -118,7 +127,6 @@ The following are intentionally out of scope for the MVP:
 - Real-time collaboration
 - Automatic translation
 - Background AI processing
-- Local LLM inference
 
 These are deferred to keep the MVP focused and reliable.
 
@@ -131,7 +139,7 @@ Progress is tracked using **GitHub Issues + GitHub Projects**, organized by end-
 - Notes
 - Indexing
 - Semantic Search
-- RAG (Ask Mnemos)
+- RAG (Ask Mnemos) — planned
 - Offline / PWA
 - i18n
 
@@ -143,16 +151,32 @@ Each pipeline moves through:
 ## Getting Started (Local Development)
 
 ```bash
-# install dependencies
 npm install
-
-# start dev server
+cp .env.example .env.local   # optional, see below
 npm run dev
 ```
 
 The app runs at http://localhost:3000.
 
-> Note: On-device embeddings require an initial model download on first run.
+> On first run, the browser downloads the embedding model (and the summarization model unless the summarizer is `server-only`) from Hugging Face and caches it. The summarization model is large (hundreds of MB); a WebGPU-capable browser is recommended.
+
+### Environment variables
+
+| Variable | Scope | Purpose |
+| --- | --- | --- |
+| `HF_API_TOKEN` | server | Token for the server fallbacks. Without it they return a `not_configured` error. |
+| `NEXT_PUBLIC_EMBEDDING_MODEL_ID` | client + server | Embedding model (default `Supabase/gte-small`). |
+| `NEXT_PUBLIC_SUMMARIZATION_MODEL_ID` | client | On-device summarization model. |
+| `SERVER_SUMMARIZER_MODEL` | server | Server summarization model (default `Qwen/Qwen3-30B-A3B-Instruct-2507`). |
+| `NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K` | client | Search results to return (default 12). |
+| `NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_OVERSAMPLING_FACTOR` | client | Candidate oversampling factor (default 2). |
+
+### Tests
+
+```bash
+npx vitest run   # unit tests in __tests__/
+npm run lint
+```
 
 ---
 
@@ -160,7 +184,8 @@ The app runs at http://localhost:3000.
 
 - All notes are stored locally in the browser.
 - Embeddings are computed on-device by default.
-- Server-side AI is used only when explicitly triggered by the user.
+- Text is sent to the server only if you choose `allow-fallback` / `server-only` in Settings: note text for summaries, and chunk or query text for embeddings.
+- The server forwards that text to the Hugging Face Inference API ; the app itself does not store it.
 - No analytics or telemetry are collected by default.
 - A full privacy policy is available in the app.
 
@@ -168,7 +193,7 @@ The app runs at http://localhost:3000.
 
 ## License
 
-TBD
+No license has been chosen yet; until one is added, all rights are reserved by the author.
 
 ---
 

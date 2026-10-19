@@ -277,7 +277,7 @@
       },
       {
         "title": "Chunks e embeddings",
-        "description": "Os chunks de busca semântica e os vetores gerados no seu dispositivo ficam armazenados no seu dispositivo. Se você optar por fallback remoto, apenas o texto do chunk necessário para aquela solicitação é enviado para gerar o embedding, e o vetor resultante volta imediatamente para o IndexedDB."
+        "description": "Os chunks de busca semântica e os vetores gerados para eles ficam armazenados no seu dispositivo. Se você optar pelo fallback remoto de embeddings, o texto do chunk necessário para aquela solicitação é enviado ao servidor e o vetor resultante volta para o IndexedDB."
       },
       {
         "title": "Preferências e caches",
@@ -287,19 +287,19 @@
     "aiDisclosures": [
       {
         "title": "Apenas solicitações explícitas de IA",
-        "description": "Quando você aciona uma ação de IA (ex.: Perguntar ao Mnemos ou Resumir), o texto específico que você envia é encaminhado ao modelo em nuvem configurado para que ele responda."
+        "description": "Os resumos rodam no seu dispositivo por padrão. Se você escolher fallback para o servidor (ou apenas servidor) nas Configurações, o texto completo da anotação que você pede para resumir é enviado ao servidor do Mnemos e, a partir dele, à API de inferência do Hugging Face. O Mnemos não armazena esse texto."
       },
       {
-        "title": "Sem uploads inesperados",
-        "description": "Mnemos nunca envia suas anotações ou embeddings automaticamente. Cada chamada externa indica claramente a carga útil antes de sair do seu dispositivo."
+        "title": "Sem uploads ocultos",
+        "description": "O Mnemos nunca sincroniza suas anotações em segundo plano. O texto sai do seu dispositivo apenas pelas opções de fallback descritas aqui, e somente se você as ativou nas Configurações."
       },
       {
-        "title": "Fallback de embeddings com confirmação",
-        "description": "Se o seu dispositivo não conseguir executar o modelo de embeddings, o app pausa a ação e pergunta se você quer recorrer à geração remota de embeddings antes de qualquer texto ser transmitido."
+        "title": "Fallback de embeddings é opcional",
+        "description": "Os embeddings são calculados no seu dispositivo por padrão. Se você ativar o fallback remoto, quando a indexação local falhar o texto dos chunks afetados (e, na busca semântica, sua consulta) é enviado ao servidor do Mnemos e ao Hugging Face para gerar os vetores. Com ele desativado, o app oferece ativá-lo e nada é enviado até você concordar."
       },
       {
         "title": "Visibilidade de rede",
-        "description": "Todas as requisições remotas usam HTTPS e podem ser inspecionadas pelo painel de rede do seu navegador para total transparência."
+        "description": "As requisições remotas usam HTTPS e podem ser inspecionadas no painel de rede do navegador. O Mnemos também baixa modelos de IA do Hugging Face na primeira vez que são necessários; nenhum conteúdo de anotação faz parte desses downloads."
       }
     ],
     "userControls": [
@@ -319,12 +319,12 @@
     "sections": {
       "onDevice": {
         "title": "Dados armazenados no seu dispositivo",
-        "description": "Tudo abaixo é armazenado diretamente no seu dispositivo usando IndexedDB/localStorage. O Mnemos não transmite esses dados a menos que você os exporte explicitamente ou opte pelo fallback remoto de embeddings descrito abaixo.",
+        "description": "Tudo abaixo é armazenado diretamente no seu dispositivo usando IndexedDB/localStorage. O Mnemos não transmite esses dados a menos que você os exporte explicitamente ou opte pelos fallbacks para o servidor descritos abaixo.",
         "implementationDetail": "Detalhe de implementação: quando o fallback está habilitado, o Mnemos envia o texto e os IDs dos chunks afetados para a ação de embed no servidor em {path} apenas pelo tempo necessário para gerar vetores e, em seguida, armazena os embeddings retornados de volta no IndexedDB."
       },
       "dataLeaves": {
         "title": "Quando os dados saem do seu dispositivo",
-        "description": "Mnemos só contata serviços remotos quando você solicita explicitamente uma operação com IA. Essas chamadas se limitam ao texto que você envia e aos metadados necessários para cumprir a solicitação. Se o seu hardware não conseguir gerar embeddings localmente, o Mnemos pausa o fluxo e pergunta se você quer habilitar a geração remota antes de qualquer coisa sair do dispositivo.",
+        "description": "O Mnemos contata serviços remotos apenas nestes casos: você resume uma anotação com fallback para o servidor ou apenas servidor ativado; você ativa o fallback remoto de embeddings (o texto dos chunks e as consultas de busca são então enviados para gerar embeddings); ou o navegador baixa modelos de IA do Hugging Face. Com as configurações apenas no dispositivo, nenhum conteúdo de anotação sai do seu dispositivo.",
         "noAnalytics": "Mnemos não coleta analytics, identificadores de publicidade ou cookies de rastreamento. Se você auto-hospedar ou direcionar chamadas de IA para terceiros, as políticas deles governarão os dados transmitidos."
       },
       "controls": {

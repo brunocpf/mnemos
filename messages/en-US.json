@@ -277,7 +277,7 @@
       },
       {
         "title": "Chunks and embeddings",
-        "description": "Semantic-search chunks and the vectors generated on your device are stored on your device. If you opt into remote fallback, only the chunk text needed for that request is sent upstream for embedding and the resulting vector immediately returns to IndexedDB."
+        "description": "Semantic-search chunks and the vectors generated for them are stored on your device. If you opt into remote embedding fallback, the chunk text needed for that request is sent to the server and the resulting vector returns to IndexedDB."
       },
       {
         "title": "Preferences and caches",
@@ -287,19 +287,19 @@
     "aiDisclosures": [
       {
         "title": "Explicit AI requests only",
-        "description": "When you trigger an AI action (e.g., Ask Mnemos or Summarize), the specific text you submit is sent to the configured cloud model so it can respond."
+        "description": "Summaries run on your device by default. If you choose server fallback (or server-only) in Settings, the full text of the note you ask to summarize is sent to Mnemos' server and on to Hugging Face's inference API. Mnemos does not store it."
       },
       {
-        "title": "No surprise uploads",
-        "description": "Mnemos never uploads your notes or embeddings automatically. Each outbound call clearly indicates the payload before it leaves your device."
+        "title": "No hidden uploads",
+        "description": "Mnemos never syncs your notes in the background. Text leaves your device only through the fallback options described here, and only if you enabled them in Settings."
       },
       {
-        "title": "Prompted embedding fallback",
-        "description": "If your device cannot run the embedding model, the app pauses the action and asks whether you want to fall back to remote embedding generation before any text is transmitted."
+        "title": "Embedding fallback is opt-in",
+        "description": "Embeddings are computed on your device by default. If you turn on remote embedding fallback, then after local indexing fails the text of the affected chunks (and, for semantic search, your search query) is sent to Mnemos' server and Hugging Face to generate vectors. When it is off, the app offers to enable it and nothing is sent until you agree."
       },
       {
         "title": "Network visibility",
-        "description": "All remote requests use HTTPS and can be inspected via your browser's network panel for full transparency."
+        "description": "Remote requests use HTTPS and can be inspected in your browser's network panel. Mnemos also downloads AI models from Hugging Face the first time they are needed; no note content is part of those downloads."
       }
     ],
     "userControls": [
@@ -319,12 +319,12 @@
     "sections": {
       "onDevice": {
         "title": "Data stored on your device",
-        "description": "Everything below is stored directly on your device using IndexedDB/localStorage. Mnemos does not transmit these assets unless you explicitly export them or opt into the remote embedding fallback described below.",
+        "description": "Everything below is stored directly on your device using IndexedDB/localStorage. Mnemos does not transmit these assets unless you explicitly export them or opt into the server fallbacks described below.",
         "implementationDetail": "Implementation detail: when fallback is enabled, Mnemos posts the affected chunk text and IDs to the server-side embed action in {path} only long enough to generate vectors, then stores the returned embeddings back in IndexedDB."
       },
       "dataLeaves": {
         "title": "When data leaves your device",
-        "description": "Mnemos only contacts remote services when you explicitly request an AI-powered operation. Those calls are limited to the text you send and the metadata needed to fulfill the request. If your hardware cannot run embeddings on your device, Mnemos pauses the workflow and asks whether you want to enable remote embedding generation before anything leaves the device.",
+        "description": "Mnemos contacts remote services only in these cases: you summarize a note with server fallback or server-only enabled; you enable remote embedding fallback (chunk text and search queries are then sent for embedding); or the browser downloads AI models from Hugging Face. With on-device-only settings, no note content leaves your device.",
         "noAnalytics": "Mnemos does not collect analytics, advertising identifiers, or tracking cookies. If you self-host or point AI calls to a third party, their policies will govern the transmitted data."
       },
       "controls": {
