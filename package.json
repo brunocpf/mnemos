@@ -10,7 +10,7 @@
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/huggingface": "^1.0.88",
+    "@ai-sdk/huggingface": "^2.0.73",
     "@base-ui/react": "^1.9.0",
     "@huggingface/inference": "^4.13.32",
     "@huggingface/transformers": "^3.8.1",
@@ -25,7 +25,7 @@
     "@tiptap/markdown": "^3.32.0",
     "@tiptap/react": "^3.32.0",
     "@tiptap/starter-kit": "^3.32.0",
-    "ai": "^6.0.311",
+    "ai": "^7.0.145",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
