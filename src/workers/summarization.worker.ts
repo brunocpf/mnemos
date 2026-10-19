@@ -1,8 +1,9 @@
 /// <reference lib="webworker" />
-import { Chat } from "@huggingface/transformers";
 import { expose } from "comlink";
 
 import { HfModelWorkerService } from "@/lib/hf-model-worker-service";
+
+type Chat = { role: string; content: string }[];
 
 const modelId =
   process.env.NEXT_PUBLIC_SUMMARIZATION_MODEL_ID ||

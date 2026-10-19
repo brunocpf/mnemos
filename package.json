@@ -13,7 +13,7 @@
     "@ai-sdk/huggingface": "^2.0.73",
     "@base-ui/react": "^1.9.0",
     "@huggingface/inference": "^4.13.32",
-    "@huggingface/transformers": "^3.8.1",
+    "@huggingface/transformers": "^4.3.1",
     "@langchain/textsplitters": "^1.0.2",
     "@tabler/icons-react": "^3.49.0",
     "@tanstack/react-form": "^1.33.5",
