@@ -34,7 +34,8 @@
       "search": "Pesquisando suas anotações..."
     },
     "errors": {
-      "loadingNotes": "Erro ao carregar anotações"
+      "loadingNotes": "Não foi possível carregar suas anotações. Tente novamente.",
+      "noResults": "Nenhuma anotação encontrada para \"{query}\"."
     },
     "toasts": {
       "noteDeleted": "Anotação deletada",
@@ -48,7 +49,8 @@
       "confirm": "Confirmar"
     },
     "placeholders": {
-      "untitled": "Sem título"
+      "untitled": "Sem título",
+      "noteTitle": "Título da anotação"
     },
     "dialogs": {
       "rename": {
@@ -64,7 +66,7 @@
       "summary": {
         "title": "Resumo",
         "loading": "Gerando resumo...",
-        "unavailable": "A sumarização está indisponível no momento.",
+        "unavailable": "Os resumos ainda não estão disponíveis porque o modelo não está pronto.",
         "availableNow": "A sumarização agora está disponível. Feche este diálogo e tente novamente.",
         "openSettings": "Abrir configurações",
         "generatedLocally": "Gerado no seu dispositivo.",
@@ -83,7 +85,8 @@
         "title": "Anotação não encontrada",
         "description": "Pode ter sido deletada ou nunca existiu"
       }
-    }
+    },
+    "searchMatch": "Trecho encontrado"
   },
   "SearchInput": {
     "labels": {
@@ -145,7 +148,8 @@
     "link": {
       "actions": {
         "add": "Adicionar link",
-        "remove": "Remover link"
+        "remove": "Remover link",
+        "open": "Abrir link"
       },
       "prompts": {
         "enterUrl": "Digite a URL"
@@ -164,13 +168,13 @@
     }
   },
   "SettingsView": {
-    "pageDescription": "Decida onde o Mnemos executa cargas pesadas de IA e com que frequência você é avisado sobre falhas de indexação no seu dispositivo.",
+    "pageDescription": "Escolha se os recursos de IA rodam no seu dispositivo ou na nuvem, e como o Mnemos avisa quando a indexação da busca falha.",
     "preferencesUpdated": "Preferências atualizadas",
     "modelDownload": {
       "title": "Arquivos do modelo",
       "readyIndicator": {
         "ready": "Modelo pronto",
-        "notReady": "Modelo não pronto"
+        "notReady": "Modelo ainda não baixado. Ele é baixado uma vez e depois funciona offline."
       },
       "status": {
         "ready": "Pronto",
@@ -212,10 +216,10 @@
       }
     },
     "notifications": {
-      "title": "Notificações",
-      "description": "Silencie os toasts de erro de indexação no seu dispositivo quando você estiver confiante na sua configuração.",
-      "toggleTitle": "Ocultar alertas de indexação no seu dispositivo",
-      "toggleDescription": "Evite que o Mnemos mostre avisos de fallback quando embeddings falharem."
+      "title": "Alertas de indexação",
+      "description": "Oculte os avisos que o Mnemos mostra quando não consegue indexar uma anotação no seu dispositivo.",
+      "toggleTitle": "Ocultar alertas de indexação",
+      "toggleDescription": "Interrompe os avisos de fallback quando a indexação no dispositivo falha. A busca pode deixar de incluir anotações novas."
     },
     "privacyPrompt": "Quer revisar a privacidade? Veja a <link>política de privacidade</link>."
   },

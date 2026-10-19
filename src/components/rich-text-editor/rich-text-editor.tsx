@@ -7,6 +7,7 @@ import Underline from "@tiptap/extension-underline";
 import { Markdown } from "@tiptap/markdown";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { AppFooterSlot } from "@/components/app-footer-slot";
@@ -29,6 +30,7 @@ export function RichTextEditor({
   autoFocus,
   highlightTerms,
 }: RichTextEditorProps) {
+  const tToolbar = useTranslations("RichTextEditorToolbar");
   const editor = useEditor({
     autofocus: autoFocus,
     immediatelyRender: false,
@@ -56,7 +58,9 @@ export function RichTextEditor({
         inline: false,
         allowBase64: true,
       }),
-      LinkOpenButtonExtension,
+      LinkOpenButtonExtension.configure({
+        label: tToolbar("link.actions.open"),
+      }),
       SearchHighlightExtension.configure({ terms: [] }),
     ],
     content: value,

@@ -112,15 +112,17 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
           result: response.result,
         });
       } else if (response.status === "error") {
+        console.error("Summarization failed", response.error);
         setSummaryState({
           status: "error",
-          error: response.error ?? t("dialogs.summary.errorFallback"),
+          error: t("dialogs.summary.errorFallback"),
         });
       }
     } catch (error: unknown) {
+      console.error("Summarization failed", error);
       setSummaryState({
         status: "error",
-        error: error instanceof Error ? error.message : String(error),
+        error: t("dialogs.summary.errorFallback"),
       });
     }
   };
@@ -174,7 +176,7 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
           {highlightForNote && (
             <div className="border-primary/20 bg-primary/5 text-foreground/90 mb-4 rounded-2xl border px-4 py-3 text-sm">
               <p className="text-primary mb-2 text-xs font-semibold tracking-[0.2em] uppercase">
-                Search match
+                {t("searchMatch")}
               </p>
               <HighlightedSnippet
                 text={highlightForNote.snippet}

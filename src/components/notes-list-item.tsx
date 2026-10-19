@@ -221,7 +221,7 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     aria-invalid={isInvalid}
-                    placeholder="Note title"
+                    placeholder={t("placeholders.noteTitle")}
                     autoComplete="off"
                     autoFocus
                   />

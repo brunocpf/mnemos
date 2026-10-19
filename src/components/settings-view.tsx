@@ -357,6 +357,7 @@ export function SettingsView() {
               </p>
             </div>
             <Switch
+              aria-label={t("notifications.toggleTitle")}
               checked={settings.dismissEmbeddingErrorMessages}
               onCheckedChange={(checked) =>
                 handleSettingChange("dismissEmbeddingErrorMessages", checked)
