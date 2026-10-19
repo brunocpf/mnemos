@@ -25,6 +25,27 @@ export class MnemosDb extends Dexie {
       localEmbeddingErrors: "id, timestamp",
     });
 
+    // v2: adds a chunkId index on embeddings (so a chunk's vectors can be
+    // dropped across all models) and drops rows orphaned by soft deletes,
+    // which used to keep their chunks/embeddings and could be searched.
+    // Never edit a released version; add version(3)+ for further changes.
+    this.version(2)
+      .stores({
+        embeddings: "[chunkId+modelId], noteId, modelId, chunkId",
+      })
+      .upgrade(async (tx) => {
+        const deletedIds = await tx
+          .table("notes")
+          .where("deleted")
+          .equals(1)
+          .primaryKeys();
+        for (const id of deletedIds) {
+          await tx.table("chunks").where("noteId").equals(id).delete();
+          await tx.table("embeddings").where("noteId").equals(id).delete();
+          await tx.table("noteHashes").delete(id);
+        }
+      });
+
     this.notes = this.table("notes");
     this.noteHashes = this.table("noteHashes");
     this.chunks = this.table("chunks");

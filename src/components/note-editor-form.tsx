@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form";
+import { useEffect, useRef } from "react";
 import { z } from "zod";
 
 import { noteSchema } from "@/client-data/note";
@@ -29,6 +30,26 @@ export function NoteEditorForm({
     validators: { onChange: formSchema },
   });
 
+  // The debounced change listener is dropped when the form unmounts (fast
+  // navigation / back), so remember what was last persisted and flush any
+  // difference on unmount.
+  const lastPersistedRef = useRef(initialContent);
+  const onChangeRef = useRef(onChange);
+  const noteIdRef = useRef(noteId);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+    noteIdRef.current = noteId;
+  });
+  useEffect(() => {
+    return () => {
+      const value = form.state.values.content;
+      if (value !== lastPersistedRef.current) {
+        lastPersistedRef.current = value;
+        onChangeRef.current?.(noteIdRef.current, value);
+      }
+    };
+  }, [form]);
+
   return (
     <form
       onSubmit={(event) => {
@@ -42,6 +63,7 @@ export function NoteEditorForm({
           onChangeDebounceMs: 200,
           onChange: async ({ fieldApi, value }) => {
             if (!fieldApi.state.meta.isValid) return;
+            lastPersistedRef.current = value;
             onChange?.(noteId, value);
           },
           onBlur: ({ fieldApi, value }) => {

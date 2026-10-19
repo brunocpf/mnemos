@@ -13,8 +13,55 @@ export async function createNote(
   });
 }
 
+export const TRASH_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * Soft-deletes a note and drops its search index (chunks, embeddings, hashes)
+ * so deleted notes can never surface in search. Restoring re-indexes the note
+ * through the embedder's backfill.
+ */
 export async function deleteNote(id: Note["id"]) {
-  return await db.notes.update(id, { deleted: 1, deletedAt: new Date() });
+  return await db.transaction(
+    "rw",
+    db.notes,
+    db.chunks,
+    db.embeddings,
+    db.noteHashes,
+    async () => {
+      const updated = await db.notes.update(id, {
+        deleted: 1,
+        deletedAt: new Date(),
+      });
+      await dropNoteIndex(id);
+      return updated;
+    },
+  );
+}
+
+async function dropNoteIndex(id: Note["id"]) {
+  await db.chunks.where("noteId").equals(id).delete();
+  await db.embeddings.where("noteId").equals(id).delete();
+  await db.noteHashes.delete(id);
+}
+
+/** Permanently removes soft-deleted notes older than the retention window. */
+export async function purgeDeletedNotes(
+  olderThanMs: number = TRASH_RETENTION_MS,
+  now: number = Date.now(),
+) {
+  const cutoff = now - olderThanMs;
+  const stale = await db.notes
+    .where("deleted")
+    .equals(1)
+    .filter((n) => !n.deletedAt || n.deletedAt.getTime() <= cutoff)
+    .primaryKeys();
+  for (const id of stale) await permanentlyDeleteNote(id);
+  return stale.length;
+}
+
+/** Removes embeddings computed with models other than `modelId`. */
+export async function dropEmbeddingsForOtherModels(modelId: string) {
+  return await db.embeddings.where("modelId").notEqual(modelId).delete();
 }
 
 export async function updateNoteTitle(id: Note["id"], title: string) {

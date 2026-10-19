@@ -3,13 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 
 import { db } from "@/client-data/db";
-import { dotProduct } from "@/lib/dot-product";
+import { rankEmbeddings } from "@/lib/rank-embeddings";
 import {
   createHighlightSnippet,
   getHighlightTerms,
   type SearchHighlightPayload,
 } from "@/lib/search-highlight";
-import { topKPush } from "@/lib/top-k-push";
 import { useEmbedder } from "@/providers/embedder-provider";
 
 const DEFAULT_TOP_K = process.env.NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K
@@ -26,8 +25,6 @@ const DEFAULT_OVERSAMPLING_FACTOR = process.env
 export type SemanticMatch = SearchHighlightPayload & {
   score: number;
 };
-
-type Candidate = Pick<SemanticMatch, "noteId" | "chunkId" | "score">;
 
 export type UseSemanticSearchOptions = {
   topK?: number;
@@ -87,48 +84,18 @@ export function useSemanticSearch(
 
         if (cancelled || latestSearchRef.current !== searchId) return;
 
-        const chunkCandidates: Candidate[] = [];
+        const liveNoteIds = new Set(
+          await db.notes.where("deleted").equals(0).primaryKeys(),
+        );
+        if (cancelled || latestSearchRef.current !== searchId) return;
 
-        for (const embedding of embeddings) {
-          if (cancelled || latestSearchRef.current !== searchId) return;
-
-          const { vectorBuffer } = embedding;
-          if (!vectorBuffer || vectorBuffer.byteLength === 0) continue;
-
-          const chunkVector = new Float32Array(vectorBuffer);
-
-          if (
-            chunkVector.length === 0 ||
-            queryVector.length === 0 ||
-            chunkVector.length !== queryVector.length
-          )
-            continue;
-
-          const score = dotProduct(queryVector, chunkVector);
-          if (!Number.isFinite(score)) continue;
-
-          topKPush(
-            chunkCandidates,
-            {
-              noteId: embedding.noteId,
-              chunkId: embedding.chunkId,
-              score,
-            },
-            topK * oversamplingFactor,
-          );
-        }
-
-        const bestByNote = new Map<string, Candidate>();
-        for (const candidate of chunkCandidates) {
-          const prev = bestByNote.get(candidate.noteId);
-          if (!prev || candidate.score > prev.score) {
-            bestByNote.set(candidate.noteId, candidate);
-          }
-        }
-
-        const orderedMatches = Array.from(bestByNote.values())
-          .sort((a, b) => b.score - a.score)
-          .slice(0, topK);
+        const orderedMatches = rankEmbeddings(
+          queryVector,
+          embeddings,
+          topK,
+          oversamplingFactor,
+          (noteId) => liveNoteIds.has(noteId),
+        );
 
         const chunkIds = orderedMatches.map((match) => match.chunkId);
         const chunks = await db.chunks.bulkGet(chunkIds);
@@ -171,7 +138,7 @@ export function useSemanticSearch(
           return;
         }
 
-        console.log(err);
+        console.error("Semantic search failed:", err);
         if (cancelled || latestSearchRef.current !== searchId) return;
 
         const error =

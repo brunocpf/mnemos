@@ -15,6 +15,11 @@ import {
 import { toast } from "sonner";
 
 import { db } from "@/client-data/db";
+import {
+  dropEmbeddingsForOtherModels,
+  purgeDeletedNotes,
+} from "@/client-data/notes-dal";
+import { saveEmbeddings } from "@/client-data/save-embeddings";
 import { useComlinkWorker } from "@/hooks/use-comlink-worker";
 import { ModelDownloadState } from "@/lib/hf-model-worker-service";
 import { withTimeout } from "@/lib/with-timeout";
@@ -196,22 +201,17 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
         throw new Error("Embedding model ID is not available.");
       }
 
-      await db.transaction("rw", db.embeddings, db.noteHashes, async () => {
-        await db.embeddings.bulkPut(
-          vectors.map((v) => ({
-            chunkId: v.chunkId,
-            noteId: request.noteId,
-            modelId,
-            vectorBuffer: Float32Array.from(v.vectorArray).buffer,
-          })),
-        );
+      if (latestVersionRef.current.get(request.noteId) !== request.version)
+        return undefined;
 
-        await db.noteHashes.put({
-          noteId: request.noteId,
-          lastEmbeddingModelId: modelId,
-          lastEmbeddedHash: request.contentHash,
-          embeddedAt: new Date(),
-        });
+      await saveEmbeddings({
+        noteId: request.noteId,
+        modelId,
+        contentHash: request.contentHash,
+        vectors: vectors.map((v) => ({
+          chunkId: v.chunkId,
+          vectorBuffer: Float32Array.from(v.vectorArray).buffer,
+        })),
       });
       return undefined;
     },
@@ -251,24 +251,11 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
         const pending = pendingEmbedRef.current.get(args.noteId);
         if (!pending || pending.version !== args.version) return;
 
-        await db.transaction("rw", db.embeddings, db.noteHashes, async () => {
-          await db.embeddings.bulkPut(
-            result.vectors.map(
-              (v: { chunkId: string; vectorBuffer: ArrayBuffer }) => ({
-                chunkId: v.chunkId,
-                noteId: args.noteId,
-                modelId,
-                vectorBuffer: v.vectorBuffer,
-              }),
-            ),
-          );
-
-          await db.noteHashes.put({
-            noteId: args.noteId,
-            lastEmbeddingModelId: modelId,
-            lastEmbeddedHash: pending.contentHash,
-            embeddedAt: new Date(),
-          });
+        await saveEmbeddings({
+          noteId: args.noteId,
+          modelId,
+          contentHash: pending.contentHash,
+          vectors: result.vectors,
         });
       } catch (error: unknown) {
         const message = getErrorMessage(error);
@@ -329,6 +316,9 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
 
       const currentModelId = modelId;
 
+      const note = await db.notes.get(data.id);
+      if (!note || note.deleted) return;
+
       const noteHash = await db.noteHashes.get(data.id);
       const upToDateChunks = noteHash?.lastIndexedHash === result.contentHash;
       const upToDateEmbeddings =
@@ -339,7 +329,6 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
 
       if (!upToDateChunks) {
         const prev = await db.chunks.where("noteId").equals(data.id).toArray();
-        const prevById = new Map(prev.map((c) => [c.id, c] as const));
         const nextIds = new Set(result.chunks.map((c) => c.id));
 
         const removedIds = prev
@@ -352,42 +341,47 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
           db.embeddings,
           db.noteHashes,
           async () => {
-            if (removedIds.length && currentModelId) {
+            if (removedIds.length) {
               await db.chunks.bulkDelete(removedIds);
-              await db.embeddings.bulkDelete(
-                removedIds.map((chunkId) => [chunkId, currentModelId] as const),
-              );
+              await db.embeddings.where("chunkId").anyOf(removedIds).delete();
             }
 
             await db.chunks.bulkPut(result.chunks);
+            const prevHash = await db.noteHashes.get(data.id);
             await db.noteHashes.put({
+              ...prevHash,
               noteId: data.id,
               lastIndexedHash: result.contentHash,
               indexedAt: new Date(),
             });
-
-            void prevById;
           },
         );
       }
 
       if (!currentModelId) return;
 
-      let items: { chunkId: string; text: string }[];
-      if (!upToDateEmbeddings) {
-        items = result.chunks.map((c) => ({ chunkId: c.id, text: c.text }));
-      } else {
-        const prev = await db.chunks.where("noteId").equals(data.id).toArray();
-        const prevById = new Map(prev.map((c) => [c.id, c] as const));
-        items = result.chunks
-          .filter((c) => {
-            const p = prevById.get(c.id);
-            return !p || p.hash !== c.hash;
-          })
-          .map((c) => ({ chunkId: c.id, text: c.text }));
-      }
+      // Only embed chunks that have no vector for the current model yet.
+      const existing = await db.embeddings
+        .where("chunkId")
+        .anyOf(result.chunks.map((c) => c.id))
+        .filter((e) => e.modelId === currentModelId)
+        .primaryKeys();
+      const have = new Set(existing.map(([chunkId]) => chunkId));
+      const items = result.chunks
+        .filter((c) => !have.has(c.id))
+        .map((c) => ({ chunkId: c.id, text: c.text }));
 
-      if (!items.length) return;
+      if (!items.length) {
+        if (!upToDateEmbeddings) {
+          await saveEmbeddings({
+            noteId: data.id,
+            modelId: currentModelId,
+            contentHash: result.contentHash,
+            vectors: [],
+          });
+        }
+        return;
+      }
 
       await embedChunksForNote({
         noteId: data.id,
@@ -546,6 +540,41 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
     schedule,
     settings.embeddingHost,
   ]);
+
+  const isReady = contextValue.isReady;
+
+  // Housekeeping once per ready transition: purge old trash, drop vectors from
+  // other models, and (re)index notes written while the model was unavailable
+  // or restored from trash. runChunkingAndIndexing skips up-to-date notes.
+  useEffect(() => {
+    if (!isReady) return;
+    let cancelled = false;
+    const timers: number[] = [];
+
+    (async () => {
+      try {
+        await purgeDeletedNotes();
+        await dropEmbeddingsForOtherModels(modelId);
+        const notes = await db.notes.where("deleted").equals(0).toArray();
+        if (cancelled) return;
+        notes.forEach((note, i) => {
+          timers.push(
+            window.setTimeout(
+              () => schedule({ id: note.id, content: note.content }, 0),
+              i * 200,
+            ),
+          );
+        });
+      } catch (error) {
+        console.error("Embedding backfill failed:", error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      timers.forEach((t) => window.clearTimeout(t));
+    };
+  }, [isReady, schedule]);
 
   return (
     <EmbedderContext.Provider value={contextValue}>
