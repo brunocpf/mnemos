@@ -97,7 +97,7 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
 
   const form = useForm({
     defaultValues: {
-      newTitle: title ?? "",
+      newTitle: title === t("placeholders.untitled") ? "" : title,
     },
     validators: {
       onChange: formSchema,
