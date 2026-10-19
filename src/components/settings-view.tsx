@@ -158,10 +158,14 @@ export function SettingsView() {
               >
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent align="start" className="w-full min-w-0">
+              <SelectContent
+                align="start"
+                alignItemWithTrigger={false}
+                className="w-(--anchor-width) max-w-[calc(100vw-2rem)] min-w-0"
+              >
                 {summarizerOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    <span className="flex flex-col text-left">
+                    <span className="flex min-w-0 flex-1 flex-col text-left whitespace-normal">
                       <span className="font-medium">{option.label}</span>
                       <span className="text-muted-foreground text-xs">
                         {option.description}
@@ -177,7 +181,10 @@ export function SettingsView() {
                 <p className="text-muted-foreground text-xs">
                   {summarizerDownloadState?.isReady
                     ? t("modelDownload.readyIndicator.ready")
-                    : t("modelDownload.readyIndicator.notReady")}
+                    : Object.keys(summarizerDownloadState?.fileStates ?? {})
+                          .length > 0
+                      ? t("modelDownload.readyIndicator.downloading")
+                      : t("modelDownload.readyIndicator.notReady")}
                 </p>
                 {summarizerFileEntries.map(([fileName, fileState]) => {
                   const label =
@@ -265,10 +272,14 @@ export function SettingsView() {
               >
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent align="start" className="w-full min-w-0">
+              <SelectContent
+                align="start"
+                alignItemWithTrigger={false}
+                className="w-(--anchor-width) max-w-[calc(100vw-2rem)] min-w-0"
+              >
                 {embeddingOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    <span className="flex flex-col text-left">
+                    <span className="flex min-w-0 flex-1 flex-col text-left whitespace-normal">
                       <span className="font-medium">{option.label}</span>
                       <span className="text-muted-foreground text-xs">
                         {option.description}
@@ -284,7 +295,10 @@ export function SettingsView() {
                 <p className="text-muted-foreground text-xs">
                   {embedderDownloadState?.isReady
                     ? t("modelDownload.readyIndicator.ready")
-                    : t("modelDownload.readyIndicator.notReady")}
+                    : Object.keys(embedderDownloadState?.fileStates ?? {})
+                          .length > 0
+                      ? t("modelDownload.readyIndicator.downloading")
+                      : t("modelDownload.readyIndicator.notReady")}
                 </p>
                 {embedderFileEntries.map(([fileName, fileState]) => {
                   const label =

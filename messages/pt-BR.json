@@ -174,7 +174,8 @@
       "title": "Arquivos do modelo",
       "readyIndicator": {
         "ready": "Modelo pronto",
-        "notReady": "Modelo ainda não baixado. Ele é baixado uma vez e depois funciona offline."
+        "notReady": "Modelo ainda não baixado. Ele é baixado uma vez e depois funciona offline.",
+        "downloading": "Baixando o modelo. Isso acontece uma única vez e pode levar alguns minutos."
       },
       "status": {
         "ready": "Pronto",

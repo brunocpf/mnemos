@@ -88,6 +88,13 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
     return firstLine.length > 0 ? firstLine : t("placeholders.untitled");
   }, [note.title, content, t]);
 
+  const hasExplicitTitle = Boolean(note.title && note.title.trim().length > 0);
+  const preview = useMemo(() => {
+    if (hasExplicitTitle) return content;
+    // The title was derived from the first line; don't repeat it as the preview.
+    return content.split("\n").slice(1).join(" ").trim();
+  }, [hasExplicitTitle, content]);
+
   const form = useForm({
     defaultValues: {
       newTitle: title ?? "",
@@ -152,7 +159,7 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
                     {defaultFormatter.format(new Date(note.updatedAt))}
                   </p>
                 </div>
-                <Activity mode={note.content ? "visible" : "hidden"}>
+                <Activity mode={match || preview ? "visible" : "hidden"}>
                   {match ? (
                     <HighlightedSnippet
                       className="text-muted-foreground mt-3 block truncate"
@@ -163,7 +170,7 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
                     />
                   ) : (
                     <p className="text-muted-foreground mt-3 min-w-0 truncate text-sm">
-                      {content}
+                      {preview}
                     </p>
                   )}
                 </Activity>

@@ -68,7 +68,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          "ProseMirror prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-dvh",
+          "ProseMirror prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-dvh prose-li:marker:text-foreground/70 prose-code:before:content-none prose-code:after:content-none",
       },
     },
     onUpdate: ({ editor }) => {

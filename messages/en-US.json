@@ -174,7 +174,8 @@
       "title": "Model files",
       "readyIndicator": {
         "ready": "Model ready",
-        "notReady": "Model not downloaded yet. It downloads once and then works offline."
+        "notReady": "Model not downloaded yet. It downloads once and then works offline.",
+        "downloading": "Downloading the model. This happens once and can take a few minutes."
       },
       "status": {
         "ready": "Ready",

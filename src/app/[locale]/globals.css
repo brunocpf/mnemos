@@ -159,6 +159,15 @@
 }
 
 @layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   @view-transition {
     navigation: auto;
   }
@@ -197,7 +206,7 @@
     from {
       opacity: 0;
       transform: translateY(1.2rem);
-      filter: blur(10);
+      filter: blur(10px);
     }
     to {
       opacity: 1;
@@ -328,5 +337,22 @@
       animation-range: var(--mn-scroll-range-page-title-start)
         var(--mn-scroll-range-page-title-end);
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+  }
+
+  *,
+  ::before,
+  ::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
 }

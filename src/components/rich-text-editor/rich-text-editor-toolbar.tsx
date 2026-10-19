@@ -103,7 +103,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
   const isLinkActive = !!editor && editor.isActive("link");
 
   return (
-    <div className="isolate mx-auto flex w-full max-w-5xl items-center gap-2 overflow-x-auto px-6 py-2 sm:justify-center">
+    <div className="isolate mx-auto flex w-full max-w-5xl items-center no-scrollbar gap-2 overflow-x-auto px-6 py-2 sm:justify-center">
       <div className="flex shrink-0 items-center gap-1">
         <Button
           type="button"
