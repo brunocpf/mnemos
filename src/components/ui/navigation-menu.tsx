@@ -22,8 +22,7 @@ const NavigationMenu = React.forwardRef<
     <NavigationMenuPositioner />
   </NavigationMenuPrimitive.Root>
 ));
-NavigationMenu.displayName =
-  NavigationMenuPrimitive.Root.displayName ?? "NavigationMenu";
+NavigationMenu.displayName = "NavigationMenu";
 
 const NavigationMenuList = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.List>,

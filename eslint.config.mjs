@@ -27,6 +27,14 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // New in eslint-plugin-react-hooks 7 (via eslint-config-next 16.4). Existing
+    // hooks predate these rules; kept as warnings until they are refactored.
+    rules: {
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/use-memo": "warn",
+    },
+  },
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
 ]);
 
