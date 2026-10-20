@@ -4,6 +4,7 @@ import Dexie, { Table } from "dexie";
 
 import { Chunk } from "@/client-data/chunk";
 import { Embedding } from "@/client-data/embedding";
+import { EmbeddingJob } from "@/client-data/embedding-job";
 import { LocalEmbeddingError } from "@/client-data/local-embedding-error";
 import { Note } from "@/client-data/note";
 import { NoteHash } from "@/client-data/note-hash";
@@ -14,6 +15,7 @@ export class MnemosDb extends Dexie {
   chunks: Table<Chunk, Chunk["id"]>;
   embeddings: Table<Embedding, [Embedding["chunkId"], Embedding["modelId"]]>;
   localEmbeddingErrors: Table<LocalEmbeddingError, LocalEmbeddingError["id"]>;
+  embeddingJobs: Table<EmbeddingJob, EmbeddingJob["id"]>;
 
   constructor() {
     super("mnemos-db");
@@ -46,11 +48,19 @@ export class MnemosDb extends Dexie {
         }
       });
 
+    // v3: persistent, resumable embedding queue. At most one job per
+    // (chunkId, modelId), enforced by the unique compound index.
+    this.version(3).stores({
+      embeddingJobs:
+        "id, &[chunkId+modelId], noteId, [noteId+status], [status+createdAt], modelId",
+    });
+
     this.notes = this.table("notes");
     this.noteHashes = this.table("noteHashes");
     this.chunks = this.table("chunks");
     this.embeddings = this.table("embeddings");
     this.localEmbeddingErrors = this.table("localEmbeddingErrors");
+    this.embeddingJobs = this.table("embeddingJobs");
   }
 }
 
