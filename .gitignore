@@ -44,3 +44,4 @@ next-env.d.ts
 certificates
 # eval model cache
 .cache/
+AGENTS.md
