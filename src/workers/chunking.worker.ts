@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 import { expose } from "comlink";
 
-import { appendTitleToContent } from "@/lib/append-title-to-content";
+import { buildEmbeddingBody } from "@/lib/build-embedding-body";
 import { getMarkdownBlocks } from "@/lib/get-markdown-blocks";
 import { mergeBlocksIntoChunks } from "@/lib/merge-blocks-into-chunks";
 import { sha256 } from "@/lib/sha256";
@@ -17,9 +17,7 @@ class ChunkingWorkerService {
       maxChars: number;
     };
   }) {
-    const body = request.title
-      ? appendTitleToContent(request.title, request.content)
-      : request.content;
+    const body = buildEmbeddingBody(request.title, request.content);
 
     const blocks = getMarkdownBlocks(body);
     const mergedChunks = mergeBlocksIntoChunks(
@@ -27,7 +25,7 @@ class ChunkingWorkerService {
       request.settings.targetChars,
       request.settings.maxChars,
     );
-    const contentHash = await sha256(request.content);
+    const contentHash = await sha256(body);
 
     const chunks = await Promise.all(
       mergedChunks.map(async (chunk, index) => {

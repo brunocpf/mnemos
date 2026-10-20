@@ -39,6 +39,7 @@ import { SemanticMatch } from "@/hooks/use-semantic-search";
 import { Link } from "@/i18n/navigation";
 import { getDateFormatter } from "@/lib/dateFormatters";
 import { encodeSearchHighlight } from "@/lib/search-highlight";
+import { useEmbedder } from "@/providers/embedder-provider";
 
 import { HighlightedSnippet } from "./highlighted-snippet";
 
@@ -54,6 +55,7 @@ const formSchema = z.object({
 export function NotesListItem({ note, match }: NotesListItemProps) {
   const t = useTranslations("Notes");
   const locale = useLocale();
+  const { flush, isReady: embedderIsReady } = useEmbedder();
 
   const handleDelete = () => {
     deleteNote(note.id);
@@ -108,7 +110,11 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
 
       await updateNoteTitle(note.id, updatedTitle);
 
-      // flush embedding for this note
+      // The title is part of the embedded text, so re-index under the new name.
+      if (embedderIsReady && note.content.trim() !== "") {
+        flush({ id: note.id, title: updatedTitle, content: note.content });
+      }
+
       toast.success(t("toasts.noteRenamed"), { position: "top-center" });
     },
   });

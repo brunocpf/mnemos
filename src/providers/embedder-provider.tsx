@@ -308,10 +308,15 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
         throw new Error("Chunking worker is not available");
       }
 
+      // The stored note is the source of truth for the title, so callers that
+      // only know the content (the editor) still embed the current title.
+      const stored = await db.notes.get(data.id);
+      if (!stored || stored.deleted) return;
+
       const result = await chunkingWorkerApi.chunkNote({
         noteId: data.id,
         version,
-        title: data.title,
+        title: stored.title ?? data.title,
         content: data.content,
         settings: {
           targetChars: 800,
@@ -323,9 +328,6 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
       if (latest !== version) return;
 
       const currentModelId = modelId;
-
-      const note = await db.notes.get(data.id);
-      if (!note || note.deleted) return;
 
       const noteHash = await db.noteHashes.get(data.id);
       const upToDateChunks = noteHash?.lastIndexedHash === result.contentHash;
