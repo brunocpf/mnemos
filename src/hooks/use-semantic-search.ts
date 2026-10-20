@@ -23,6 +23,8 @@ const DEFAULT_OVERSAMPLING_FACTOR = process.env
     )
   : 2;
 
+const EMPTY_MATCHES: SemanticMatch[] = [];
+
 export type SemanticMatch = SearchHighlightPayload & {
   score: number;
 };
@@ -51,11 +53,6 @@ export function useSemanticSearch(
     const normalizedQuery = query.trim();
 
     if (!normalizedQuery) {
-      /* eslint-disable react-hooks/set-state-in-effect */
-      setMatches([]);
-      setIsSearching(false);
-      setError(null);
-      /* eslint-enable react-hooks/set-state-in-effect */
       return;
     }
 
@@ -166,10 +163,13 @@ export function useSemanticSearch(
     };
   }, [query, embedQuery, modelId, oversamplingFactor, topK, isReady]);
 
+  // An empty query has no search state; derive it instead of resetting in the effect.
+  const hasQuery = query.trim().length > 0;
+
   return {
-    matches,
-    isSearching,
-    error,
+    matches: hasQuery ? matches : EMPTY_MATCHES,
+    isSearching: hasQuery && isSearching,
+    error: hasQuery ? error : null,
     isReady,
   };
 }
