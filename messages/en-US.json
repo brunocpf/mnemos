@@ -1,6 +1,21 @@
 {
   "Manifest": {
-    "description": "A privacy-first notes app with AI-powered search and summaries."
+    "description": "A privacy-first notes app with AI-powered search and summaries.",
+    "shortcuts": {
+      "newNote": "New note"
+    }
+  },
+  "Offline": {
+    "title": "Offline",
+    "heading": "You’re offline",
+    "description": "This page isn’t available offline yet. Notes you’ve already opened on this device keep working.",
+    "hint": "Reconnect to the internet to load it.",
+    "retry": "Try again"
+  },
+  "PwaUpdate": {
+    "title": "A new version is available",
+    "description": "Reload to get the latest improvements.",
+    "reload": "Reload"
   },
   "Metadata": {
     "defaultTitle": "Mnemos",

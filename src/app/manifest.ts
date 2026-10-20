@@ -8,32 +8,19 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     short_name: "Mnemos",
     name: "Mnemos",
     description: t("description"),
+    id: "/",
     icons: [
-      {
-        src: "/img/android/android-launchericon-512-512.png",
-        type: "image/png",
-        sizes: "512x512",
-      },
       {
         src: "/img/android/android-launchericon-192-192.png",
         type: "image/png",
         sizes: "192x192",
+        purpose: "any",
       },
       {
-        src: "/img/ios/192.png",
-        type: "image/png",
-        sizes: "192x192",
-      },
-      {
-        src: "/img/ios/512.png",
+        src: "/img/android/android-launchericon-512-512.png",
         type: "image/png",
         sizes: "512x512",
-      },
-      {
-        src: "/img/maskable/android/android-launchericon-512-512.png",
-        type: "image/png",
-        sizes: "512x512",
-        purpose: "maskable",
+        purpose: "any",
       },
       {
         src: "/img/maskable/android/android-launchericon-192-192.png",
@@ -42,22 +29,30 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         purpose: "maskable",
       },
       {
-        src: "/img/maskable/ios/192.png",
-        type: "image/png",
-        sizes: "192x192",
-        purpose: "maskable",
-      },
-      {
-        src: "/img/maskable/ios/512.png",
+        src: "/img/maskable/android/android-launchericon-512-512.png",
         type: "image/png",
         sizes: "512x512",
         purpose: "maskable",
       },
     ],
+    shortcuts: [
+      {
+        name: t("shortcuts.newNote"),
+        url: "/note?new=1",
+        icons: [
+          {
+            src: "/img/android/android-launchericon-192-192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+        ],
+      },
+    ],
+    categories: ["productivity", "utilities"],
     start_url: "/",
     scope: "/",
     display: "standalone",
     background_color: "#ffffff",
-    theme_color: "#000000",
+    theme_color: "#ffffff",
   };
 }

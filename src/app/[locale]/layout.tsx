@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
 import { OnboardingGate } from "@/components/onboarding-gate";
+import { SwUpdatePrompt } from "@/components/sw-update-prompt";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { routing } from "@/i18n/routing";
@@ -97,7 +98,11 @@ export default async function RootLayout({
     >
       <head />
       <body className="antialiased">
-        <SerwistProvider swUrl="/serwist/sw.js">
+        <SerwistProvider
+          swUrl="/serwist/sw.js"
+          disable={process.env.NODE_ENV !== "production"}
+          reloadOnOnline={false}
+        >
           <NextIntlClientProvider>
             <HistoryProvider>
               <ThemeProvider
@@ -114,6 +119,7 @@ export default async function RootLayout({
                         {children}
                         <AppFooter />
                         <Toaster />
+                        <SwUpdatePrompt />
                       </SearchValueProvider>
                     </SummarizerProvider>
                   </EmbedderProvider>

@@ -1,6 +1,21 @@
 {
   "Manifest": {
-    "description": "Um app de anotações com foco em privacidade, com busca inteligente e resumos com IA."
+    "description": "Um app de anotações com foco em privacidade, com busca inteligente e resumos com IA.",
+    "shortcuts": {
+      "newNote": "Nova nota"
+    }
+  },
+  "Offline": {
+    "title": "Sem conexão",
+    "heading": "Você está offline",
+    "description": "Esta página ainda não está disponível offline. As notas que você já abriu neste dispositivo continuam funcionando.",
+    "hint": "Reconecte-se à internet para carregá-la.",
+    "retry": "Tentar novamente"
+  },
+  "PwaUpdate": {
+    "title": "Há uma nova versão disponível",
+    "description": "Recarregue para obter as melhorias mais recentes.",
+    "reload": "Recarregar"
   },
   "Metadata": {
     "defaultTitle": "Mnemos",
