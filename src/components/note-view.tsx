@@ -147,9 +147,10 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
     }
   };
 
-  const handleBlur = () => {
-    if (currentNoteId && embedderIsReady) {
-      flush({ id: currentNoteId, content: noteData?.content ?? "" });
+  const handleBlur = (blurNoteId: string | undefined, content: string) => {
+    const id = blurNoteId ?? currentNoteId;
+    if (id && embedderIsReady && content.trim() !== "") {
+      flush({ id, content });
     }
   };
 
