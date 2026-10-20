@@ -1,14 +1,21 @@
 "use client";
 
-import { IconDots, IconEdit, IconTrash } from "@tabler/icons-react";
+import {
+  IconDots,
+  IconEdit,
+  IconFolderSymlink,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useForm } from "@tanstack/react-form";
 import markdownToTxt from "markdown-to-txt";
 import { useLocale, useTranslations } from "next-intl";
-import { Activity, useMemo } from "react";
+import { Activity, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { triggerHaptic } from "tactus";
 import { z } from "zod";
 
+import { db } from "@/client-data/db";
+import { FolderError, moveNote } from "@/client-data/folders-dal";
 import { Note, noteSchema } from "@/client-data/note";
 import {
   deleteNote,
@@ -16,11 +23,13 @@ import {
   restoreNote,
   updateNoteTitle,
 } from "@/client-data/notes-dal";
+import { FolderPickerDialog } from "@/components/folder-picker-dialog";
 import { Button } from "@/components/ui/button";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuShortcut,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
@@ -37,6 +46,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Field, FieldError } from "@/components/ui/field";
@@ -44,6 +54,7 @@ import { Input } from "@/components/ui/input";
 import { SemanticMatch } from "@/hooks/use-semantic-search";
 import { Link } from "@/i18n/navigation";
 import { getDateFormatter } from "@/lib/dateFormatters";
+import { folderErrorKey } from "@/lib/folder-error-key";
 import { encodeSearchHighlight } from "@/lib/search-highlight";
 import { useEmbedder } from "@/providers/embedder-provider";
 
@@ -61,7 +72,62 @@ const formSchema = z.object({
 export function NotesListItem({ note, match }: NotesListItemProps) {
   const t = useTranslations("Notes");
   const locale = useLocale();
+  const tFolders = useTranslations("Folders");
   const { flush, isReady: embedderIsReady } = useEmbedder();
+  const [moveOpen, setMoveOpen] = useState(false);
+
+  const handleMove = async (folderId: string | null) => {
+    const previousFolderId = note.folderId ?? null;
+    if (folderId === previousFolderId) return;
+    try {
+      await moveNote(note.id, folderId);
+      const destination = folderId ? await db.folders.get(folderId) : undefined;
+      toast.success(
+        destination
+          ? tFolders("toasts.noteMoved", { name: destination.name })
+          : tFolders("toasts.noteMovedToTopLevel"),
+        {
+          position: "top-center",
+          action: {
+            label: t("actions.undo"),
+            onClick: () => {
+              moveNote(note.id, previousFolderId).catch((error: unknown) => {
+                // The old folder may have been deleted in the meantime.
+                if (error instanceof FolderError && previousFolderId) {
+                  moveNote(note.id, null).catch(() => {});
+                  return;
+                }
+                toast.error(tFolders(`errors.${folderErrorKey(error)}`), {
+                  position: "top-center",
+                });
+              });
+            },
+          },
+        },
+      );
+    } catch (error) {
+      toast.error(tFolders(`errors.${folderErrorKey(error)}`), {
+        position: "top-center",
+      });
+    }
+  };
+
+  // "m" on a focused note opens the move picker (ignored while typing).
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (
+      event.key.toLowerCase() !== "m" ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.altKey ||
+      event.defaultPrevented
+    ) {
+      return;
+    }
+    const target = event.target as HTMLElement;
+    if (target.closest("input, textarea, [contenteditable='true']")) return;
+    event.preventDefault();
+    setMoveOpen(true);
+  };
 
   const handleDelete = () => {
     deleteNote(note.id);
@@ -141,7 +207,7 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
 
   return (
     <Dialog>
-      <div className="relative">
+      <div className="relative" onKeyDown={handleKeyDown}>
         <ContextMenu
           onOpenChange={() => {
             setTimeout(() => triggerHaptic(), 50);
@@ -207,6 +273,15 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
             <ContextMenuItem
               nativeButton={false}
               inset
+              onClick={() => setMoveOpen(true)}
+            >
+              <IconFolderSymlink />
+              {tFolders("actions.moveNote")}
+              <ContextMenuShortcut>M</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem
+              nativeButton={false}
+              inset
               variant="destructive"
               onClick={handleDelete}
             >
@@ -238,6 +313,11 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
                 </DropdownMenuItem>
               }
             />
+            <DropdownMenuItem onClick={() => setMoveOpen(true)}>
+              <IconFolderSymlink />
+              {tFolders("actions.moveNote")}
+              <DropdownMenuShortcut>M</DropdownMenuShortcut>
+            </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={handleDelete}>
               <IconTrash />
               {t("actions.delete")}
@@ -245,6 +325,14 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <FolderPickerDialog
+        open={moveOpen}
+        onOpenChange={setMoveOpen}
+        title={tFolders("dialogs.move.noteTitle")}
+        description={tFolders("dialogs.move.noteDescription")}
+        currentFolderId={note.folderId ?? null}
+        onSelect={handleMove}
+      />
       <DialogContent>
         <form
           onSubmit={(e: React.FormEvent) => {

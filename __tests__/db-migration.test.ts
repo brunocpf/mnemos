@@ -1,9 +1,13 @@
 import Dexie from "dexie";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { MnemosDb } from "@/client-data/db";
 
 describe("db schema migration", () => {
+  beforeEach(async () => {
+    await Dexie.delete("mnemos-db");
+  });
+
   it("upgrades a v1 database, keeping live data and purging orphaned trash index", async () => {
     // Recreate the released v1 schema and seed it.
     const v1 = new Dexie("mnemos-db");
@@ -40,7 +44,7 @@ describe("db schema migration", () => {
 
     const db = new MnemosDb();
     await db.open();
-    expect(db.verno).toBe(3);
+    expect(db.verno).toBe(4);
     expect(await db.notes.count()).toBe(2);
     expect((await db.chunks.toArray()).map((c) => c.id)).toEqual(["live:1"]);
     expect((await db.embeddings.toArray()).map((e) => e.chunkId)).toEqual([
@@ -53,6 +57,53 @@ describe("db schema migration", () => {
     );
     // v3 adds the embedding job queue, empty after the upgrade
     expect(await db.embeddingJobs.count()).toBe(0);
+    db.close();
+  });
+
+  it("upgrades a v3 database to v4, leaving existing notes at the root", async () => {
+    const v3 = new Dexie("mnemos-db");
+    v3.version(1).stores({
+      notes: "id, deleted, updatedAt, createdAt, deletedAt",
+      noteHashes: "noteId, indexedAt, embeddedAt",
+      chunks: "id, noteId, [noteId+order]",
+      embeddings: "[chunkId+modelId], noteId, modelId",
+      localEmbeddingErrors: "id, timestamp",
+    });
+    v3.version(2).stores({
+      embeddings: "[chunkId+modelId], noteId, modelId, chunkId",
+    });
+    v3.version(3).stores({
+      embeddingJobs:
+        "id, &[chunkId+modelId], noteId, [noteId+status], [status+createdAt], modelId",
+    });
+    const now = new Date();
+    await v3.table("notes").bulkPut([
+      { id: "a", content: "a", deleted: 0, createdAt: now, updatedAt: now },
+      { id: "b", content: "b", deleted: 0, createdAt: now, updatedAt: now },
+    ]);
+    v3.close();
+
+    const db = new MnemosDb();
+    await db.open();
+    expect(db.verno).toBe(4);
+    expect(await db.folders.count()).toBe(0);
+    const notes = await db.notes.toArray();
+    expect(notes).toHaveLength(2);
+    // no folder assigned means root
+    expect(notes.every((n) => !n.folderId)).toBe(true);
+    // the folderId index works on upgraded data
+    await db.folders.add({
+      id: "f",
+      name: "F",
+      parentId: null,
+      createdAt: now,
+      updatedAt: now,
+    });
+    await db.notes.update("a", { folderId: "f" });
+    expect(
+      (await db.notes.where("folderId").equals("f").toArray()).map((n) => n.id),
+    ).toEqual(["a"]);
+    expect(await db.folders.where("parentId").equals("f").count()).toBe(0);
     db.close();
   });
 });

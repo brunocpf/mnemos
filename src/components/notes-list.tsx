@@ -21,12 +21,21 @@ import { useSearchValue } from "@/providers/search-value-provider";
 
 import { NotesListItem } from "./notes-list-item";
 
-export default function NotesList() {
+interface NotesListProps {
+  /** Folder whose notes are listed (`null` = root). Search ignores it. */
+  folderId?: string | null;
+}
+
+export default function NotesList({ folderId = null }: NotesListProps) {
   const t = useTranslations("Notes");
   const { searchValue } = useSearchValue();
   const debouncedSearchValue = useDebounce(searchValue, 150);
   const deferredSearchValue = useDeferredValue(debouncedSearchValue);
-  const { data: notes, isLoading, error } = useNotes(deferredSearchValue);
+  const {
+    data: notes,
+    isLoading,
+    error,
+  } = useNotes(deferredSearchValue, folderId);
   const router = useRouter();
 
   const safeNotes = notes ?? [];
@@ -76,17 +85,32 @@ export default function NotesList() {
               <EmptyMedia variant="icon">
                 <IconPencil />
               </EmptyMedia>
-              <EmptyTitle>{t("emptyState.title")}</EmptyTitle>
-              <EmptyDescription>{t("emptyState.description")}</EmptyDescription>
+              <EmptyTitle>
+                {folderId
+                  ? t("emptyState.folder.title")
+                  : t("emptyState.title")}
+              </EmptyTitle>
+              <EmptyDescription>
+                {folderId
+                  ? t("emptyState.folder.description")
+                  : t("emptyState.description")}
+              </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
               <Button
                 variant="outline"
                 onClick={() => {
-                  router.push("/note", { scroll: true });
+                  router.push(
+                    folderId
+                      ? `/note?new=${Date.now()}&folderId=${folderId}`
+                      : "/note",
+                    { scroll: true },
+                  );
                 }}
               >
-                {t("emptyState.actions.createFirstNote")}
+                {folderId
+                  ? t("emptyState.folder.action")
+                  : t("emptyState.actions.createFirstNote")}
               </Button>
             </EmptyContent>
           </EmptyState>

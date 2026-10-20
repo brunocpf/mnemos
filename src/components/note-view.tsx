@@ -13,6 +13,7 @@ import {
 import Markdown from "react-markdown";
 import { toast } from "sonner";
 
+import { db } from "@/client-data/db";
 import { createNote, updateNote } from "@/client-data/notes-dal";
 import { AppHeaderContentSlot } from "@/components/app-header-content-slot";
 import { HighlightedSnippet } from "@/components/highlighted-snippet";
@@ -40,10 +41,12 @@ import { useSummarizer } from "@/providers/summarizer-provider";
 
 export interface NoteViewProps {
   noteId?: string;
+  /** Folder a newly created note is filed in; the root when omitted. */
+  folderId?: string;
   highlight?: SearchHighlightPayload;
 }
 
-export function NoteView({ noteId, highlight }: NoteViewProps) {
+export function NoteView({ noteId, folderId, highlight }: NoteViewProps) {
   const t = useTranslations("NoteView");
   const {
     summarize,
@@ -148,8 +151,13 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
     value: string,
   ) => {
     if (!noteIdToPersist && value.trim() !== "") {
+      // The folder may have been deleted since the editor was opened.
+      const folderExists = folderId
+        ? Boolean(await db.folders.get(folderId))
+        : false;
       noteIdToPersist = await createNote({
         content: value,
+        folderId: folderExists ? folderId : null,
       });
       setCurrentNoteId(noteIdToPersist);
       toast.success(t("toasts.noteCreated"), { position: "top-center" });
