@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { db } from "@/client-data/db";
+import { stripTitleFromChunk } from "@/lib/append-title-to-content";
 import { rankEmbeddings } from "@/lib/rank-embeddings";
 import {
   createHighlightSnippet,
@@ -50,9 +51,11 @@ export function useSemanticSearch(
     const normalizedQuery = query.trim();
 
     if (!normalizedQuery) {
+      /* eslint-disable react-hooks/set-state-in-effect */
       setMatches([]);
       setIsSearching(false);
       setError(null);
+      /* eslint-enable react-hooks/set-state-in-effect */
       return;
     }
 
@@ -102,7 +105,10 @@ export function useSemanticSearch(
         const chunkTextById = new Map<string, string>();
         chunks.forEach((chunk, index) => {
           if (chunk) {
-            chunkTextById.set(chunkIds[index], chunk.text ?? "");
+            chunkTextById.set(
+              chunkIds[index],
+              stripTitleFromChunk(chunk.text ?? ""),
+            );
           }
         });
 

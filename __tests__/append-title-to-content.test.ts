@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { appendTitleToContent } from "../src/lib/append-title-to-content";
+import {
+  appendTitleToContent,
+  stripTitleFromChunk,
+} from "../src/lib/append-title-to-content";
 
 describe("appendTitleToContent", () => {
   it("formats title and content with separator", () => {
@@ -18,5 +21,13 @@ describe("appendTitleToContent", () => {
     expect(appendTitleToContent("Special & Title", content)).toBe(
       `Title: Special & Title\n\n---\n\n${content}`,
     );
+  });
+});
+
+describe("stripTitleFromChunk", () => {
+  it("removes the title header only", () => {
+    const chunk = appendTitleToContent("Groceries", "- milk");
+    expect(stripTitleFromChunk(chunk)).toBe("- milk");
+    expect(stripTitleFromChunk("- milk")).toBe("- milk");
   });
 });
