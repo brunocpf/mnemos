@@ -12,7 +12,6 @@ import { HfModelWorkerService } from "@/lib/hf-model-worker-service";
 const modelId = EMBEDDING_MODEL_ID;
 
 class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> {
-  private latestByNote = new Map<string, number>();
   private latestQueryVersion = 0;
 
   constructor() {
@@ -26,13 +25,11 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
     return this.modelId;
   }
 
-  async embedChunks(request: {
-    noteId: string;
-    version: number;
-    items: { chunkId: string; text: string }[];
-  }) {
-    this.latestByNote.set(request.noteId, request.version);
-
+  /**
+   * Embeds one small batch. Staleness is decided by the embedding queue when
+   * it persists the result, so there is nothing to cancel here.
+   */
+  async embedBatch(request: { items: { chunkId: string; text: string }[] }) {
     if (!this.pipelinePromise) {
       this.init();
     }
@@ -46,18 +43,10 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
     const vectors: { chunkId: string; vectorBuffer: ArrayBuffer }[] = [];
 
     for (const item of request.items) {
-      if (this.latestByNote.get(request.noteId) !== request.version) {
-        return null;
-      }
-
       const tensor = await extractor(EMBEDDING_DOCUMENT_PREFIX + item.text, {
         pooling: "mean",
         normalize: true,
       });
-
-      if (this.latestByNote.get(request.noteId) !== request.version) {
-        return null;
-      }
 
       const data = Float32Array.from(tensor.data);
       vectors.push({
@@ -66,15 +55,7 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
       });
     }
 
-    if (this.latestByNote.get(request.noteId) !== request.version) {
-      return null;
-    }
-
-    return {
-      noteId: request.noteId,
-      version: request.version,
-      vectors,
-    };
+    return { vectors };
   }
 
   async embedQuery(request: { version: number; text: string }) {

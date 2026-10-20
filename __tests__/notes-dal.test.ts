@@ -11,7 +11,6 @@ import {
   restoreNote,
   TRASH_RETENTION_MS,
 } from "@/client-data/notes-dal";
-import { saveEmbeddings } from "@/client-data/save-embeddings";
 
 const vec = (...n: number[]) => new Float32Array(n).buffer;
 
@@ -84,48 +83,5 @@ describe("notes dal", () => {
     await dropEmbeddingsForOtherModels("m1");
     const rows = await db.embeddings.toArray();
     expect(rows.map((r) => r.modelId)).toEqual(["m1"]);
-  });
-});
-
-describe("saveEmbeddings", () => {
-  it("merges note hashes instead of wiping lastIndexedHash", async () => {
-    const id = await seedIndexedNote("x");
-    const ok = await saveEmbeddings({
-      noteId: id,
-      modelId: "m3",
-      contentHash: "c",
-      vectors: [{ chunkId: `${id}:a`, vectorBuffer: vec(1, 1) }],
-    });
-    expect(ok).toBe(true);
-    const hash = await db.noteHashes.get(id);
-    expect(hash?.lastIndexedHash).toBe("h1");
-    expect(hash?.lastEmbeddedHash).toBe("c");
-    expect(hash?.lastEmbeddingModelId).toBe("m3");
-  });
-
-  it("ignores notes deleted mid-embed and chunks that no longer exist", async () => {
-    const id = await seedIndexedNote("x");
-    const stale = await saveEmbeddings({
-      noteId: id,
-      modelId: "m3",
-      contentHash: "c",
-      vectors: [
-        { chunkId: `${id}:a`, vectorBuffer: vec(1) },
-        { chunkId: `${id}:gone`, vectorBuffer: vec(1) },
-      ],
-    });
-    expect(stale).toBe(true);
-    expect(await db.embeddings.get([`${id}:gone`, "m3"])).toBeUndefined();
-
-    await deleteNote(id);
-    const ok = await saveEmbeddings({
-      noteId: id,
-      modelId: "m3",
-      contentHash: "c",
-      vectors: [{ chunkId: `${id}:a`, vectorBuffer: vec(1) }],
-    });
-    expect(ok).toBe(false);
-    expect(await db.embeddings.count()).toBe(0);
-    expect(await db.noteHashes.count()).toBe(0);
   });
 });

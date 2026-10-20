@@ -40,7 +40,7 @@ describe("db schema migration", () => {
 
     const db = new MnemosDb();
     await db.open();
-    expect(db.verno).toBe(2);
+    expect(db.verno).toBe(3);
     expect(await db.notes.count()).toBe(2);
     expect((await db.chunks.toArray()).map((c) => c.id)).toEqual(["live:1"]);
     expect((await db.embeddings.toArray()).map((e) => e.chunkId)).toEqual([
@@ -51,6 +51,8 @@ describe("db schema migration", () => {
     expect(await db.embeddings.where("chunkId").equals("live:1").count()).toBe(
       1,
     );
+    // v3 adds the embedding job queue, empty after the upgrade
+    expect(await db.embeddingJobs.count()).toBe(0);
     db.close();
   });
 });

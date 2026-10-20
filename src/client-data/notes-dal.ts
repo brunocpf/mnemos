@@ -26,6 +26,7 @@ export async function deleteNote(id: Note["id"]) {
     db.notes,
     db.chunks,
     db.embeddings,
+    db.embeddingJobs,
     db.noteHashes,
     async () => {
       const updated = await db.notes.update(id, {
@@ -41,6 +42,7 @@ export async function deleteNote(id: Note["id"]) {
 async function dropNoteIndex(id: Note["id"]) {
   await db.chunks.where("noteId").equals(id).delete();
   await db.embeddings.where("noteId").equals(id).delete();
+  await db.embeddingJobs.where("noteId").equals(id).delete();
   await db.noteHashes.delete(id);
 }
 
@@ -61,6 +63,7 @@ export async function purgeDeletedNotes(
 
 /** Removes embeddings computed with models other than `modelId`. */
 export async function dropEmbeddingsForOtherModels(modelId: string) {
+  await db.embeddingJobs.where("modelId").notEqual(modelId).delete();
   return await db.embeddings.where("modelId").notEqual(modelId).delete();
 }
 
@@ -89,10 +92,12 @@ export async function permanentlyDeleteNote(id: Note["id"]) {
     db.notes,
     db.chunks,
     db.embeddings,
+    db.embeddingJobs,
     db.noteHashes,
     async () => {
       await db.chunks.where("noteId").equals(id).delete();
       await db.embeddings.where("noteId").equals(id).delete();
+      await db.embeddingJobs.where("noteId").equals(id).delete();
       await db.noteHashes.delete(id);
       await db.notes.delete(id);
     },

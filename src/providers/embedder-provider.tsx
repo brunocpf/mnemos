@@ -15,11 +15,11 @@ import {
 import { toast } from "sonner";
 
 import { db } from "@/client-data/db";
+import { embeddingQueue } from "@/client-data/embedding-queue";
 import {
   dropEmbeddingsForOtherModels,
   purgeDeletedNotes,
 } from "@/client-data/notes-dal";
-import { saveEmbeddings } from "@/client-data/save-embeddings";
 import { useComlinkWorker } from "@/hooks/use-comlink-worker";
 import { EMBEDDING_MODEL_ID } from "@/lib/embedding-config";
 import { ModelDownloadState } from "@/lib/hf-model-worker-service";
@@ -118,9 +118,6 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
   const timersRef = useRef<Map<string, number>>(new Map());
   const versionsRef = useRef<Map<string, number>>(new Map());
   const latestVersionRef = useRef<Map<string, number>>(new Map());
-  const pendingEmbedRef = useRef<
-    Map<string, { version: number; contentHash: string }>
-  >(new Map());
   const queryVersionRef = useRef(0);
 
   const isSupersededQueryError = useCallback((error: unknown) => {
@@ -186,83 +183,52 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
     [changeSetting, settings.dismissEmbeddingErrorMessages, t],
   );
 
-  const performServerSideEmbeddings = useCallback(
-    async (request: {
-      noteId: string;
-      version: number;
-      items: { chunkId: string; text: string }[];
-      contentHash: string;
-    }) => {
+  // Latest settings for the long-lived queue runner, which must not be
+  // re-created (and so interrupted) whenever a setting changes.
+  const embeddingHostRef = useRef(settings.embeddingHost);
+  const forceFallbackRef = useRef(false);
+  const errorToastedRef = useRef(false);
+  useEffect(() => {
+    embeddingHostRef.current = settings.embeddingHost;
+  }, [settings.embeddingHost]);
+
+  const embedOnServerBatch = useCallback(
+    async (items: { chunkId: string; text: string }[]) => {
       // The server caps the number of chunks per request.
-      const vectors: { chunkId: string; vectorArray: number[] }[] = [];
-      for (let i = 0; i < request.items.length; i += SERVER_EMBED_BATCH_SIZE) {
+      const vectors: { chunkId: string; vectorBuffer: ArrayBuffer }[] = [];
+      for (let i = 0; i < items.length; i += SERVER_EMBED_BATCH_SIZE) {
         const res = await embedOnServer(
-          request.items.slice(i, i + SERVER_EMBED_BATCH_SIZE),
+          items.slice(i, i + SERVER_EMBED_BATCH_SIZE),
         );
         if (!res.ok) throw new Error(res.message);
-        vectors.push(...res.vectors);
+        vectors.push(
+          ...res.vectors.map((v) => ({
+            chunkId: v.chunkId,
+            vectorBuffer: Float32Array.from(v.vectorArray).buffer,
+          })),
+        );
       }
-
-      if (!modelId) {
-        throw new Error("Embedding model ID is not available.");
-      }
-
-      if (latestVersionRef.current.get(request.noteId) !== request.version)
-        return undefined;
-
-      await saveEmbeddings({
-        noteId: request.noteId,
-        modelId,
-        contentHash: request.contentHash,
-        vectors: vectors.map((v) => ({
-          chunkId: v.chunkId,
-          vectorBuffer: Float32Array.from(v.vectorArray).buffer,
-        })),
-      });
-      return undefined;
+      return vectors;
     },
     [],
   );
 
-  const embedChunksForNote = useCallback(
-    async (args: {
-      noteId: string;
-      version: number;
-      items: { chunkId: string; text: string }[];
-      contentHash: string;
-    }) => {
+  // Embeds one queue batch: on-device first, then (if allowed) the server.
+  // Throwing hands the batch back to the queue, which retries with backoff.
+  const embedQueueBatch = useCallback(
+    async (items: { chunkId: string; text: string }[]) => {
       if (!embeddingWorkerApi) {
         throw new Error("Embedding worker is not available");
       }
-      if (!modelId) {
-        throw new Error("Embedding model ID is not available");
-      }
 
-      pendingEmbedRef.current.set(args.noteId, {
-        version: args.version,
-        contentHash: args.contentHash,
-      });
+      const allowFallback = () =>
+        forceFallbackRef.current ||
+        embeddingHostRef.current === "allow-fallback";
 
       try {
-        const result = await embeddingWorkerApi.embedChunks({
-          noteId: args.noteId,
-          version: args.version,
-          items: args.items,
-        });
-
-        if (result === null) {
-          return;
-        }
-
-        const pending = pendingEmbedRef.current.get(args.noteId);
-        if (!pending || pending.version !== args.version) return;
-
-        await saveEmbeddings({
-          noteId: args.noteId,
-          modelId,
-          contentHash: pending.contentHash,
-          vectors: result.vectors,
-        });
+        const result = await embeddingWorkerApi.embedBatch({ items });
+        errorToastedRef.current = false;
+        return result.vectors;
       } catch (error: unknown) {
         const message = getErrorMessage(error);
 
@@ -273,31 +239,34 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
           timestamp: new Date(),
         });
 
-        const allowFallback = settings.embeddingHost === "allow-fallback";
-
-        const performFallback = () => {
-          void performServerSideEmbeddings({
-            noteId: args.noteId,
-            version: args.version,
-            items: args.items,
-            contentHash: args.contentHash,
-          }).catch((fallbackError: unknown) => {
+        if (allowFallback() && navigator.onLine) {
+          try {
+            const vectors = await embedOnServerBatch(items);
+            errorToastedRef.current = false;
+            return vectors;
+          } catch (fallbackError: unknown) {
             console.error("Server-side embedding failed", fallbackError);
-          });
-        };
-
-        if (allowFallback && navigator.onLine) {
-          performFallback();
+          }
         }
 
-        showEmbeddingErrorToast({ allowFallback, performFallback });
+        // Once per failure streak, not once per retry.
+        if (!errorToastedRef.current) {
+          errorToastedRef.current = true;
+          showEmbeddingErrorToast({
+            allowFallback: allowFallback(),
+            performFallback: () => {
+              forceFallbackRef.current = true;
+              embeddingQueue.kick();
+            },
+          });
+        }
+        throw error;
       }
     },
     [
+      embedOnServerBatch,
       embeddingWorkerApi,
       getErrorMessage,
-      performServerSideEmbeddings,
-      settings.embeddingHost,
       showEmbeddingErrorToast,
     ],
   );
@@ -370,37 +339,16 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
 
       if (!currentModelId) return;
 
-      // Only embed chunks that have no vector for the current model yet.
-      const existing = await db.embeddings
-        .where("chunkId")
-        .anyOf(result.chunks.map((c) => c.id))
-        .filter((e) => e.modelId === currentModelId)
-        .primaryKeys();
-      const have = new Set(existing.map(([chunkId]) => chunkId));
-      const items = result.chunks
-        .filter((c) => !have.has(c.id))
-        .map((c) => ({ chunkId: c.id, text: c.text }));
-
-      if (!items.length) {
-        if (!upToDateEmbeddings) {
-          await saveEmbeddings({
-            noteId: data.id,
-            modelId: currentModelId,
-            contentHash: result.contentHash,
-            vectors: [],
-          });
-        }
-        return;
-      }
-
-      await embedChunksForNote({
+      // Jobs are persisted, so the work survives navigation and reloads; the
+      // app-scoped queue picks them up (or resumes them on the next start).
+      await embeddingQueue.enqueueNote({
         noteId: data.id,
-        version,
-        items,
+        modelId: currentModelId,
         contentHash: result.contentHash,
+        chunks: result.chunks,
       });
     },
-    [chunkingWorkerApi, embedChunksForNote],
+    [chunkingWorkerApi],
   );
 
   const schedule = useCallback(
@@ -553,6 +501,28 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
   ]);
 
   const isReady = contextValue.isReady;
+
+  // Runs the persistent embedding queue for the lifetime of the app, resuming
+  // jobs left over from a previous session. It is not tied to any page.
+  const embedQueueBatchRef = useRef(embedQueueBatch);
+  useEffect(() => {
+    embedQueueBatchRef.current = embedQueueBatch;
+  }, [embedQueueBatch]);
+
+  useEffect(() => {
+    if (!isReady || !embeddingWorkerApi) return;
+    // Settings changes must not restart the queue, so go through a ref.
+    void embeddingQueue.start({
+      modelId,
+      embed: (items) => embedQueueBatchRef.current(items),
+    });
+    const onOnline = () => embeddingQueue.kick();
+    window.addEventListener("online", onOnline);
+    return () => {
+      window.removeEventListener("online", onOnline);
+      embeddingQueue.stop();
+    };
+  }, [embeddingWorkerApi, isReady]);
 
   // Housekeeping once per ready transition: purge old trash, drop vectors from
   // other models, and (re)index notes written while the model was unavailable
