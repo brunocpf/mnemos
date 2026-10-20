@@ -1,10 +1,13 @@
 import type { MetadataRoute } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const t = await getTranslations("Manifest");
+  const locale = await getLocale();
 
   return {
+    lang: locale,
+    dir: "ltr",
     short_name: "Mnemos",
     name: "Mnemos",
     description: t("description"),
@@ -57,6 +60,8 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     start_url: "/",
     scope: "/",
     display: "standalone",
+    display_override: ["standalone", "minimal-ui"],
+    orientation: "any",
     background_color: "#ffffff",
     theme_color: "#ffffff",
   };

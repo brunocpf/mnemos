@@ -12,6 +12,10 @@
     "hint": "Reconnect to the internet to load it.",
     "retry": "Try again"
   },
+  "OfflineIndicator": {
+    "title": "You’re offline",
+    "description": "Notes and search keep working on your device. Cloud summaries and remote indexing are unavailable until you reconnect."
+  },
   "PwaUpdate": {
     "title": "A new version is available",
     "description": "Reload to get the latest improvements.",

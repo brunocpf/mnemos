@@ -12,6 +12,10 @@
     "hint": "Reconecte-se à internet para carregá-la.",
     "retry": "Tentar novamente"
   },
+  "OfflineIndicator": {
+    "title": "Você está offline",
+    "description": "As notas e a busca continuam funcionando no seu dispositivo. Resumos na nuvem e indexação remota ficam indisponíveis até você se reconectar."
+  },
   "PwaUpdate": {
     "title": "Há uma nova versão disponível",
     "description": "Recarregue para obter as melhorias mais recentes.",

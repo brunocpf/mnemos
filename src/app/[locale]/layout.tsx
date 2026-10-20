@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
+import { OfflineIndicator } from "@/components/offline-indicator";
 import { OnboardingGate } from "@/components/onboarding-gate";
 import { SwUpdatePrompt } from "@/components/sw-update-prompt";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -115,6 +116,7 @@ export default async function RootLayout({
                     <SummarizerProvider>
                       <SearchValueProvider>
                         <AppHeader />
+                        <OfflineIndicator />
                         <OnboardingGate />
                         {children}
                         <AppFooter />
