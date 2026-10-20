@@ -3,9 +3,6 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
-  experimental: {
-    viewTransition: true,
-  },
   serverExternalPackages: [
     "esbuild-wasm",
     "@huggingface/inference",
