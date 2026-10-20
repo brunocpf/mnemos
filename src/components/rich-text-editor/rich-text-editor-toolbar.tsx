@@ -31,12 +31,20 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +55,10 @@ interface RichTextEditorToolbarProps {
 export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
   const t = useTranslations("RichTextEditorToolbar");
   const [, forceRender] = useState(0);
+  const [urlPrompt, setUrlPrompt] = useState<{
+    kind: "link" | "image" | "imageAdvanced";
+    initialValue: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!editor) return;
@@ -101,6 +113,32 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
   const canRedo = !!editor && redoDepth(editor.state) > 0;
 
   const isLinkActive = !!editor && editor.isActive("link");
+
+  const submitUrl = (value: string) => {
+    const kind = urlPrompt?.kind;
+    setUrlPrompt(null);
+    if (!editor || !kind) return;
+
+    const trimmed = value.trim();
+    if (kind === "link") {
+      if (!trimmed) return;
+      const href = /^[a-z][a-z0-9+.-]*:/i.test(trimmed)
+        ? trimmed
+        : `https://${trimmed}`;
+      editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
+      return;
+    }
+
+    if (!trimmed) return;
+    editor.chain().focus().setImage({ src: trimmed }).run();
+  };
+
+  const urlPromptTitle =
+    urlPrompt?.kind === "link"
+      ? t("link.prompts.enterUrl")
+      : urlPrompt?.kind === "imageAdvanced"
+        ? t("image.prompts.urlAdvanced")
+        : t("image.prompts.url");
 
   return (
     <div className="no-scrollbar isolate mx-auto flex w-full max-w-5xl items-center gap-2 overflow-x-auto px-6 py-2 sm:[&>:first-child]:ml-auto sm:[&>:last-child]:mr-auto">
@@ -490,26 +528,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
               return;
             }
 
-            const previousUrl = editor.getAttributes("link").href as
-              string | undefined;
-            const url = window.prompt(
-              t("link.prompts.enterUrl"),
-              previousUrl ?? "https://",
-            );
-            if (url === null) return;
-
-            const trimmed = url.trim();
-            if (!trimmed) {
-              editor.chain().focus().unsetLink().run();
-              return;
-            }
-
-            editor
-              .chain()
-              .focus()
-              .extendMarkRange("link")
-              .setLink({ href: trimmed })
-              .run();
+            setUrlPrompt({ kind: "link", initialValue: "https://" });
           }}
         >
           {isLinkActive ? <IconUnlink /> : <IconLink />}
@@ -536,10 +555,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
               onMouseDown={preventMouseDown}
               onClick={() => {
                 if (!editor) return;
-                const url = window.prompt(t("image.prompts.url"));
-                if (!url) return;
-
-                editor.chain().focus().setImage({ src: url.trim() }).run();
+                setUrlPrompt({ kind: "image", initialValue: "" });
               }}
             >
               <IconPhoto /> {t("image.actions.insertFromUrl")}
@@ -549,10 +565,7 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
               onMouseDown={preventMouseDown}
               onClick={() => {
                 if (!editor) return;
-                const url = window.prompt(t("image.prompts.urlAdvanced"));
-                if (!url) return;
-
-                editor.chain().focus().setImage({ src: url.trim() }).run();
+                setUrlPrompt({ kind: "imageAdvanced", initialValue: "" });
               }}
             >
               <IconPhoto /> {t("image.actions.insertAdvanced")}
@@ -560,6 +573,48 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <Dialog
+        open={urlPrompt !== null}
+        onOpenChange={(open) => {
+          if (!open) setUrlPrompt(null);
+        }}
+      >
+        <DialogContent>
+          {urlPrompt && (
+            <form
+              className="flex flex-col gap-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const data = new FormData(event.currentTarget);
+                submitUrl(String(data.get("url") ?? ""));
+              }}
+            >
+              <DialogHeader>
+                <DialogTitle>{urlPromptTitle}</DialogTitle>
+              </DialogHeader>
+              <Input
+                name="url"
+                type="text"
+                inputMode="url"
+                defaultValue={urlPrompt.initialValue}
+                placeholder="https://"
+                aria-label={urlPromptTitle}
+                autoComplete="off"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
+                autoFocus
+              />
+              <DialogFooter>
+                <Button type="submit" className="cursor-pointer">
+                  {t("actions.confirm")}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -135,6 +135,7 @@
   },
   "RichTextEditorToolbar": {
     "actions": {
+      "confirm": "Confirm",
       "undo": "Undo",
       "redo": "Redo",
       "clearFormatting": "Clear formatting"
