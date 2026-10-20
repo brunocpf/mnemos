@@ -1,7 +1,7 @@
 "use client";
 
 import * as Comlink from "comlink";
-import { DependencyList, useEffect, useMemo, useState } from "react";
+import { DependencyList, useEffect, useState } from "react";
 
 export type ComlinkWorker<T> = {
   worker?: Worker;
@@ -12,35 +12,25 @@ export function useComlinkWorker<T>(
   createWorker: () => Worker,
   deps: DependencyList = [],
 ): ComlinkWorker<T> {
-  const [isMounted, setIsMounted] = useState(false);
+  const [instance, setInstance] = useState<ComlinkWorker<T>>({});
 
+  // The worker is created inside the effect (not memoized during render) so
+  // that Strict Mode's mount/unmount/mount cycle never reuses a released proxy.
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const instance = useMemo<ComlinkWorker<T>>(() => {
-    if (typeof window === "undefined" || typeof Worker === "undefined") {
-      return {};
-    }
+    if (typeof Worker === "undefined") return;
 
     const worker = createWorker();
     const proxy = Comlink.wrap<T>(worker);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setInstance({ worker, proxy });
 
-    return {
-      worker,
-      proxy,
+    return () => {
+      setInstance({});
+      proxy[Comlink.releaseProxy]();
+      worker.terminate();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMounted, ...deps]);
-
-  useEffect(() => {
-    const innerProxy = instance.proxy;
-    const innerWorker = instance.worker;
-    return () => {
-      innerProxy?.[Comlink.releaseProxy]?.();
-      innerWorker?.terminate();
-    };
-  }, [instance]);
+  }, [...deps]);
 
   return instance;
 }
