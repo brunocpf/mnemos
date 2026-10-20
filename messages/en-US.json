@@ -61,7 +61,8 @@
       "undo": "Undo",
       "rename": "Rename",
       "delete": "Delete",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "more": "More actions"
     },
     "placeholders": {
       "untitled": "Untitled",

@@ -61,7 +61,8 @@
       "undo": "Desfazer",
       "rename": "Renomear",
       "delete": "Excluir",
-      "confirm": "Confirmar"
+      "confirm": "Confirmar",
+      "more": "Mais ações"
     },
     "placeholders": {
       "untitled": "Sem título",
