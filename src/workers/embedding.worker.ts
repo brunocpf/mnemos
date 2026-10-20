@@ -1,10 +1,15 @@
 /// <reference lib="webworker" />
 import { expose } from "comlink";
 
+import {
+  EMBEDDING_DOCUMENT_PREFIX,
+  EMBEDDING_DTYPE,
+  EMBEDDING_MODEL_ID,
+  EMBEDDING_QUERY_PREFIX,
+} from "@/lib/embedding-config";
 import { HfModelWorkerService } from "@/lib/hf-model-worker-service";
 
-const modelId =
-  process.env.NEXT_PUBLIC_EMBEDDING_MODEL_ID || "Supabase/gte-small";
+const modelId = EMBEDDING_MODEL_ID;
 
 class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> {
   private latestByNote = new Map<string, number>();
@@ -13,7 +18,7 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
   constructor() {
     super(modelId, "feature-extraction", {
       device: "gpu" in navigator ? "webgpu" : "wasm",
-      dtype: "fp32",
+      dtype: EMBEDDING_DTYPE,
     });
   }
 
@@ -45,7 +50,7 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
         return null;
       }
 
-      const tensor = await extractor(item.text, {
+      const tensor = await extractor(EMBEDDING_DOCUMENT_PREFIX + item.text, {
         pooling: "mean",
         normalize: true,
       });
@@ -85,7 +90,7 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
       throw new Error("Embedding pipeline is not initialized.");
     }
 
-    const tensor = await extractor(request.text, {
+    const tensor = await extractor(EMBEDDING_QUERY_PREFIX + request.text, {
       pooling: "mean",
       normalize: true,
     });

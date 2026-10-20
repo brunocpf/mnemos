@@ -12,14 +12,13 @@ import {
 
 import { useComlinkWorker } from "@/hooks/use-comlink-worker";
 import { ModelDownloadState } from "@/lib/hf-model-worker-service";
+import { SUMMARIZATION_MODEL_ID } from "@/lib/summarization-config";
 import { withTimeout } from "@/lib/with-timeout";
 import { useSettings } from "@/providers/settings-provider";
 import { summarize } from "@/server-actions/summarize";
 import type { SummarizationWorkerApi } from "@/workers/summarization.worker";
 
-const modelId =
-  process.env.NEXT_PUBLIC_SUMMARIZATION_MODEL_ID ||
-  "onnx-community/Phi-3.5-mini-instruct-onnx-web";
+const modelId = SUMMARIZATION_MODEL_ID;
 
 export interface SummarizerContextValue {
   summarize: (text: string) => Promise<

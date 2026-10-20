@@ -42,7 +42,7 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 ### AI-Assisted Insights (Opt-in)
 
 - One-click note summarization, user-initiated
-  - **On device:** Phi-3.5-mini (ONNX web, q4f16) via `transformers.js` in a Web Worker
+  - **On device:** Qwen3-0.6B (ONNX, q4f16, about 570 MB, thinking disabled) via `transformers.js` in a Web Worker
   - **Server fallback:** Qwen3-30B (configurable) through the Hugging Face Inference API
 - Ask across notes (RAG-style answers with source references) is **planned, not implemented yet**
 
@@ -81,12 +81,12 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 
 #### Embeddings
 
-- **Primary:** On-device embeddings (`Supabase/gte-small` by default) via `transformers.js`
+- **Primary:** On-device embeddings (`Xenova/multilingual-e5-small`, q8, about 118 MB, English + Portuguese) via `transformers.js`
 - **Fallback:** Optional server-side embeddings through the `embed` / `embedQuery` server actions, only when the user enables it in Settings
 
 #### Summarization
 
-- **Primary:** On-device Phi-3.5-mini in a Web Worker
+- **Primary:** On-device Qwen3-0.6B in a Web Worker
 - **Fallback:** The `summarize` server action (Hugging Face Inference)
 
 #### Settings
@@ -158,15 +158,19 @@ npm run dev
 
 The app runs at http://localhost:3000.
 
-> On first run, the browser downloads the embedding model (and the summarization model unless the summarizer is `server-only`) from Hugging Face and caches it. The summarization model is large (hundreds of MB); a WebGPU-capable browser is recommended.
+> On first run, the browser downloads the embedding model (and the summarization model unless the summarizer is `server-only`) from Hugging Face and caches it. The summarization model is about 570 MB; a WebGPU-capable browser is recommended.
 
 ### Environment variables
 
 | Variable | Scope | Purpose |
 | --- | --- | --- |
 | `HF_API_TOKEN` | server | Token for the server fallbacks. Without it they return a `not_configured` error. |
-| `NEXT_PUBLIC_EMBEDDING_MODEL_ID` | client + server | Embedding model (default `Supabase/gte-small`). |
-| `NEXT_PUBLIC_SUMMARIZATION_MODEL_ID` | client | On-device summarization model. |
+| `NEXT_PUBLIC_EMBEDDING_MODEL_ID` | client | On-device embedding model (default `Xenova/multilingual-e5-small`). Changing it re-indexes notes. |
+| `NEXT_PUBLIC_EMBEDDING_DTYPE` | client | Embedding weights precision (default `q8`). |
+| `NEXT_PUBLIC_EMBEDDING_QUERY_PREFIX` / `NEXT_PUBLIC_EMBEDDING_DOCUMENT_PREFIX` | client + server | Text prepended to queries / note chunks. Defaults to `query: ` / `passage: ` for e5 models, empty otherwise. |
+| `SERVER_EMBEDDING_MODEL` | server | Hosted twin of the embedding model for the server fallback (default `intfloat/multilingual-e5-small`). Must be the same underlying model. |
+| `NEXT_PUBLIC_SUMMARIZATION_MODEL_ID` | client | On-device summarization model (default `onnx-community/Qwen3-0.6B-ONNX`). |
+| `NEXT_PUBLIC_SUMMARIZATION_DTYPE` | client | Summarization weights precision (default `q4f16`). |
 | `SERVER_SUMMARIZER_MODEL` | server | Server summarization model (default `Qwen/Qwen3-30B-A3B-Instruct-2507`). |
 | `NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K` | client | Search results to return (default 12). |
 | `NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_OVERSAMPLING_FACTOR` | client | Candidate oversampling factor (default 2). |
@@ -207,3 +211,12 @@ Mnemos is both a usable product and a technical exploration of:
 - explicit, user-controlled AI design
 
 **It favors clarity, trust, and correctness over automation and opacity.**
+
+### Model evaluation
+
+`scripts/eval/` holds the retrieval and summarization evals behind the model choice (not part of the test run); see `docs/model-eval.md` for results.
+
+```bash
+node scripts/eval/embeddings.mjs            # recall@1/3 and MRR for each candidate
+node scripts/eval/summaries.mjs qwen3_06    # summaries for ten EN/PT notes
+```

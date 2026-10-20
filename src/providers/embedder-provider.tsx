@@ -21,6 +21,7 @@ import {
 } from "@/client-data/notes-dal";
 import { saveEmbeddings } from "@/client-data/save-embeddings";
 import { useComlinkWorker } from "@/hooks/use-comlink-worker";
+import { EMBEDDING_MODEL_ID } from "@/lib/embedding-config";
 import { ModelDownloadState } from "@/lib/hf-model-worker-service";
 import { LIMITS } from "@/lib/server-ai";
 import { withTimeout } from "@/lib/with-timeout";
@@ -32,8 +33,7 @@ import {
 import { ChunkingWorkerApi } from "@/workers/chunking.worker";
 import type { EmbeddingWorkerApi } from "@/workers/embedding.worker";
 
-const modelId =
-  process.env.NEXT_PUBLIC_EMBEDDING_MODEL_ID || "Supabase/gte-small";
+const modelId = EMBEDDING_MODEL_ID;
 
 const SERVER_EMBED_BATCH_SIZE = LIMITS.maxChunks;
 

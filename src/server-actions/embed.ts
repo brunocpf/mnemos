@@ -4,6 +4,11 @@ import { InferenceClient } from "@huggingface/inference";
 import { headers } from "next/headers";
 
 import {
+  EMBEDDING_DOCUMENT_PREFIX,
+  EMBEDDING_QUERY_PREFIX,
+  SERVER_EMBEDDING_MODEL_ID,
+} from "@/lib/embedding-config";
+import {
   clientKeyFromHeaders,
   coerceVector,
   createRateLimiter,
@@ -16,10 +21,6 @@ import {
 } from "@/lib/server-ai";
 
 const checkRate = createRateLimiter(RATE_LIMITS.embed);
-
-function getModelId() {
-  return process.env.NEXT_PUBLIC_EMBEDDING_MODEL_ID || "Supabase/gte-small";
-}
 
 async function guard() {
   const token = process.env.HF_API_TOKEN;
@@ -40,10 +41,16 @@ async function guard() {
   return { token };
 }
 
-async function featureExtraction(token: string, inputs: string | string[]) {
+async function featureExtraction(
+  token: string,
+  inputs: string | string[],
+  prefix: string,
+) {
   return new InferenceClient(token).featureExtraction({
-    model: getModelId(),
-    inputs,
+    model: SERVER_EMBEDDING_MODEL_ID,
+    inputs: Array.isArray(inputs)
+      ? inputs.map((t) => prefix + t)
+      : prefix + inputs,
   });
 }
 
@@ -64,6 +71,7 @@ export async function embed(
     const output = await featureExtraction(
       g.token,
       items.map((c) => c.text),
+      EMBEDDING_DOCUMENT_PREFIX,
     );
 
     // Some models/endpoints return a single vector even for batched input;
@@ -73,7 +81,11 @@ export async function embed(
         items.map(async (item) => ({
           chunkId: item.chunkId,
           vectorArray: coerceVector(
-            await featureExtraction(g.token, item.text),
+            await featureExtraction(
+              g.token,
+              item.text,
+              EMBEDDING_DOCUMENT_PREFIX,
+            ),
           ),
         })),
       );
@@ -104,7 +116,11 @@ export async function embedQuery(
   if ("ok" in g) return g;
 
   try {
-    const output = await featureExtraction(g.token, parsed.data);
+    const output = await featureExtraction(
+      g.token,
+      parsed.data,
+      EMBEDDING_QUERY_PREFIX,
+    );
     return { ok: true, vector: coerceVector(output) };
   } catch (error) {
     console.error("[embedQuery] upstream failure", error);
