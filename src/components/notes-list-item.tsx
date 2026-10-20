@@ -3,7 +3,7 @@
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useForm } from "@tanstack/react-form";
 import markdownToTxt from "markdown-to-txt";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Activity, useMemo } from "react";
 import { toast } from "sonner";
 import { triggerHaptic } from "tactus";
@@ -37,7 +37,7 @@ import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { SemanticMatch } from "@/hooks/use-semantic-search";
 import { Link } from "@/i18n/navigation";
-import { defaultFormatter } from "@/lib/dateFormatters";
+import { getDateFormatter } from "@/lib/dateFormatters";
 import { encodeSearchHighlight } from "@/lib/search-highlight";
 
 import { HighlightedSnippet } from "./highlighted-snippet";
@@ -53,6 +53,7 @@ const formSchema = z.object({
 
 export function NotesListItem({ note, match }: NotesListItemProps) {
   const t = useTranslations("Notes");
+  const locale = useLocale();
 
   const handleDelete = () => {
     deleteNote(note.id);
@@ -156,7 +157,7 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
                     {title}
                   </p>
                   <p className="text-muted-foreground mt-1 text-xs">
-                    {defaultFormatter.format(new Date(note.updatedAt))}
+                    {getDateFormatter(locale).format(new Date(note.updatedAt))}
                   </p>
                 </div>
                 <Activity mode={match || preview ? "visible" : "hidden"}>
