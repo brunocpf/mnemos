@@ -305,44 +305,44 @@
     "lastUpdated": "Last updated: {date}",
     "localDataPoints": [
       {
-        "title": "Notes, drafts, and attachments",
-        "description": "Your written content lives entirely inside your browser using IndexedDB. No background sync or remote storage is performed."
+        "title": "Notes and deleted notes",
+        "description": "Your notes live entirely inside your browser using IndexedDB. No background sync or remote storage is performed. When you delete a note you can undo it, and it is kept hidden on your device for 7 days before being permanently removed."
       },
       {
         "title": "Chunks and embeddings",
-        "description": "Semantic-search chunks and the vectors generated for them are stored on your device. If you opt into remote embedding fallback, the chunk text needed for that request is sent to the server and the resulting vector returns to IndexedDB."
+        "description": "Semantic-search chunks and the vectors generated for them are stored on your device. If you opt into remote embedding fallback, the chunk text needed for that request is sent to the server and the resulting vector returns to IndexedDB. A short log of on-device indexing errors is also kept locally."
       },
       {
         "title": "Preferences and caches",
-        "description": "Theme selection, feature flags, and model caches are kept in your browser storage to preserve your experience offline."
+        "description": "Your settings, theme, whether you have seen the welcome screen, the downloaded AI models and the app files needed to work offline are kept in your browser storage. If your browser language differs from the app language you pick, a language-preference cookie may also be set."
       }
     ],
     "aiDisclosures": [
       {
-        "title": "Explicit AI requests only",
-        "description": "Summaries run on your device by default. If you choose server fallback (or server-only) in Settings, the full text of the note you ask to summarize is sent to Mnemos' server and on to Hugging Face's inference API. Mnemos does not store it."
+        "title": "Summaries: only when you press Summarize",
+        "description": "Summaries are only generated when you ask for one. By default (\"Allow fallback\" in Settings) Mnemos summarizes on your device, but if the on-device model is not ready yet (for example it is still downloading), fails, or takes longer than 30 seconds, and you are online, the full text of that note is sent to Mnemos' server and on to Hugging Face's inference API. \"Cloud only\" always sends it. Choose \"On your device only\" to never send note text for summaries. Each summary tells you whether it was generated on your device or in the cloud. Mnemos does not store the text."
       },
       {
         "title": "No hidden uploads",
-        "description": "Mnemos never syncs your notes in the background. Text leaves your device only through the fallback options described here, and only if you enabled them in Settings."
+        "description": "Mnemos never syncs your notes in the background. Text leaves your device only through the summary and embedding options described here."
       },
       {
         "title": "Embedding fallback is opt-in",
-        "description": "Embeddings are computed on your device by default. If you turn on remote embedding fallback, then after local indexing fails the text of the affected chunks (and, for semantic search, your search query) is sent to Mnemos' server and Hugging Face to generate vectors. When it is off, the app offers to enable it and nothing is sent until you agree."
+        "description": "Embeddings are computed on your device, and this is the default (\"On your device only\"). If you turn on remote embedding fallback, then after on-device processing fails or times out the text of the affected note chunks (and, for semantic search, your search query) is sent to Mnemos' server and Hugging Face to generate vectors. When it is off, the app offers to enable it after a failure and nothing is sent until you agree."
       },
       {
         "title": "Network visibility",
-        "description": "Remote requests use HTTPS and can be inspected in your browser's network panel. Mnemos also downloads AI models from Hugging Face the first time they are needed; no note content is part of those downloads."
+        "description": "Remote requests use HTTPS and can be inspected in your browser's network panel. Mnemos also downloads AI models from Hugging Face the first time they are needed; no note content is part of those downloads, but Hugging Face sees your IP address. Images you insert by URL are loaded by your browser directly from the address you entered."
       }
     ],
     "userControls": [
       {
         "title": "Delete data at any time",
-        "description": "Use your browser's storage controls to clear IndexedDB/localStorage or delete notes individually inside the app."
+        "description": "Use your browser's storage controls to clear IndexedDB/localStorage or delete notes individually inside the app (they are permanently removed from your device 7 days later)."
       },
       {
         "title": "Operate fully offline",
-        "description": "Mnemos remains functional without connectivity, preventing accidental data transfer and letting you audit network usage yourself."
+        "description": "After the first visit and the one-time model downloads, Mnemos remains functional without connectivity, preventing accidental data transfer and letting you audit network usage yourself."
       },
       {
         "title": "Auditability",
@@ -352,13 +352,13 @@
     "sections": {
       "onDevice": {
         "title": "Data stored on your device",
-        "description": "Everything below is stored directly on your device using IndexedDB/localStorage. Mnemos does not transmit these assets unless you explicitly export them or opt into the server fallbacks described below.",
-        "implementationDetail": "Implementation detail: when fallback is enabled, Mnemos posts the affected chunk text and IDs to the server-side embed action in {path} only long enough to generate vectors, then stores the returned embeddings back in IndexedDB."
+        "description": "Everything below is stored directly on your device using IndexedDB/localStorage. Mnemos does not transmit this data except through the summary and embedding options described below.",
+        "implementationDetail": "Implementation detail: when fallback is used, Mnemos posts the affected chunk text and IDs to the server-side embed action in {path}, which forwards them to Hugging Face only long enough to generate vectors; the returned embeddings are stored back in IndexedDB. Summaries use a similar server action in src/server-actions/summarize.ts."
       },
       "dataLeaves": {
         "title": "When data leaves your device",
-        "description": "Mnemos contacts remote services only in these cases: you summarize a note with server fallback or server-only enabled; you enable remote embedding fallback (chunk text and search queries are then sent for embedding); or the browser downloads AI models from Hugging Face. With on-device-only settings, no note content leaves your device.",
-        "noAnalytics": "Mnemos does not collect analytics, advertising identifiers, or tracking cookies. If you self-host or point AI calls to a third party, their policies will govern the transmitted data."
+        "description": "Mnemos contacts remote services only in these cases: you summarize a note and the summary setting is \"Allow fallback\" (the default) and the on-device model cannot do it, or \"Cloud only\"; you enable remote embedding fallback (chunk text and search queries are then sent for embedding); or the browser downloads AI models from Hugging Face. With both settings on \"On your device only\", no note content leaves your device.",
+        "noAnalytics": "Mnemos does not collect analytics, advertising identifiers, or tracking cookies. When you use the server options, the Mnemos server also sees your IP address, which it uses only for in-memory rate limiting (up to 60 embedding requests and 10 summaries per minute), and the hosting platform may keep ordinary request logs. Hugging Face, and any inference provider it routes the request to, process the text under their own policies. If you self-host or point AI calls to a third party, their policies will govern the transmitted data."
       },
       "controls": {
         "title": "Your controls",
@@ -372,7 +372,7 @@
         "title": "Contact",
         "descriptionPrefix": "Questions or requests? Open an issue on the ",
         "linkText": "GitHub repository",
-        "descriptionSuffix": "or reach the maintainers via the channels listed in the README."
+        "descriptionSuffix": "to ask questions or request changes."
       }
     }
   },
