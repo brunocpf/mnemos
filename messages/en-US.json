@@ -341,6 +341,57 @@
       "toggleTitle": "Hide indexing alerts",
       "toggleDescription": "Stops fallback prompts when on-device indexing fails. Search may stop covering new notes."
     },
+    "dataTransfer": {
+      "title": "Import & export",
+      "description": "Back up your notes as Markdown files in a ZIP, or bring notes in from one. Everything happens on your device.",
+      "export": {
+        "button": "Export notes",
+        "empty": "There's nothing to export yet.",
+        "success": "Exported {notes, plural, one {# note} other {# notes}} and {folders, plural, one {# folder} other {# folders}}.",
+        "error": "Couldn't export your notes."
+      },
+      "import": {
+        "button": "Import notes"
+      },
+      "progress": {
+        "export": "Exporting notes…",
+        "read": "Reading files…",
+        "import": "Importing notes…"
+      },
+      "dialog": {
+        "title": "Import notes",
+        "description": "Found {notes, plural, one {# note} other {# notes}} and {folders, plural, one {# folder} other {# folders}} to import. If a note already exists, how should it be handled?",
+        "strategyLabel": "If a note already exists",
+        "strategies": {
+          "new": {
+            "label": "Import as new notes",
+            "description": "Every note gets a new ID, so nothing you have is touched. Importing the same file twice creates duplicates."
+          },
+          "mergeNewer": {
+            "label": "Merge by ID, keep the newer",
+            "description": "A note with the same ID is replaced only if the imported copy was edited more recently."
+          },
+          "mergeSkip": {
+            "label": "Merge by ID, keep mine",
+            "description": "A note with the same ID is skipped. Only notes you don't have yet are added."
+          }
+        },
+        "cancel": "Cancel",
+        "confirm": "Import"
+      },
+      "result": "Imported: {created, plural, one {# new note} other {# new notes}}, {updated, plural, one {# updated} other {# updated}}, {skipped, plural, one {# skipped} other {# skipped}}, {foldersCreated, plural, one {# new folder} other {# new folders}}.",
+      "errors": {
+        "invalid-zip": "That file isn't a valid ZIP archive.",
+        "archive-too-large": "The files are too large to import (limit {totalMb} MB).",
+        "too-many-files": "Too many files: you can import up to {entries} at a time.",
+        "file-too-large": "{detail} is too large to import (limit {entryMb} MB per file).",
+        "unsafe-path": "The archive contains an unsafe path ({detail}), so nothing was imported.",
+        "unsupported-file": "{detail} isn't a Markdown or text file, so nothing was imported.",
+        "invalid-text": "{detail} isn't valid UTF-8 text, so nothing was imported.",
+        "nothing-to-import": "No notes or folders were found to import.",
+        "unknown": "Something went wrong while importing. Nothing was changed."
+      }
+    },
     "privacyPrompt": "Looking for a privacy refresher? Head over to the <link>privacy policy</link>."
   },
   "Onboarding": {

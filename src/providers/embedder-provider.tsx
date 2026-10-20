@@ -35,6 +35,8 @@ import type { EmbeddingWorkerApi } from "@/workers/embedding.worker";
 
 const modelId = EMBEDDING_MODEL_ID;
 
+const BACKFILL_STAGGER_MS = 200;
+
 const SERVER_EMBED_BATCH_SIZE = LIMITS.maxChunks;
 
 export type EmbeddingNoteData = {
@@ -46,6 +48,12 @@ export type EmbeddingNoteData = {
 export interface EmbedderContextValue {
   schedule: (data: EmbeddingNoteData, delayMs?: number) => void;
   flush: (data: EmbeddingNoteData) => void;
+  /**
+   * Queues chunking and embedding for notes written outside the editor (e.g.
+   * an import). Up-to-date notes are skipped; if the model isn't ready yet the
+   * once-per-ready backfill picks them up instead.
+   */
+  reindexNotes: (noteIds: string[]) => void;
   embedQuery(
     text: string,
     timeoutMs?: number,
@@ -60,6 +68,9 @@ export const EmbedderContext = createContext<EmbedderContextValue>({
     throw new Error("Not implemented");
   },
   flush: () => {
+    throw new Error("Not implemented");
+  },
+  reindexNotes: () => {
     throw new Error("Not implemented");
   },
   embedQuery: async () => {
@@ -383,6 +394,20 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
     [runChunkingAndIndexing],
   );
 
+  const reindexNotes = useCallback(
+    (noteIds: string[]) => {
+      noteIds.forEach((id, i) => {
+        window.setTimeout(async () => {
+          const note = await db.notes.get(id);
+          if (note && !note.deleted) {
+            schedule({ id, content: note.content }, 0);
+          }
+        }, i * BACKFILL_STAGGER_MS);
+      });
+    },
+    [schedule],
+  );
+
   const embedQueryFn = useCallback(
     async (text: string, timeoutMs = 30_000) => {
       const normalized = text.trim();
@@ -488,6 +513,7 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
       modelId,
       schedule,
       flush,
+      reindexNotes,
       embedQuery: embedQueryFn,
       isReady,
     };
@@ -496,6 +522,7 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
     embeddingWorkerApi,
     flush,
     modelDownloadState,
+    reindexNotes,
     schedule,
     settings.embeddingHost,
   ]);
@@ -542,7 +569,7 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
           timers.push(
             window.setTimeout(
               () => schedule({ id: note.id, content: note.content }, 0),
-              i * 200,
+              i * BACKFILL_STAGGER_MS,
             ),
           );
         });

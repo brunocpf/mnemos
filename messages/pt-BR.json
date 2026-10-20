@@ -341,6 +341,57 @@
       "toggleTitle": "Ocultar alertas de indexação",
       "toggleDescription": "Interrompe os avisos de fallback quando a indexação no dispositivo falha. A busca pode deixar de incluir anotações novas."
     },
+    "dataTransfer": {
+      "title": "Importar e exportar",
+      "description": "Faça backup das suas notas como arquivos Markdown em um ZIP, ou traga notas de um. Tudo acontece no seu dispositivo.",
+      "export": {
+        "button": "Exportar notas",
+        "empty": "Ainda não há nada para exportar.",
+        "success": "{notes, plural, one {# nota exportada} other {# notas exportadas}} e {folders, plural, one {# pasta} other {# pastas}}.",
+        "error": "Não foi possível exportar suas notas."
+      },
+      "import": {
+        "button": "Importar notas"
+      },
+      "progress": {
+        "export": "Exportando notas…",
+        "read": "Lendo arquivos…",
+        "import": "Importando notas…"
+      },
+      "dialog": {
+        "title": "Importar notas",
+        "description": "Encontramos {notes, plural, one {# nota} other {# notas}} e {folders, plural, one {# pasta} other {# pastas}} para importar. Se uma nota já existir, como ela deve ser tratada?",
+        "strategyLabel": "Se uma nota já existir",
+        "strategies": {
+          "new": {
+            "label": "Importar como novas notas",
+            "description": "Cada nota recebe um novo ID, então nada do que você tem é alterado. Importar o mesmo arquivo duas vezes cria duplicatas."
+          },
+          "mergeNewer": {
+            "label": "Mesclar por ID, manter a mais recente",
+            "description": "Uma nota com o mesmo ID só é substituída se a cópia importada foi editada mais recentemente."
+          },
+          "mergeSkip": {
+            "label": "Mesclar por ID, manter as minhas",
+            "description": "Uma nota com o mesmo ID é ignorada. Só são adicionadas as notas que você ainda não tem."
+          }
+        },
+        "cancel": "Cancelar",
+        "confirm": "Importar"
+      },
+      "result": "Importado: {created, plural, one {# nota nova} other {# notas novas}}, {updated, plural, one {# atualizada} other {# atualizadas}}, {skipped, plural, one {# ignorada} other {# ignoradas}}, {foldersCreated, plural, one {# pasta nova} other {# pastas novas}}.",
+      "errors": {
+        "invalid-zip": "Esse arquivo não é um ZIP válido.",
+        "archive-too-large": "Os arquivos são grandes demais para importar (limite de {totalMb} MB).",
+        "too-many-files": "Arquivos demais: você pode importar até {entries} por vez.",
+        "file-too-large": "{detail} é grande demais para importar (limite de {entryMb} MB por arquivo).",
+        "unsafe-path": "O arquivo contém um caminho inseguro ({detail}), então nada foi importado.",
+        "unsupported-file": "{detail} não é um arquivo Markdown ou de texto, então nada foi importado.",
+        "invalid-text": "{detail} não é um texto UTF-8 válido, então nada foi importado.",
+        "nothing-to-import": "Nenhuma nota ou pasta foi encontrada para importar.",
+        "unknown": "Algo deu errado ao importar. Nada foi alterado."
+      }
+    },
     "privacyPrompt": "Quer revisar a privacidade? Veja a <link>política de privacidade</link>."
   },
   "Onboarding": {
