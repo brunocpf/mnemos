@@ -1,13 +1,15 @@
 /* eslint-disable check-file/folder-naming-convention */
-import { IconWifiOff } from "@tabler/icons-react";
 import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
-import { OfflineRetryButton } from "@/components/offline-retry-button";
+import { OfflineMessage } from "@/components/offline-message";
 import { routing } from "@/i18n/routing";
+
+import enMessages from "../../../../messages/en-US.json";
+import ptMessages from "../../../../messages/pt-BR.json";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Offline");
@@ -22,15 +24,10 @@ export default async function OfflinePage({
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
 
-  const t = await getTranslations("Offline");
+  const copy = {
+    "en-US": enMessages.Offline,
+    "pt-BR": ptMessages.Offline,
+  };
 
-  return (
-    <main className="mx-auto flex min-h-[60dvh] w-full max-w-md flex-col items-center justify-center gap-3 p-6 text-center">
-      <IconWifiOff className="text-muted-foreground size-10" aria-hidden />
-      <h1 className="text-2xl font-semibold">{t("heading")}</h1>
-      <p className="text-muted-foreground text-sm">{t("description")}</p>
-      <p className="text-muted-foreground text-sm">{t("hint")}</p>
-      <OfflineRetryButton label={t("retry")} />
-    </main>
-  );
+  return <OfflineMessage copy={copy} fallbackLocale={locale} />;
 }

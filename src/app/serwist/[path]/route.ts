@@ -15,14 +15,14 @@ export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } =
     // App shell routes that must work offline from the first install. Notes
     // opened later are cached on navigation by the SerwistProvider. The `/`
     // and `/pt-BR` entries are separate documents (as-needed locale prefix).
-    additionalPrecacheEntries: ["", "/pt-BR"].flatMap((prefix) =>
-      ["", "/note", "/settings", "/privacy-policy", "/~offline"].map(
-        (path) => ({
+    additionalPrecacheEntries: ["", "/pt-BR"]
+      .flatMap((prefix) =>
+        ["", "/note", "/settings", "/privacy-policy"].map((path) => ({
           url: `${prefix}${path}` || "/",
           revision,
-        }),
-      ),
-    ),
+        })),
+      )
+      .concat([{ url: "/~offline", revision }]),
     swSrc: "src/app/sw.ts",
 
     // Copy relevant Next.js configuration (assetPrefix,

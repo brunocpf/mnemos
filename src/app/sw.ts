@@ -15,17 +15,6 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope;
 
-// The app uses `as-needed` locale prefixes: pt-BR lives under /pt-BR, en-US at
-// the root. Pick the offline page from the URL prefix first, then from the
-// browser's Accept-Language header, falling back to English.
-function wantsPortuguese({ request }: { request: Request }) {
-  const { pathname } = new URL(request.url);
-  if (pathname === "/pt-BR" || pathname.startsWith("/pt-BR/")) return true;
-  if (pathname.startsWith("/en-US")) return false;
-  const accept = request.headers.get("Accept-Language")?.toLowerCase() ?? "";
-  return accept.startsWith("pt");
-}
-
 // Model files are large and already persisted by transformers.js in its own
 // Cache API store. Letting the default runtime rules touch them would copy them
 // a second time (and evict them after an hour).
@@ -66,12 +55,10 @@ const serwist = new Serwist({
     ...defaultCache,
   ],
   fallbacks: {
+    // One document for every locale: the page picks its language on the client
+    // (see OfflineMessage), so it doesn't matter which locale was negotiated
+    // when it was precached.
     entries: [
-      {
-        url: "/pt-BR/~offline",
-        matcher: (ctx) =>
-          ctx.request.destination === "document" && wantsPortuguese(ctx),
-      },
       {
         url: "/~offline",
         matcher: ({ request }) => request.destination === "document",
