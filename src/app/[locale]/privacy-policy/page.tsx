@@ -24,7 +24,7 @@ export default async function PrivacyPage() {
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(new Date("2025-12-25"));
+  }).format(new Date("2026-10-19T12:00:00"));
 
   const localDataPoints = t.raw("localDataPoints") as DataPoint[];
   const aiDisclosures = t.raw("aiDisclosures") as DataPoint[];

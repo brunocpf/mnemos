@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { db } from "@/client-data/db";
 import { useComlinkWorker } from "@/hooks/use-comlink-worker";
 import { ModelDownloadState } from "@/lib/hf-model-worker-service";
+import { LIMITS } from "@/lib/server-ai";
 import { withTimeout } from "@/lib/with-timeout";
 import { useSettings } from "@/providers/settings-provider";
 import {
@@ -28,6 +29,8 @@ import type { EmbeddingWorkerApi } from "@/workers/embedding.worker";
 
 const modelId =
   process.env.NEXT_PUBLIC_EMBEDDING_MODEL_ID || "Supabase/gte-small";
+
+const SERVER_EMBED_BATCH_SIZE = LIMITS.maxChunks;
 
 export type EmbeddingNoteData = {
   id: string;
@@ -185,12 +188,15 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
       items: { chunkId: string; text: string }[];
       contentHash: string;
     }) => {
-      const vectors = await embedOnServer(
-        request.items.map((item) => ({
-          chunkId: item.chunkId,
-          text: item.text,
-        })),
-      );
+      // The server caps the number of chunks per request.
+      const vectors: { chunkId: string; vectorArray: number[] }[] = [];
+      for (let i = 0; i < request.items.length; i += SERVER_EMBED_BATCH_SIZE) {
+        const res = await embedOnServer(
+          request.items.slice(i, i + SERVER_EMBED_BATCH_SIZE),
+        );
+        if (!res.ok) throw new Error(res.message);
+        vectors.push(...res.vectors);
+      }
 
       if (!modelId) {
         throw new Error("Embedding model ID is not available.");
@@ -288,6 +294,8 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
             version: args.version,
             items: args.items,
             contentHash: args.contentHash,
+          }).catch((fallbackError: unknown) => {
+            console.error("Server-side embedding failed", fallbackError);
           });
         };
 
@@ -442,8 +450,9 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
       const allowFallback = settings.embeddingHost === "allow-fallback";
 
       const performFallback = async () => {
-        const vec = await embedQueryOnServer(normalized);
-        return Float32Array.from(vec);
+        const res = await embedQueryOnServer(normalized);
+        if (!res.ok) throw new Error(res.message);
+        return Float32Array.from(res.vector);
       };
 
       const callLocal = async () => {

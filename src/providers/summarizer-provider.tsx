@@ -104,11 +104,14 @@ export function SummarizerProvider({ children }: PropsWithChildren) {
       error instanceof Error ? error.message : String(error);
 
     const callServer = async (text: string) => {
-      const result = await summarize(text);
+      const res = await summarize(text);
+      if (!res.ok) {
+        throw new Error(res.message);
+      }
       return {
         status: "success",
         host: "server",
-        result,
+        result: res.result,
       } as const;
     };
 
@@ -128,7 +131,15 @@ export function SummarizerProvider({ children }: PropsWithChildren) {
       summarize: async (text: string) => {
         switch (settings.summarizerHost) {
           case "server-only":
-            return callServer(text);
+            try {
+              return await callServer(text);
+            } catch (error: unknown) {
+              return {
+                status: "error",
+                host: "server",
+                error: getErrorMessage(error),
+              } as const;
+            }
 
           case "local-only":
             try {
@@ -155,7 +166,15 @@ export function SummarizerProvider({ children }: PropsWithChildren) {
             } catch {
               // fall back to server
             }
-            return callServer(text);
+            try {
+              return await callServer(text);
+            } catch (error: unknown) {
+              return {
+                status: "error",
+                host: "server",
+                error: getErrorMessage(error),
+              } as const;
+            }
           }
         }
       },

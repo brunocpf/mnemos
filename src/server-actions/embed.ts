@@ -1,107 +1,113 @@
 "use server";
 
 import { InferenceClient } from "@huggingface/inference";
+import { headers } from "next/headers";
 
-const modelId =
-  process.env.NEXT_PUBLIC_EMBEDDING_MODEL_ID || "Supabase/gte-small";
+import {
+  clientKeyFromHeaders,
+  coerceVector,
+  createRateLimiter,
+  describeZodError,
+  embedChunksSchema,
+  embedQuerySchema,
+  RATE_LIMITS,
+  type ServerResult,
+  serverError,
+} from "@/lib/server-ai";
 
-function meanPool(tokenEmbeddings: number[][]): number[] {
-  if (tokenEmbeddings.length === 0) return [];
-  const dims = tokenEmbeddings[0]?.length ?? 0;
-  if (dims === 0) return [];
+const checkRate = createRateLimiter(RATE_LIMITS.embed);
 
-  const sum = new Array<number>(dims).fill(0);
-  for (const token of tokenEmbeddings) {
-    for (let i = 0; i < dims; i += 1) {
-      sum[i] += token[i] ?? 0;
-    }
-  }
-  const inv = 1 / tokenEmbeddings.length;
-  for (let i = 0; i < dims; i += 1) sum[i] *= inv;
-  return sum;
+function getModelId() {
+  return process.env.NEXT_PUBLIC_EMBEDDING_MODEL_ID || "Supabase/gte-small";
 }
 
-function l2Normalize(vec: number[]): number[] {
-  let sumSq = 0;
-  for (const v of vec) sumSq += v * v;
-  const norm = Math.sqrt(sumSq);
-  if (!Number.isFinite(norm) || norm === 0) return vec;
-  return vec.map((v) => v / norm);
-}
-
-function coerceVector(output: unknown): number[] {
-  // The HF Inference API may return:
-  // - number[] for a single pooled embedding
-  // - number[][] for token embeddings (needs mean pooling)
-  // - for batched inputs, a higher-rank nested array handled elsewhere
-  if (!Array.isArray(output)) {
-    throw new Error("Unexpected embedding output type.");
-  }
-
-  if (output.length === 0) return [];
-
-  const first = output[0];
-  if (typeof first === "number") {
-    return l2Normalize(output as number[]);
-  }
-
-  if (Array.isArray(first) && typeof first[0] === "number") {
-    return l2Normalize(meanPool(output as number[][]));
-  }
-
-  throw new Error("Unexpected embedding output shape.");
-}
-
-async function featureExtraction(inputs: string | string[]) {
+async function guard() {
   const token = process.env.HF_API_TOKEN;
   if (!token) {
-    throw new Error("HF_API_TOKEN is not set.");
+    return serverError(
+      "not_configured",
+      "Server-side embeddings are not configured (HF_API_TOKEN is not set).",
+    );
   }
+  const rate = checkRate(clientKeyFromHeaders(await headers()));
+  if (!rate.allowed) {
+    return serverError(
+      "rate_limited",
+      "Too many requests. Try again later.",
+      rate.retryAfterSeconds,
+    );
+  }
+  return { token };
+}
 
-  const hf = new InferenceClient(token);
-  return hf.featureExtraction({
-    model: modelId,
+async function featureExtraction(token: string, inputs: string | string[]) {
+  return new InferenceClient(token).featureExtraction({
+    model: getModelId(),
     inputs,
   });
 }
 
 export async function embed(
-  chunks: {
-    chunkId: string;
-    text: string;
-  }[],
-) {
-  if (chunks.length === 0) return [];
-
-  const inputs = chunks.map((c) => c.text);
-  const output = await featureExtraction(inputs);
-
-  if (!Array.isArray(output) || output.length !== chunks.length) {
-    // Some models/endpoints may return a single vector even for batched input.
-    // Fall back to per-item requests to preserve behavior.
-    const vectors = await Promise.all(
-      chunks.map(async (item) => {
-        const single = await featureExtraction(item.text);
-        return {
-          chunkId: item.chunkId,
-          vectorArray: coerceVector(single),
-        };
-      }),
-    );
-    return vectors;
+  chunks: { chunkId: string; text: string }[],
+): Promise<
+  ServerResult<{ vectors: { chunkId: string; vectorArray: number[] }[] }>
+> {
+  const parsed = embedChunksSchema.safeParse(chunks);
+  if (!parsed.success) {
+    return serverError("invalid_input", describeZodError(parsed.error));
   }
+  const g = await guard();
+  if ("ok" in g) return g;
 
-  const vectors: { chunkId: string; vectorArray: number[] }[] = chunks.map(
-    (item, idx) => ({
-      chunkId: item.chunkId,
-      vectorArray: coerceVector((output as unknown[])[idx]),
-    }),
-  );
+  try {
+    const items = parsed.data;
+    const output = await featureExtraction(
+      g.token,
+      items.map((c) => c.text),
+    );
 
-  return vectors;
+    // Some models/endpoints return a single vector even for batched input;
+    // fall back to per-item requests in that case.
+    if (!Array.isArray(output) || output.length !== items.length) {
+      const vectors = await Promise.all(
+        items.map(async (item) => ({
+          chunkId: item.chunkId,
+          vectorArray: coerceVector(
+            await featureExtraction(g.token, item.text),
+          ),
+        })),
+      );
+      return { ok: true, vectors };
+    }
+
+    return {
+      ok: true,
+      vectors: items.map((item, idx) => ({
+        chunkId: item.chunkId,
+        vectorArray: coerceVector((output as unknown[])[idx]),
+      })),
+    };
+  } catch (error) {
+    console.error("[embed] upstream failure", error);
+    return serverError("upstream_error", "Embedding request failed.");
+  }
 }
 
-export async function embedQuery(text: string) {
-  const output = await featureExtraction(text);
-  return coerceVector(output);
+export async function embedQuery(
+  text: string,
+): Promise<ServerResult<{ vector: number[] }>> {
+  const parsed = embedQuerySchema.safeParse(text);
+  if (!parsed.success) {
+    return serverError("invalid_input", describeZodError(parsed.error));
+  }
+  const g = await guard();
+  if ("ok" in g) return g;
+
+  try {
+    const output = await featureExtraction(g.token, parsed.data);
+    return { ok: true, vector: coerceVector(output) };
+  } catch (error) {
+    console.error("[embedQuery] upstream failure", error);
+    return serverError("upstream_error", "Embedding request failed.");
+  }
 }
