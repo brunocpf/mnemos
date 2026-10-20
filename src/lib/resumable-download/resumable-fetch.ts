@@ -307,10 +307,16 @@ export function createResumableFetch(options: ResumableFetchOptions) {
 
     // Small file: a single chunk, nothing to resume.
     if (range.total <= chunkSize) {
-      return {
-        response: textResponse(await readExact(first, range.total), first),
-        handedOver: false,
-      };
+      // Hugging Face can answer a Range request for a small compressed file
+      // with a Content-Range for the compressed size while the body is the
+      // decoded file. Then the length cannot be trusted: use a plain request.
+      let data: Uint8Array;
+      try {
+        data = await readExact(first, range.total);
+      } catch {
+        return { response: await fetchImpl(url, init), handedOver: false };
+      }
+      return { response: textResponse(data, first), handedOver: false };
     }
 
     const active: DownloadMeta = meta ?? {

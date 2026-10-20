@@ -170,4 +170,31 @@ describe("createResumableFetch", () => {
     expect(server.ranges).toHaveLength(1);
     expect(await store.list()).toEqual([]);
   });
+
+  it("falls back to a plain request when a small file's Content-Range lies", async () => {
+    // Hugging Face reports the compressed size in Content-Range for small
+    // text files while the (decoded) body is longer.
+    const file = makeFile(8);
+    const calls: (string | null)[] = [];
+    const fetchImpl = vi.fn(
+      async (_input: RequestInfo | URL, init?: RequestInit) => {
+        const range = new Headers(init?.headers).get("Range");
+        calls.push(range);
+        if (!range)
+          return new Response(file as Uint8Array<ArrayBuffer>, { status: 200 });
+        return new Response(file as Uint8Array<ArrayBuffer>, {
+          status: 206,
+          headers: { "content-range": "bytes 0-4/5", etag: '"v1"' },
+        });
+      },
+    );
+    const doFetch = createResumableFetch({
+      store: createMemoryStore(),
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      chunkSize: CHUNK,
+      sleep: async () => undefined,
+    });
+    expect(await readAll(await doFetch(URL_A))).toEqual(file);
+    expect(calls).toEqual(["bytes=0-9", null]);
+  });
 });
