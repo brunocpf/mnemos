@@ -34,7 +34,11 @@ export function AppHeader() {
   const { previous, pop } = useHistoryStack();
   const t = useTranslations("Shared");
 
-  const parentPath = pathname.split("/").slice(0, -1).join("/") || "/";
+  const folderId = pathname.match(/^\/folders\/([^/]+)/)?.[1];
+  // There is no `/folders` index; a folder's fallback parent is the home page.
+  const parentPath = folderId
+    ? "/"
+    : pathname.split("/").slice(0, -1).join("/") || "/";
   const pageToGoBack = previous || parentPath;
 
   const title = {
@@ -59,7 +63,12 @@ export function AppHeader() {
   };
 
   const handleNewNote = () => {
-    router.push(`/note?new=${Date.now()}`, { scroll: true });
+    router.push(
+      folderId
+        ? `/note?new=${Date.now()}&folderId=${folderId}`
+        : `/note?new=${Date.now()}`,
+      { scroll: true },
+    );
   };
 
   return (

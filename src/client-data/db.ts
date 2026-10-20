@@ -5,6 +5,7 @@ import Dexie, { Table } from "dexie";
 import { Chunk } from "@/client-data/chunk";
 import { Embedding } from "@/client-data/embedding";
 import { EmbeddingJob } from "@/client-data/embedding-job";
+import { Folder } from "@/client-data/folder";
 import { LocalEmbeddingError } from "@/client-data/local-embedding-error";
 import { Note } from "@/client-data/note";
 import { NoteHash } from "@/client-data/note-hash";
@@ -16,6 +17,7 @@ export class MnemosDb extends Dexie {
   embeddings: Table<Embedding, [Embedding["chunkId"], Embedding["modelId"]]>;
   localEmbeddingErrors: Table<LocalEmbeddingError, LocalEmbeddingError["id"]>;
   embeddingJobs: Table<EmbeddingJob, EmbeddingJob["id"]>;
+  folders: Table<Folder, Folder["id"]>;
 
   constructor() {
     super("mnemos-db");
@@ -55,12 +57,22 @@ export class MnemosDb extends Dexie {
         "id, &[chunkId+modelId], noteId, [noteId+status], [status+createdAt], modelId",
     });
 
+    // v4: nested folders. `notes.folderId` is only indexed (IndexedDB can't
+    // index null/undefined), so notes without a folderId, which includes every
+    // note that existed before this version, stay at the root and need no
+    // upgrade step.
+    this.version(4).stores({
+      folders: "id, parentId, updatedAt",
+      notes: "id, deleted, updatedAt, createdAt, deletedAt, folderId",
+    });
+
     this.notes = this.table("notes");
     this.noteHashes = this.table("noteHashes");
     this.chunks = this.table("chunks");
     this.embeddings = this.table("embeddings");
     this.localEmbeddingErrors = this.table("localEmbeddingErrors");
     this.embeddingJobs = this.table("embeddingJobs");
+    this.folders = this.table("folders");
   }
 }
 

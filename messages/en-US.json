@@ -46,6 +46,11 @@
       "description": "Start writing notes to see them here.",
       "actions": {
         "createFirstNote": "Create your first note"
+      },
+      "folder": {
+        "title": "This folder is empty",
+        "description": "Create a note here, or move notes into it from your list.",
+        "action": "Create a note"
       }
     },
     "loading": {
@@ -76,6 +81,88 @@
       "rename": {
         "description": "Rename this note."
       }
+    }
+  },
+  "Folders": {
+    "notesHeading": "Notes",
+    "loading": "Loading folder...",
+    "tree": {
+      "label": "Folders"
+    },
+    "actions": {
+      "newFolder": "New folder",
+      "newSubfolder": "New subfolder",
+      "rename": "Rename",
+      "move": "Move",
+      "delete": "Delete",
+      "moveNote": "Move to folder",
+      "more": "Actions for {name}",
+      "expand": "Expand {name}",
+      "collapse": "Collapse {name}"
+    },
+    "placeholders": {
+      "folderName": "Folder name"
+    },
+    "validation": {
+      "nameRequired": "Enter a folder name.",
+      "nameTooLong": "Folder names can be up to 100 characters.",
+      "duplicate": "A folder with this name already exists here."
+    },
+    "emptyState": {
+      "noFolders": {
+        "title": "No folders yet",
+        "description": "Create a folder to organize your notes."
+      }
+    },
+    "notFound": {
+      "title": "Folder not found",
+      "description": "This folder doesn't exist or was deleted.",
+      "home": "Go to your notes"
+    },
+    "dialogs": {
+      "create": {
+        "title": "New folder",
+        "description": "Give your folder a name.",
+        "confirm": "Create"
+      },
+      "rename": {
+        "title": "Rename folder",
+        "description": "Choose a new name for this folder.",
+        "confirm": "Rename"
+      },
+      "delete": {
+        "title": "Delete \"{name}\"?",
+        "description": "The folder is removed, but its contents are kept: {notes, plural, =0 {no notes} one {# note} other {# notes}} and {folders, plural, =0 {no subfolders} one {# subfolder} other {# subfolders}} will move to {destination}.",
+        "topLevel": "the top level",
+        "cancel": "Cancel",
+        "confirm": "Delete folder"
+      },
+      "move": {
+        "noteTitle": "Move note",
+        "noteDescription": "Choose the folder to move this note to.",
+        "folderTitle": "Move folder",
+        "folderDescription": "Choose the folder to move this folder into.",
+        "search": "Search folders...",
+        "empty": "No folders found.",
+        "topLevel": "Top level (no folder)"
+      }
+    },
+    "toasts": {
+      "created": "Folder \"{name}\" created",
+      "renamed": "Folder renamed",
+      "moved": "Folder moved",
+      "deleted": "Folder \"{name}\" deleted",
+      "noteMoved": "Moved to \"{name}\"",
+      "noteMovedToTopLevel": "Moved to the top level"
+    },
+    "errors": {
+      "invalid-name": "Folder names must be between 1 and 100 characters.",
+      "duplicate-name": "A folder with this name already exists here.",
+      "folder-not-found": "This folder no longer exists.",
+      "parent-not-found": "The destination folder no longer exists.",
+      "note-not-found": "This note no longer exists.",
+      "cycle": "A folder can't be moved into itself or one of its subfolders.",
+      "unknown": "Something went wrong. Please try again."
     }
   },
   "NoteView": {

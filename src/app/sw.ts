@@ -63,6 +63,26 @@ const shareTargetOffline: RuntimeCaching = {
   },
 };
 
+// `/folders/<id>` is rendered per request, so only a placeholder folder is
+// precached. The page reads the real id from the URL on the client and loads
+// the folder from IndexedDB, so that one shell serves every folder offline.
+const FOLDER_PATH = /^(\/pt-BR)?\/folders\/[^/]+$/;
+
+const folderOffline: RuntimeCaching = {
+  matcher: ({ request, url }) =>
+    request.mode === "navigate" && FOLDER_PATH.test(url.pathname),
+  handler: async ({ request, url }) => {
+    try {
+      return await fetch(request);
+    } catch {
+      const prefix = url.pathname.startsWith("/pt-BR/") ? "/pt-BR" : "";
+      const cached = await serwist.matchPrecache(`${prefix}/folders/_`);
+      if (cached) return cached;
+      throw new Error("No cached folder shell");
+    }
+  },
+};
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   // Updates wait until the user accepts the reload prompt (SwUpdatePrompt).
@@ -72,6 +92,7 @@ const serwist = new Serwist({
   runtimeCaching: [
     newNoteOffline,
     shareTargetOffline,
+    folderOffline,
     { matcher: MODEL_HOSTS, handler: new NetworkOnly() },
     ...defaultCache,
   ],

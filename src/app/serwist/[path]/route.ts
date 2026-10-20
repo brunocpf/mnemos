@@ -17,7 +17,14 @@ export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } =
     // and `/pt-BR` entries are separate documents (as-needed locale prefix).
     additionalPrecacheEntries: ["", "/pt-BR"]
       .flatMap((prefix) =>
-        ["", "/note", "/share", "/settings", "/privacy-policy"].map((path) => ({
+        [
+          "",
+          "/note",
+          "/share",
+          "/settings",
+          "/privacy-policy",
+          "/folders/_",
+        ].map((path) => ({
           url: `${prefix}${path}` || "/",
           revision,
         })),

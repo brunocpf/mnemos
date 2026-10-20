@@ -46,6 +46,11 @@
       "description": "Escreva anotações para vê-las aqui.",
       "actions": {
         "createFirstNote": "Crie sua primeira anotação"
+      },
+      "folder": {
+        "title": "Esta pasta está vazia",
+        "description": "Crie uma anotação aqui ou mova anotações da sua lista para ela.",
+        "action": "Criar anotação"
       }
     },
     "loading": {
@@ -76,6 +81,88 @@
       "rename": {
         "description": "Renomeie esta anotação."
       }
+    }
+  },
+  "Folders": {
+    "notesHeading": "Anotações",
+    "loading": "Carregando pasta...",
+    "tree": {
+      "label": "Pastas"
+    },
+    "actions": {
+      "newFolder": "Nova pasta",
+      "newSubfolder": "Nova subpasta",
+      "rename": "Renomear",
+      "move": "Mover",
+      "delete": "Excluir",
+      "moveNote": "Mover para pasta",
+      "more": "Ações de {name}",
+      "expand": "Expandir {name}",
+      "collapse": "Recolher {name}"
+    },
+    "placeholders": {
+      "folderName": "Nome da pasta"
+    },
+    "validation": {
+      "nameRequired": "Digite um nome para a pasta.",
+      "nameTooLong": "O nome da pasta pode ter até 100 caracteres.",
+      "duplicate": "Já existe uma pasta com esse nome aqui."
+    },
+    "emptyState": {
+      "noFolders": {
+        "title": "Nenhuma pasta ainda",
+        "description": "Crie uma pasta para organizar suas anotações."
+      }
+    },
+    "notFound": {
+      "title": "Pasta não encontrada",
+      "description": "Esta pasta não existe ou foi excluída.",
+      "home": "Ir para suas anotações"
+    },
+    "dialogs": {
+      "create": {
+        "title": "Nova pasta",
+        "description": "Dê um nome à sua pasta.",
+        "confirm": "Criar"
+      },
+      "rename": {
+        "title": "Renomear pasta",
+        "description": "Escolha um novo nome para esta pasta.",
+        "confirm": "Renomear"
+      },
+      "delete": {
+        "title": "Excluir \"{name}\"?",
+        "description": "A pasta será removida, mas o conteúdo é mantido: {notes, plural, =0 {nenhuma anotação} one {# anotação} other {# anotações}} e {folders, plural, =0 {nenhuma subpasta} one {# subpasta} other {# subpastas}} serão movidas para {destination}.",
+        "topLevel": "o nível principal",
+        "cancel": "Cancelar",
+        "confirm": "Excluir pasta"
+      },
+      "move": {
+        "noteTitle": "Mover anotação",
+        "noteDescription": "Escolha a pasta para onde mover esta anotação.",
+        "folderTitle": "Mover pasta",
+        "folderDescription": "Escolha a pasta para onde mover esta pasta.",
+        "search": "Pesquisar pastas...",
+        "empty": "Nenhuma pasta encontrada.",
+        "topLevel": "Nível principal (sem pasta)"
+      }
+    },
+    "toasts": {
+      "created": "Pasta \"{name}\" criada",
+      "renamed": "Pasta renomeada",
+      "moved": "Pasta movida",
+      "deleted": "Pasta \"{name}\" excluída",
+      "noteMoved": "Movida para \"{name}\"",
+      "noteMovedToTopLevel": "Movida para o nível principal"
+    },
+    "errors": {
+      "invalid-name": "O nome da pasta deve ter entre 1 e 100 caracteres.",
+      "duplicate-name": "Já existe uma pasta com esse nome aqui.",
+      "folder-not-found": "Esta pasta não existe mais.",
+      "parent-not-found": "A pasta de destino não existe mais.",
+      "note-not-found": "Esta anotação não existe mais.",
+      "cycle": "Uma pasta não pode ser movida para dentro de si mesma ou de suas subpastas.",
+      "unknown": "Algo deu errado. Tente novamente."
     }
   },
   "NoteView": {

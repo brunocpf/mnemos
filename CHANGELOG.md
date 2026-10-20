@@ -11,6 +11,7 @@ Mnemos has not had a tagged release yet, so everything built so far is listed un
 ### Added
 
 - Notes: a Tiptap rich-text editor that stores Markdown (headings, inline marks, lists, blockquotes, alignment, links, images by URL), rename, delete with Undo (deleted notes are purged from the device after 7 days), an overflow menu on note list items, and a placeholder and accessible label on the editor.
+- Folders: nested folders (Dexie v4 `folders` table and `notes.folderId`; existing notes stay at the root), a folder tree with active state, create/rename/move/delete with a confirmation that moves a deleted folder's notes and subfolders to its parent, move a note from its menu or with the `M` key, `/folders/[folderId]` pages with breadcrumbs that also open offline, and empty states. Search stays global.
 - Rich-editor dialog for link and image URLs, replacing `window.prompt`.
 - Semantic search over notes: deterministic chunking and content hashing, incremental on-device indexing in Web Workers (Comlink), cosine ranking, highlighted matches in the results and the opened note, and a title-aware embedding body.
 - On-device embeddings with `Xenova/multilingual-e5-small` (q8, about 118 MB, English and Portuguese), replacing the English-only `gte-small`.
