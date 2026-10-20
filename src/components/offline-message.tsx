@@ -15,8 +15,9 @@ type Copy = {
 };
 
 /**
- * The offline document is precached once and shared by every locale, so the
- * language is chosen from the browser rather than from the URL.
+ * The offline document is precached once and shared by every locale. A
+ * locale-prefixed URL wins; the un-prefixed fallback served by the service
+ * worker picks the language from the browser instead.
  */
 export function OfflineMessage({
   copy,
@@ -30,7 +31,17 @@ export function OfflineMessage({
     () => navigator.languages?.[0] ?? navigator.language ?? "",
     () => "",
   );
+  const pathname = useSyncExternalStore(
+    subscribeNoop,
+    () => window.location.pathname,
+    () => "",
+  );
+  const urlSegment = pathname.split("/")[1]?.toLowerCase() ?? "";
+  const urlLocale = Object.keys(copy).find(
+    (l) => l.toLowerCase() === urlSegment,
+  );
   const locale =
+    urlLocale ??
     Object.keys(copy).find(
       (l) => l.toLowerCase() === preferred.toLowerCase(),
     ) ??

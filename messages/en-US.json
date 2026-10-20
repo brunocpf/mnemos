@@ -61,7 +61,8 @@
       "undo": "Undo",
       "rename": "Rename",
       "delete": "Delete",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "more": "More actions"
     },
     "placeholders": {
       "untitled": "Untitled",
@@ -86,7 +87,13 @@
         "openSettings": "Open settings",
         "generatedLocally": "Generated on your device.",
         "generatedViaServer": "Generated in the cloud.",
-        "errorFallback": "Could not generate a summary."
+        "progress": "Download: {progress}%.",
+        "retry": "Try again",
+        "errors": {
+          "downloading": "The on-device model is still downloading ({progress}%). Try again when it finishes, or switch to cloud summaries in settings.",
+          "offline": "You're offline and the on-device model isn't ready, so no summary could be generated. Reconnect and try again.",
+          "failed": "Could not generate a summary. Try again, or check your summary settings."
+        }
       }
     },
     "toasts": {

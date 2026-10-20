@@ -1,9 +1,9 @@
 "use client";
 
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconDots, IconEdit, IconTrash } from "@tabler/icons-react";
 import { useForm } from "@tanstack/react-form";
 import markdownToTxt from "markdown-to-txt";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Activity, useMemo } from "react";
 import { toast } from "sonner";
 import { triggerHaptic } from "tactus";
@@ -33,12 +33,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { SemanticMatch } from "@/hooks/use-semantic-search";
 import { Link } from "@/i18n/navigation";
-import { defaultFormatter } from "@/lib/dateFormatters";
+import { getDateFormatter } from "@/lib/dateFormatters";
 import { encodeSearchHighlight } from "@/lib/search-highlight";
+import { useEmbedder } from "@/providers/embedder-provider";
 
 import { HighlightedSnippet } from "./highlighted-snippet";
 
@@ -53,6 +60,8 @@ const formSchema = z.object({
 
 export function NotesListItem({ note, match }: NotesListItemProps) {
   const t = useTranslations("Notes");
+  const locale = useLocale();
+  const { flush, isReady: embedderIsReady } = useEmbedder();
 
   const handleDelete = () => {
     deleteNote(note.id);
@@ -107,7 +116,11 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
 
       await updateNoteTitle(note.id, updatedTitle);
 
-      // flush embedding for this note
+      // The title is part of the embedded text, so re-index under the new name.
+      if (embedderIsReady && note.content.trim() !== "") {
+        flush({ id: note.id, title: updatedTitle, content: note.content });
+      }
+
       toast.success(t("toasts.noteRenamed"), { position: "top-center" });
     },
   });
@@ -128,77 +141,110 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
 
   return (
     <Dialog>
-      <ContextMenu
-        onOpenChange={() => {
-          setTimeout(() => triggerHaptic(), 50);
-        }}
-      >
-        <ContextMenuTrigger
-          render={
-            <Button
-              nativeButton={false}
-              variant="card"
-              className="my-0.5 flex h-auto w-full cursor-pointer items-center justify-between px-8 text-start"
-              render={
-                <Link
-                  href={{
-                    pathname: "/note",
-                    query: highlightParam
-                      ? { noteId: note.id, highlight: highlightParam }
-                      : { noteId: note.id },
-                  }}
-                />
-              }
-            >
-              <div className="flex flex-1 flex-col overflow-hidden">
-                <div className="min-w-0">
-                  <p className="text-foreground truncate text-sm font-semibold">
-                    {title}
-                  </p>
-                  <p className="text-muted-foreground mt-1 text-xs">
-                    {defaultFormatter.format(new Date(note.updatedAt))}
-                  </p>
-                </div>
-                <Activity mode={match || preview ? "visible" : "hidden"}>
-                  {match ? (
-                    <HighlightedSnippet
-                      className="text-muted-foreground mt-3 block truncate"
-                      text={match.snippet || content}
-                      highlights={match.highlights}
-                      leadingEllipsis={match.leadingEllipsis}
-                      trailingEllipsis={match.trailingEllipsis}
-                    />
-                  ) : (
-                    <p className="text-muted-foreground mt-3 min-w-0 truncate text-sm">
-                      {preview}
-                    </p>
-                  )}
-                </Activity>
-              </div>
-            </Button>
-          }
-        />
-        <ContextMenuContent className="w-52">
-          <DialogTrigger
-            nativeButton={false}
+      <div className="relative">
+        <ContextMenu
+          onOpenChange={() => {
+            setTimeout(() => triggerHaptic(), 50);
+          }}
+        >
+          <ContextMenuTrigger
             render={
-              <ContextMenuItem nativeButton={false} inset>
-                <IconEdit />
-                {t("actions.rename")}
-              </ContextMenuItem>
+              <Button
+                nativeButton={false}
+                variant="card"
+                className="my-0.5 flex h-auto w-full cursor-pointer items-center justify-between ps-8 pe-14 text-start"
+                render={
+                  <Link
+                    href={{
+                      pathname: "/note",
+                      query: highlightParam
+                        ? { noteId: note.id, highlight: highlightParam }
+                        : { noteId: note.id },
+                    }}
+                  />
+                }
+              >
+                <div className="flex flex-1 flex-col overflow-hidden">
+                  <div className="min-w-0">
+                    <p className="text-foreground truncate text-sm font-semibold">
+                      {title}
+                    </p>
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      {getDateFormatter(locale).format(
+                        new Date(note.updatedAt),
+                      )}
+                    </p>
+                  </div>
+                  <Activity mode={match || preview ? "visible" : "hidden"}>
+                    {match ? (
+                      <HighlightedSnippet
+                        className="text-muted-foreground mt-3 block truncate"
+                        text={match.snippet || content}
+                        highlights={match.highlights}
+                        leadingEllipsis={match.leadingEllipsis}
+                        trailingEllipsis={match.trailingEllipsis}
+                      />
+                    ) : (
+                      <p className="text-muted-foreground mt-3 min-w-0 truncate text-sm">
+                        {preview}
+                      </p>
+                    )}
+                  </Activity>
+                </div>
+              </Button>
             }
           />
-          <ContextMenuItem
-            nativeButton={false}
-            inset
-            variant="destructive"
-            onClick={handleDelete}
-          >
-            <IconTrash />
-            {t("actions.delete")}
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
+          <ContextMenuContent className="w-52">
+            <DialogTrigger
+              nativeButton={false}
+              render={
+                <ContextMenuItem nativeButton={false} inset>
+                  <IconEdit />
+                  {t("actions.rename")}
+                </ContextMenuItem>
+              }
+            />
+            <ContextMenuItem
+              nativeButton={false}
+              inset
+              variant="destructive"
+              onClick={handleDelete}
+            >
+              <IconTrash />
+              {t("actions.delete")}
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="absolute end-3 top-1/2 -translate-y-1/2 cursor-pointer"
+                aria-label={t("actions.more")}
+              >
+                <IconDots />
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="end" className="w-52">
+            <DialogTrigger
+              nativeButton={false}
+              render={
+                <DropdownMenuItem>
+                  <IconEdit />
+                  {t("actions.rename")}
+                </DropdownMenuItem>
+              }
+            />
+            <DropdownMenuItem variant="destructive" onClick={handleDelete}>
+              <IconTrash />
+              {t("actions.delete")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       <DialogContent>
         <form
           onSubmit={(e: React.FormEvent) => {
