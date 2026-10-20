@@ -198,6 +198,7 @@
     "preferencesUpdated": "Preferences updated",
     "modelDownload": {
       "title": "Model files",
+      "storageIssue": "Couldn't save the download on this device (storage is full or unavailable). The model will keep downloading, but if you close or reload the page it will start over. Free up some space to make downloads resumable.",
       "readyIndicator": {
         "ready": "Model ready",
         "notReady": "Model not downloaded yet. It downloads once and then works offline.",

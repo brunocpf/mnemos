@@ -198,6 +198,7 @@
     "preferencesUpdated": "Preferências atualizadas",
     "modelDownload": {
       "title": "Arquivos do modelo",
+      "storageIssue": "Não foi possível salvar o download neste dispositivo (armazenamento cheio ou indisponível). O modelo continuará baixando, mas se você fechar ou recarregar a página ele recomeçará do zero. Libere espaço para que os downloads possam ser retomados.",
       "readyIndicator": {
         "ready": "Modelo pronto",
         "notReady": "Modelo ainda não baixado. Ele é baixado uma vez e depois funciona offline.",

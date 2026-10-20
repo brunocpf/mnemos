@@ -186,6 +186,11 @@ export function SettingsView() {
                       ? t("modelDownload.readyIndicator.downloading")
                       : t("modelDownload.readyIndicator.notReady")}
                 </p>
+                {summarizerDownloadState?.storageIssue && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    {t("modelDownload.storageIssue")}
+                  </p>
+                )}
                 {summarizerFileEntries.map(([fileName, fileState]) => {
                   const label =
                     fileName === "model"
@@ -300,6 +305,11 @@ export function SettingsView() {
                       ? t("modelDownload.readyIndicator.downloading")
                       : t("modelDownload.readyIndicator.notReady")}
                 </p>
+                {embedderDownloadState?.storageIssue && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    {t("modelDownload.storageIssue")}
+                  </p>
+                )}
                 {embedderFileEntries.map(([fileName, fileState]) => {
                   const label =
                     fileName === "model"

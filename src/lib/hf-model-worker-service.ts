@@ -5,6 +5,11 @@ import {
   pipeline,
 } from "@huggingface/transformers";
 
+import {
+  installResumableDownloads,
+  pruneResumableDownloads,
+} from "@/lib/resumable-download";
+
 export type FileDownloadState = {
   status: "initiate" | "download" | "progress" | "done";
   loaded?: number;
@@ -14,6 +19,8 @@ export type FileDownloadState = {
 
 export type ModelDownloadState = {
   isReady: boolean;
+  /** Set when download progress cannot be saved, so an interruption restarts the file. */
+  storageIssue?: "quota" | "unavailable";
   fileStates: { [fileName: string]: FileDownloadState };
 };
 
@@ -29,6 +36,7 @@ export class HfModelWorkerService<T extends PipelineType> {
     (state: ModelDownloadState) => void
   >;
   protected nextDownloadStateSubscriptionId: number;
+  protected storageIssue?: ModelDownloadState["storageIssue"];
 
   constructor(
     modelId: string,
@@ -46,6 +54,13 @@ export class HfModelWorkerService<T extends PipelineType> {
 
     this.downloadStateSubscribers = new Map();
     this.nextDownloadStateSubscriptionId = 1;
+
+    installResumableDownloads({
+      onStorageIssue: (issue) => {
+        this.storageIssue = issue;
+        this.notifySubscribers();
+      },
+    });
   }
 
   init() {
@@ -127,6 +142,11 @@ export class HfModelWorkerService<T extends PipelineType> {
         this.notifySubscribers();
       },
     });
+
+    this.pipelinePromise.then(
+      () => void pruneResumableDownloads(),
+      () => undefined,
+    );
   }
 
   subscribeDownloadState(callback: (state: ModelDownloadState) => void) {
@@ -151,6 +171,9 @@ export class HfModelWorkerService<T extends PipelineType> {
   }
 
   protected getModelDownloadStateSnapshot() {
-    return structuredClone(this.modelDownloadState);
+    return structuredClone({
+      ...this.modelDownloadState,
+      storageIssue: this.storageIssue,
+    });
   }
 }
