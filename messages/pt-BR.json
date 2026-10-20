@@ -305,44 +305,44 @@
     "lastUpdated": "Última atualização: {date}",
     "localDataPoints": [
       {
-        "title": "Anotações, rascunhos e anexos",
-        "description": "Seu conteúdo escrito fica inteiramente no seu navegador usando IndexedDB. Não há sincronização em segundo plano nem armazenamento remoto."
+        "title": "Anotações e anotações apagadas",
+        "description": "Suas anotações ficam inteiramente no seu navegador usando IndexedDB. Não há sincronização em segundo plano nem armazenamento remoto. Ao apagar uma anotação você pode desfazer, e ela fica oculta no seu dispositivo por 7 dias antes de ser removida definitivamente."
       },
       {
         "title": "Chunks e embeddings",
-        "description": "Os chunks de busca semântica e os vetores gerados para eles ficam armazenados no seu dispositivo. Se você optar pelo fallback remoto de embeddings, o texto do chunk necessário para aquela solicitação é enviado ao servidor e o vetor resultante volta para o IndexedDB."
+        "description": "Os chunks de busca semântica e os vetores gerados para eles ficam armazenados no seu dispositivo. Se você optar pelo fallback remoto de embeddings, o texto do chunk necessário para aquela solicitação é enviado ao servidor e o vetor resultante volta para o IndexedDB. Um pequeno registro de erros de indexação no dispositivo também é mantido localmente."
       },
       {
         "title": "Preferências e caches",
-        "description": "Seleção de tema, flags de recursos e caches de modelos ficam no armazenamento do navegador para preservar sua experiência offline."
+        "description": "Suas configurações, o tema, se você já viu a tela de boas-vindas, os modelos de IA baixados e os arquivos do app necessários para funcionar offline ficam no armazenamento do navegador. Se o idioma do seu navegador for diferente do idioma do app que você escolher, um cookie de preferência de idioma também pode ser gravado."
       }
     ],
     "aiDisclosures": [
       {
-        "title": "Apenas solicitações explícitas de IA",
-        "description": "Os resumos rodam no seu dispositivo por padrão. Se você escolher fallback para o servidor (ou apenas servidor) nas Configurações, o texto completo da anotação que você pede para resumir é enviado ao servidor do Mnemos e, a partir dele, à API de inferência do Hugging Face. O Mnemos não armazena esse texto."
+        "title": "Resumos: só quando você toca em Resumir",
+        "description": "Os resumos só são gerados quando você pede um. Por padrão (\"Permitir fallback\" nas Configurações), o Mnemos resume no seu dispositivo, mas se o modelo local ainda não estiver pronto (por exemplo, ainda está baixando), falhar ou levar mais de 30 segundos, e você estiver online, o texto completo daquela anotação é enviado ao servidor do Mnemos e, a partir dele, à API de inferência do Hugging Face. \"Somente nuvem\" sempre envia. Escolha \"Somente no seu dispositivo\" para nunca enviar o texto das anotações para resumos. Cada resumo informa se foi gerado no seu dispositivo ou na nuvem. O Mnemos não armazena esse texto."
       },
       {
         "title": "Sem uploads ocultos",
-        "description": "O Mnemos nunca sincroniza suas anotações em segundo plano. O texto sai do seu dispositivo apenas pelas opções de fallback descritas aqui, e somente se você as ativou nas Configurações."
+        "description": "O Mnemos nunca sincroniza suas anotações em segundo plano. O texto sai do seu dispositivo apenas pelas opções de resumo e de embeddings descritas aqui."
       },
       {
         "title": "Fallback de embeddings é opcional",
-        "description": "Os embeddings são calculados no seu dispositivo por padrão. Se você ativar o fallback remoto, quando a indexação local falhar o texto dos chunks afetados (e, na busca semântica, sua consulta) é enviado ao servidor do Mnemos e ao Hugging Face para gerar os vetores. Com ele desativado, o app oferece ativá-lo e nada é enviado até você concordar."
+        "description": "Os embeddings são calculados no seu dispositivo, e esse é o padrão (\"Somente no seu dispositivo\"). Se você ativar o fallback remoto, quando o processamento no dispositivo falhar ou expirar, o texto dos trechos afetados das anotações (e, na busca semântica, sua consulta) é enviado ao servidor do Mnemos e ao Hugging Face para gerar os vetores. Com ele desativado, o app oferece ativá-lo após uma falha e nada é enviado até você concordar."
       },
       {
         "title": "Visibilidade de rede",
-        "description": "As requisições remotas usam HTTPS e podem ser inspecionadas no painel de rede do navegador. O Mnemos também baixa modelos de IA do Hugging Face na primeira vez que são necessários; nenhum conteúdo de anotação faz parte desses downloads."
+        "description": "As requisições remotas usam HTTPS e podem ser inspecionadas no painel de rede do navegador. O Mnemos também baixa modelos de IA do Hugging Face na primeira vez que são necessários; nenhum conteúdo de anotação faz parte desses downloads, mas o Hugging Face vê seu endereço IP. Imagens inseridas por URL são carregadas pelo seu navegador diretamente do endereço que você informou."
       }
     ],
     "userControls": [
       {
         "title": "Apague dados a qualquer momento",
-        "description": "Use os controles de armazenamento do seu navegador para limpar IndexedDB/localStorage ou delete anotações individualmente dentro do app."
+        "description": "Use os controles de armazenamento do seu navegador para limpar IndexedDB/localStorage ou delete anotações individualmente dentro do app (elas são removidas definitivamente do seu dispositivo 7 dias depois)."
       },
       {
         "title": "Funcione totalmente offline",
-        "description": "Mnemos continua funcionando sem conexão, evitando transferência acidental de dados e permitindo que você audite o uso de rede por conta própria."
+        "description": "Depois da primeira visita e dos downloads únicos dos modelos, o Mnemos continua funcionando sem conexão, evitando transferência acidental de dados e permitindo que você audite o uso de rede por conta própria."
       },
       {
         "title": "Auditabilidade",
@@ -352,13 +352,13 @@
     "sections": {
       "onDevice": {
         "title": "Dados armazenados no seu dispositivo",
-        "description": "Tudo abaixo é armazenado diretamente no seu dispositivo usando IndexedDB/localStorage. O Mnemos não transmite esses dados a menos que você os exporte explicitamente ou opte pelos fallbacks para o servidor descritos abaixo.",
-        "implementationDetail": "Detalhe de implementação: quando o fallback está habilitado, o Mnemos envia o texto e os IDs dos chunks afetados para a ação de embed no servidor em {path} apenas pelo tempo necessário para gerar vetores e, em seguida, armazena os embeddings retornados de volta no IndexedDB."
+        "description": "Tudo abaixo é armazenado diretamente no seu dispositivo usando IndexedDB/localStorage. O Mnemos não transmite esses dados, exceto pelas opções de resumo e de embeddings descritas abaixo.",
+        "implementationDetail": "Detalhe de implementação: quando o fallback é usado, o Mnemos envia o texto e os IDs dos chunks afetados para a ação de embed no servidor em {path}, que os encaminha ao Hugging Face apenas pelo tempo necessário para gerar vetores; os embeddings retornados são armazenados de volta no IndexedDB. Os resumos usam uma ação de servidor semelhante em src/server-actions/summarize.ts."
       },
       "dataLeaves": {
         "title": "Quando os dados saem do seu dispositivo",
-        "description": "O Mnemos contata serviços remotos apenas nestes casos: você resume uma anotação com fallback para o servidor ou apenas servidor ativado; você ativa o fallback remoto de embeddings (o texto dos chunks e as consultas de busca são então enviados para gerar embeddings); ou o navegador baixa modelos de IA do Hugging Face. Com as configurações apenas no dispositivo, nenhum conteúdo de anotação sai do seu dispositivo.",
-        "noAnalytics": "Mnemos não coleta analytics, identificadores de publicidade ou cookies de rastreamento. Se você auto-hospedar ou direcionar chamadas de IA para terceiros, as políticas deles governarão os dados transmitidos."
+        "description": "O Mnemos contata serviços remotos apenas nestes casos: você resume uma anotação e a configuração de resumos é \"Permitir fallback\" (o padrão) e o modelo no dispositivo não consegue gerar o resumo, ou \"Somente nuvem\"; você ativa o fallback remoto de embeddings (o texto dos chunks e as consultas de busca são então enviados para gerar embeddings); ou o navegador baixa modelos de IA do Hugging Face. Com as duas configurações em \"Somente no seu dispositivo\", nenhum conteúdo de anotação sai do seu dispositivo.",
+        "noAnalytics": "Mnemos não coleta analytics, identificadores de publicidade ou cookies de rastreamento. Ao usar as opções de servidor, o servidor do Mnemos também vê seu endereço IP, que usa apenas para limitar a taxa de requisições em memória (até 60 requisições de embeddings e 10 resumos por minuto), e a plataforma de hospedagem pode manter logs comuns de requisições. O Hugging Face, e qualquer provedor de inferência para o qual ele encaminhe a requisição, processam o texto de acordo com as próprias políticas. Se você auto-hospedar ou direcionar chamadas de IA para terceiros, as políticas deles governarão os dados transmitidos."
       },
       "controls": {
         "title": "Seus controles",
@@ -372,7 +372,7 @@
         "title": "Contato",
         "descriptionPrefix": "Dúvidas ou solicitações? Abra uma issue no ",
         "linkText": "repositório no GitHub",
-        "descriptionSuffix": "ou fale com os mantenedores pelos canais listados no README."
+        "descriptionSuffix": "para tirar dúvidas ou pedir mudanças."
       }
     }
   }
