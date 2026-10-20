@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { toast } from "sonner";
 
 import type { Settings } from "@/client-data/settings";
+import { ImportExportCard } from "@/components/import-export-card";
 import {
   Card,
   CardContent,
@@ -389,6 +390,8 @@ export function SettingsView() {
             />
           </CardContent>
         </Card>
+
+        <ImportExportCard />
       </section>
 
       <p className="text-muted-foreground text-sm">

@@ -135,7 +135,7 @@ The following are intentionally out of scope for the MVP:
 - Automatic translation
 - Background AI processing
 
-These are deferred to keep the MVP focused and reliable. Import/export, folders, share target, push reminders and Ask Mnemos are on the roadmap but **not shipped**; see the [open issues](https://github.com/brunocpf/mnemos/issues).
+These are deferred to keep the MVP focused and reliable. Folders, share target, push reminders and Ask Mnemos are on the roadmap but **not shipped**; see the [open issues](https://github.com/brunocpf/mnemos/issues).
 
 ---
 
