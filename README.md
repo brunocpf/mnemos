@@ -193,7 +193,7 @@ npm run lint
 
 ## License
 
-No license has been chosen yet; until one is added, all rights are reserved by the author.
+Released under the [MIT License](LICENSE).
 
 ---
 
