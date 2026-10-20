@@ -48,6 +48,11 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         ],
       },
     ],
+    share_target: {
+      action: "/share",
+      method: "GET",
+      params: { title: "title", text: "text", url: "url" },
+    },
     categories: ["productivity", "utilities"],
     start_url: "/",
     scope: "/",

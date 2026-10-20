@@ -375,5 +375,17 @@
         "descriptionSuffix": "ou fale com os mantenedores pelos canais listados no README."
       }
     }
+  },
+  "Share": {
+    "saving": "Salvando o conteúdo compartilhado...",
+    "toasts": {
+      "saved": "Salvo em uma nova anotação",
+      "nothingShared": "Nada para salvar foi compartilhado"
+    },
+    "error": {
+      "title": "Não foi possível salvar o conteúdo compartilhado",
+      "description": "Algo deu errado ao criar a anotação. Nada foi perdido no app de origem, então você pode tentar compartilhar novamente.",
+      "home": "Ir para as anotações"
+    }
   }
 }
