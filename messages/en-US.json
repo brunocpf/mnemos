@@ -375,5 +375,17 @@
         "descriptionSuffix": "or reach the maintainers via the channels listed in the README."
       }
     }
+  },
+  "Share": {
+    "saving": "Saving shared content...",
+    "toasts": {
+      "saved": "Saved to a new note",
+      "nothingShared": "Nothing to save was shared"
+    },
+    "error": {
+      "title": "Couldn't save the shared content",
+      "description": "Something went wrong while creating the note. Nothing was lost on the sending app's side, so you can try sharing again.",
+      "home": "Go to notes"
+    }
   }
 }

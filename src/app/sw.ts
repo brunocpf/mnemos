@@ -43,6 +43,26 @@ const newNoteOffline: RuntimeCaching = {
   },
 };
 
+// The Share Target opens `/share?title=&text=&url=`. The precached `/share`
+// shell reads those params on the client and saves the note locally, so it is
+// served as-is when the network is down (precache lookups don't match on the
+// query string).
+const SHARE_PATH = /^(?:\/pt-BR)?\/share$/;
+
+const shareTargetOffline: RuntimeCaching = {
+  matcher: ({ request, url }) =>
+    request.mode === "navigate" && SHARE_PATH.test(url.pathname),
+  handler: async ({ request, url }) => {
+    try {
+      return await fetch(request);
+    } catch {
+      const cached = await serwist.matchPrecache(url.pathname);
+      if (cached) return cached;
+      throw new Error("No cached share shell");
+    }
+  },
+};
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   // Updates wait until the user accepts the reload prompt (SwUpdatePrompt).
@@ -51,6 +71,7 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching: [
     newNoteOffline,
+    shareTargetOffline,
     { matcher: MODEL_HOSTS, handler: new NetworkOnly() },
     ...defaultCache,
   ],
