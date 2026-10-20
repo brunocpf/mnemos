@@ -43,6 +43,7 @@ Mnemos has not had a tagged release yet, so everything built so far is listed un
 - Model downloads fall back to a plain request when a small file reports a wrong `Content-Range` length.
 - Mobile layout fixes: onboarding scroll on small screens, select popups, scrollable summary dialog, reduced-motion support and search contrast.
 - Note list dates follow the active locale, and Portuguese wording was refined.
+- The embedding, chunking and summarization workers start again once the service worker controls the page (the precached worker script lost its `#params=` fragment and threw "Missing worker bootstrap config"), so on-device search and summaries keep working after the PWA is installed. The share target also declares its `enctype`.
 
 ### Security
 

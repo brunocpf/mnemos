@@ -1,6 +1,6 @@
 import { defaultCache } from "@serwist/turbopack/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import type { RuntimeCaching } from "serwist";
+import type { RuntimeCaching, SerwistPlugin } from "serwist";
 import { NetworkOnly, Serwist } from "serwist";
 
 // This declares the value of `injectionPoint` to TypeScript.
@@ -83,8 +83,31 @@ const folderOffline: RuntimeCaching = {
   },
 };
 
+// Turbopack passes a worker its bootstrap config in the URL fragment
+// (`turbopack-worker-*.js#params=...`). A response that comes straight out of
+// the precache carries the URL without that fragment, so the worker would
+// start with an empty `location.hash` and throw "Missing worker bootstrap
+// config". Re-wrapping the body in a fresh Response, which has no URL of its
+// own, makes the browser keep the requested URL, fragment included.
+const WORKER_SCRIPT = /\/turbopack-worker-[^/]+\.js$/;
+
+const keepWorkerFragment: SerwistPlugin = {
+  cachedResponseWillBeUsed: async ({ request, cachedResponse }) => {
+    // Matched on the URL: the precache strategy hands plugins a rebuilt
+    // request whose `destination` is no longer "worker".
+    if (!cachedResponse || !WORKER_SCRIPT.test(new URL(request.url).pathname)) {
+      return cachedResponse;
+    }
+    return new Response(cachedResponse.body, {
+      status: cachedResponse.status,
+      headers: cachedResponse.headers,
+    });
+  },
+};
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
+  precacheOptions: { plugins: [keepWorkerFragment] },
   // Updates wait until the user accepts the reload prompt (SwUpdatePrompt).
   skipWaiting: false,
   clientsClaim: true,
