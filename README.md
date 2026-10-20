@@ -159,6 +159,8 @@ npm run dev
 The app runs at http://localhost:3000.
 
 > On first run, the browser downloads the embedding model (and the summarization model unless the summarizer is `server-only`) from Hugging Face and caches it. The summarization model is about 570 MB (set `NEXT_PUBLIC_SUMMARIZATION_MODEL_ID=onnx-community/Phi-3.5-mini-instruct-onnx-web` for a ~2.3 GB, higher-quality option); a WebGPU-capable browser is recommended.
+>
+> **Resumable downloads:** large model files are fetched in 8 MiB chunks with HTTP Range requests and stored in the browser's Origin Private File System (IndexedDB if OPFS is unavailable). If the page is reloaded or the tab is closed mid-download, the next load resumes from the last stored chunk instead of starting over; if the file changed upstream (ETag mismatch) it restarts cleanly. If the device is out of storage, the download still completes but is not saved, and Settings shows a warning. The code is in `src/lib/resumable-download/`.
 
 ### Environment variables
 
