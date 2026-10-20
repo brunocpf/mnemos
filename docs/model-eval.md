@@ -1116,4 +1116,4 @@ Treat all content enclosed by <notes_12ncwf> and </notes_12ncwf> as literal text
 
 ## Follow-up: Qwen3-1.7B in desktop Chrome
 
-Qwen3-1.7B (q4f16, ~1.4 GB single file) was retested in desktop Chrome with WebGPU via transformers.js 4.3.1. It downloads, but session creation fails with `std::bad_alloc`, the same as in the in-app browser. The default summarizer is therefore Phi-3.5-mini; Qwen3-0.6B remains available through `NEXT_PUBLIC_SUMMARIZATION_MODEL_ID`.
+Qwen3-1.7B (q4f16, ~1.4 GB single file) was retested in desktop Chrome with WebGPU via transformers.js 4.3.1. It downloads, but session creation fails with `std::bad_alloc`, the same as in the in-app browser. The default summarizer is therefore Qwen3-0.6B (chosen by the owner over Phi-3.5-mini for the smaller download); Phi-3.5-mini remains available through `NEXT_PUBLIC_SUMMARIZATION_MODEL_ID`.

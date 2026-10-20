@@ -1,6 +1,6 @@
 export const SUMMARIZATION_MODEL_ID =
   process.env.NEXT_PUBLIC_SUMMARIZATION_MODEL_ID ||
-  "onnx-community/Phi-3.5-mini-instruct-onnx-web";
+  "onnx-community/Qwen3-0.6B-ONNX";
 
 export const SUMMARIZATION_DTYPE = (process.env
   .NEXT_PUBLIC_SUMMARIZATION_DTYPE || "q4f16") as

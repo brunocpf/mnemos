@@ -42,7 +42,7 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 ### AI-Assisted Insights (Opt-in)
 
 - One-click note summarization, user-initiated
-  - **On device:** Phi-3.5-mini (ONNX, q4f16, about 2.3 GB) via `transformers.js` in a Web Worker
+  - **On device:** Qwen3-0.6B (ONNX, q4f16, about 570 MB, thinking disabled) via `transformers.js` in a Web Worker
   - **Server fallback:** Qwen3-30B (configurable) through the Hugging Face Inference API
 - Ask across notes (RAG-style answers with source references) is **planned, not implemented yet**
 
@@ -86,7 +86,7 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 
 #### Summarization
 
-- **Primary:** On-device Phi-3.5-mini in a Web Worker
+- **Primary:** On-device Qwen3-0.6B in a Web Worker
 - **Fallback:** The `summarize` server action (Hugging Face Inference)
 
 #### Settings
@@ -158,7 +158,7 @@ npm run dev
 
 The app runs at http://localhost:3000.
 
-> On first run, the browser downloads the embedding model (and the summarization model unless the summarizer is `server-only`) from Hugging Face and caches it. The summarization model is about 2.3 GB (set `NEXT_PUBLIC_SUMMARIZATION_MODEL_ID=onnx-community/Qwen3-0.6B-ONNX` for a ~570 MB, lower-quality option); a WebGPU-capable browser is recommended.
+> On first run, the browser downloads the embedding model (and the summarization model unless the summarizer is `server-only`) from Hugging Face and caches it. The summarization model is about 570 MB (set `NEXT_PUBLIC_SUMMARIZATION_MODEL_ID=onnx-community/Phi-3.5-mini-instruct-onnx-web` for a ~2.3 GB, higher-quality option); a WebGPU-capable browser is recommended.
 
 ### Environment variables
 
@@ -169,7 +169,7 @@ The app runs at http://localhost:3000.
 | `NEXT_PUBLIC_EMBEDDING_DTYPE` | client | Embedding weights precision (default `q8`). |
 | `NEXT_PUBLIC_EMBEDDING_QUERY_PREFIX` / `NEXT_PUBLIC_EMBEDDING_DOCUMENT_PREFIX` | client + server | Text prepended to queries / note chunks. Defaults to `query: ` / `passage: ` for e5 models, empty otherwise. |
 | `SERVER_EMBEDDING_MODEL` | server | Hosted twin of the embedding model for the server fallback (default `intfloat/multilingual-e5-small`). Must be the same underlying model. |
-| `NEXT_PUBLIC_SUMMARIZATION_MODEL_ID` | client | On-device summarization model (default `onnx-community/Phi-3.5-mini-instruct-onnx-web`). |
+| `NEXT_PUBLIC_SUMMARIZATION_MODEL_ID` | client | On-device summarization model (default `onnx-community/Qwen3-0.6B-ONNX`). |
 | `NEXT_PUBLIC_SUMMARIZATION_DTYPE` | client | Summarization weights precision (default `q4f16`). |
 | `SERVER_SUMMARIZER_MODEL` | server | Server summarization model (default `Qwen/Qwen3-30B-A3B-Instruct-2507`). |
 | `NEXT_PUBLIC_DEFAULT_SEMANTIC_SEARCH_TOP_K` | client | Search results to return (default 12). |
