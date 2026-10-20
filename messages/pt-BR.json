@@ -215,7 +215,7 @@
       "options": {
         "localOnly": {
           "label": "Somente no seu dispositivo",
-          "description": "Execute o resumidor Phi-3.5 inteiramente neste dispositivo."
+          "description": "Execute o resumidor inteiramente neste dispositivo."
         },
         "allowFallback": {
           "label": "Permitir fallback",

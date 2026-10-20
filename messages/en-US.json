@@ -215,7 +215,7 @@
       "options": {
         "localOnly": {
           "label": "On your device only",
-          "description": "Run the Phi-3.5 summarizer entirely on this device."
+          "description": "Run the summarizer entirely on this device."
         },
         "allowFallback": {
           "label": "Allow fallback",
