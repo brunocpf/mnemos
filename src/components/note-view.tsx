@@ -112,15 +112,17 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
           result: response.result,
         });
       } else if (response.status === "error") {
+        console.error("Summarization failed", response.error);
         setSummaryState({
           status: "error",
-          error: response.error ?? t("dialogs.summary.errorFallback"),
+          error: t("dialogs.summary.errorFallback"),
         });
       }
     } catch (error: unknown) {
+      console.error("Summarization failed", error);
       setSummaryState({
         status: "error",
-        error: error instanceof Error ? error.message : String(error),
+        error: t("dialogs.summary.errorFallback"),
       });
     }
   };
@@ -175,7 +177,7 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
           {highlightForNote && (
             <div className="border-primary/20 bg-primary/5 text-foreground/90 mb-4 rounded-2xl border px-4 py-3 text-sm">
               <p className="text-primary mb-2 text-xs font-semibold tracking-[0.2em] uppercase">
-                Search match
+                {t("searchMatch")}
               </p>
               <HighlightedSnippet
                 text={highlightForNote.snippet}
@@ -263,7 +265,7 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
               }
             >
               <div className="grid gap-3">
-                <div className="prose dark:prose-invert prose-headings:mt-8 prose-headings:font-semibold prose-headings:text-black prose-h1:text-5xl prose-h2:text-4xl prose-h3:text-3xl prose-h4:text-2xl prose-h5:text-xl prose-h6:text-lg dark:prose-headings:text-white">
+                <div className="prose prose-sm dark:prose-invert prose-headings:mt-6 prose-headings:font-semibold prose-headings:text-foreground prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-sm prose-code:before:content-none prose-code:after:content-none max-h-[55dvh] overflow-y-auto">
                   <Markdown>
                     {summaryState.status === "success"
                       ? summaryState.result

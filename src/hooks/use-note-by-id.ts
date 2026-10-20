@@ -11,7 +11,11 @@ export function useNoteById(noteId: string): {
   isLoading: boolean;
 } {
   const [isLoading, setIsLoading] = useState(true);
-  const note = useLiveQuery(() => db.notes.get(noteId), [], loadingSymbol);
+  const note = useLiveQuery(
+    () => db.notes.get(noteId),
+    [noteId],
+    loadingSymbol,
+  );
 
   useEffect(() => {
     const dbIsLoading = note === loadingSymbol;

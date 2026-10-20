@@ -62,12 +62,12 @@ export default function NotesList() {
         </Activity>
         <Activity mode={state === "error" ? "visible" : "hidden"}>
           <EmptyState>
-            <div>{`${t("errors.loadingNotes")}: ${error?.message}`}</div>
+            <div>{t("errors.loadingNotes")}</div>
           </EmptyState>
         </Activity>
         <Activity mode={state === "filtered-empty" ? "visible" : "hidden"}>
           <EmptyState>
-            <div>{`No notes found for "${debouncedSearchValue}".`}</div>
+            <div>{t("errors.noResults", { query: debouncedSearchValue })}</div>
           </EmptyState>
         </Activity>
         <Activity mode={state === "empty" ? "visible" : "hidden"}>

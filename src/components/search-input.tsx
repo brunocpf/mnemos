@@ -54,7 +54,7 @@ export default function SearchInput() {
       className="isolate mx-auto flex w-full max-w-5xl items-center gap-3 px-6"
     >
       <InputGroup
-        className="h-12 flex-1 p-2 backdrop-blur-xl transition-transform duration-150 ease-in-out pointer-coarse:active:z-50 pointer-coarse:active:scale-110"
+        className="border-foreground/20 dark:border-foreground/25 bg-background/80 h-12 flex-1 p-2 backdrop-blur-xl transition-transform duration-150 ease-in-out pointer-coarse:active:z-50 pointer-coarse:active:scale-110"
         suppressHydrationWarning
       >
         <InputGroupAddon aria-hidden="true">

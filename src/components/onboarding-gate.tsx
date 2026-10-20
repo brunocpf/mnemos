@@ -49,9 +49,9 @@ export function OnboardingGate() {
         role="dialog"
         aria-modal="true"
         aria-label={t("title")}
-        className="bg-background/80 fixed inset-0 z-10000 flex items-center justify-center p-6 backdrop-blur-sm"
+        className="bg-background/80 fixed inset-0 z-10000 flex overflow-y-auto overscroll-contain p-4 backdrop-blur-sm sm:p-6"
       >
-        <div className="w-full max-w-xl">
+        <div className="m-auto w-full max-w-xl">
           <Card className="border-border/60">
             <CardHeader className="space-y-2">
               <CardTitle className="text-xl font-semibold">
@@ -111,7 +111,7 @@ export function OnboardingGate() {
               >
                 {t("actions.settings")}
               </Button>
-              <Button onClick={dismiss} className="w-full">
+              <Button onClick={dismiss} className="w-full" autoFocus>
                 {t("actions.continue")}
               </Button>
             </CardFooter>

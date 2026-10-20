@@ -49,7 +49,8 @@
       "search": "Searching your notes..."
     },
     "errors": {
-      "loadingNotes": "Error loading notes"
+      "loadingNotes": "Could not load your notes. Please try again.",
+      "noResults": "No notes found for \"{query}\"."
     },
     "toasts": {
       "noteDeleted": "Note deleted",
@@ -63,7 +64,8 @@
       "confirm": "Confirm"
     },
     "placeholders": {
-      "untitled": "Untitled"
+      "untitled": "Untitled",
+      "noteTitle": "Note title"
     },
     "dialogs": {
       "rename": {
@@ -79,7 +81,7 @@
       "summary": {
         "title": "Summary",
         "loading": "Generating summary...",
-        "unavailable": "Summarization is currently unavailable.",
+        "unavailable": "Summaries are not available yet because the model is not ready.",
         "availableNow": "Summarization is now available. Close this dialog and try again.",
         "openSettings": "Open settings",
         "generatedLocally": "Generated on your device.",
@@ -98,6 +100,11 @@
         "title": "Note not found",
         "description": "It may have been deleted or never existed"
       }
+    },
+    "searchMatch": "Search match",
+    "editor": {
+      "placeholder": "Start writing…",
+      "label": "Note content"
     }
   },
   "SearchInput": {
@@ -160,7 +167,8 @@
     "link": {
       "actions": {
         "add": "Add link",
-        "remove": "Remove link"
+        "remove": "Remove link",
+        "open": "Open link"
       },
       "prompts": {
         "enterUrl": "Enter URL"
@@ -179,13 +187,14 @@
     }
   },
   "SettingsView": {
-    "pageDescription": "Decide where Mnemos runs heavy AI workloads and how often you hear about indexing hiccups on your device.",
+    "pageDescription": "Choose whether AI features run on your device or in the cloud, and how Mnemos tells you when search indexing fails.",
     "preferencesUpdated": "Preferences updated",
     "modelDownload": {
       "title": "Model files",
       "readyIndicator": {
         "ready": "Model ready",
-        "notReady": "Model not ready"
+        "notReady": "Model not downloaded yet. It downloads once and then works offline.",
+        "downloading": "Downloading the model. This happens once and can take a few minutes."
       },
       "status": {
         "ready": "Ready",
@@ -227,10 +236,10 @@
       }
     },
     "notifications": {
-      "title": "Notifications",
-      "description": "Mute indexing error toasts from your device once you are confident in your setup.",
-      "toggleTitle": "Hide indexing alerts from your device",
-      "toggleDescription": "Prevent Mnemos from showing fallback prompts when embeddings fail."
+      "title": "Indexing alerts",
+      "description": "Hide the pop-up warnings Mnemos shows when it cannot index a note on your device.",
+      "toggleTitle": "Hide indexing alerts",
+      "toggleDescription": "Stops fallback prompts when on-device indexing fails. Search may stop covering new notes."
     },
     "privacyPrompt": "Looking for a privacy refresher? Head over to the <link>privacy policy</link>."
   },

@@ -9,21 +9,27 @@ type LinkOpenButtonState = {
   decorations: DecorationSet;
 };
 
-export const LinkOpenButtonExtension = Extension.create({
+export const LinkOpenButtonExtension = Extension.create<{ label: string }>({
   name: "linkOpenButton",
 
+  addOptions() {
+    return { label: "Open link" };
+  },
+
   addProseMirrorPlugins() {
+    const { label } = this.options;
+
     return [
       new Plugin<LinkOpenButtonState>({
         key: linkOpenButtonPluginKey,
         state: {
           init: (_, { doc }) => ({
-            decorations: buildDecorations(doc),
+            decorations: buildDecorations(doc, label),
           }),
           apply: (tr, prev, _oldState, newState) => {
             if (tr.docChanged) {
               return {
-                decorations: buildDecorations(newState.doc),
+                decorations: buildDecorations(newState.doc, label),
               };
             }
 
@@ -40,7 +46,7 @@ export const LinkOpenButtonExtension = Extension.create({
   },
 });
 
-function buildDecorations(doc: ProseMirrorNode) {
+function buildDecorations(doc: ProseMirrorNode, label: string) {
   const decorations: Decoration[] = [];
 
   doc.descendants((node, pos) => {
@@ -72,8 +78,8 @@ function buildDecorations(doc: ProseMirrorNode) {
         () => {
           const el = document.createElement("button");
           el.type = "button";
-          el.setAttribute("aria-label", "Open link");
-          el.setAttribute("title", "Open link");
+          el.setAttribute("aria-label", label);
+          el.setAttribute("title", label);
           el.setAttribute("contenteditable", "false");
           el.dataset.linkOpenButton = "true";
           el.className =

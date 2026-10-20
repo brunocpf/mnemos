@@ -49,21 +49,23 @@
       "search": "Pesquisando suas anotações..."
     },
     "errors": {
-      "loadingNotes": "Erro ao carregar anotações"
+      "loadingNotes": "Não foi possível carregar suas anotações. Tente novamente.",
+      "noResults": "Nenhuma anotação encontrada para \"{query}\"."
     },
     "toasts": {
-      "noteDeleted": "Anotação deletada",
+      "noteDeleted": "Anotação excluída",
       "noteRestored": "Anotação restaurada",
       "noteRenamed": "Anotação renomeada"
     },
     "actions": {
       "undo": "Desfazer",
       "rename": "Renomear",
-      "delete": "Deletar",
+      "delete": "Excluir",
       "confirm": "Confirmar"
     },
     "placeholders": {
-      "untitled": "Sem título"
+      "untitled": "Sem título",
+      "noteTitle": "Título da anotação"
     },
     "dialogs": {
       "rename": {
@@ -79,8 +81,8 @@
       "summary": {
         "title": "Resumo",
         "loading": "Gerando resumo...",
-        "unavailable": "A sumarização está indisponível no momento.",
-        "availableNow": "A sumarização agora está disponível. Feche este diálogo e tente novamente.",
+        "unavailable": "Os resumos ainda não estão disponíveis porque o modelo não está pronto.",
+        "availableNow": "Os resumos agora estão disponíveis. Feche esta janela e tente novamente.",
         "openSettings": "Abrir configurações",
         "generatedLocally": "Gerado no seu dispositivo.",
         "generatedViaServer": "Gerado na nuvem.",
@@ -96,8 +98,13 @@
     "errors": {
       "notFound": {
         "title": "Anotação não encontrada",
-        "description": "Pode ter sido deletada ou nunca existiu"
+        "description": "Ela pode ter sido excluída ou nunca ter existido"
       }
+    },
+    "searchMatch": "Trecho encontrado",
+    "editor": {
+      "placeholder": "Comece a escrever…",
+      "label": "Conteúdo da anotação"
     }
   },
   "SearchInput": {
@@ -160,7 +167,8 @@
     "link": {
       "actions": {
         "add": "Adicionar link",
-        "remove": "Remover link"
+        "remove": "Remover link",
+        "open": "Abrir link"
       },
       "prompts": {
         "enterUrl": "Digite a URL"
@@ -179,13 +187,14 @@
     }
   },
   "SettingsView": {
-    "pageDescription": "Decida onde o Mnemos executa cargas pesadas de IA e com que frequência você é avisado sobre falhas de indexação no seu dispositivo.",
+    "pageDescription": "Escolha se os recursos de IA rodam no seu dispositivo ou na nuvem, e como o Mnemos avisa quando a indexação da busca falha.",
     "preferencesUpdated": "Preferências atualizadas",
     "modelDownload": {
       "title": "Arquivos do modelo",
       "readyIndicator": {
         "ready": "Modelo pronto",
-        "notReady": "Modelo não pronto"
+        "notReady": "Modelo ainda não baixado. Ele é baixado uma vez e depois funciona offline.",
+        "downloading": "Baixando o modelo. Isso acontece uma única vez e pode levar alguns minutos."
       },
       "status": {
         "ready": "Pronto",
@@ -203,7 +212,7 @@
         },
         "allowFallback": {
           "label": "Permitir fallback",
-          "description": "Tente no seu dispositivo primeiro e, se falhar, use o helper na nuvem."
+          "description": "Tente no seu dispositivo primeiro e, se falhar, use o serviço na nuvem."
         },
         "serverOnly": {
           "label": "Somente nuvem",
@@ -227,10 +236,10 @@
       }
     },
     "notifications": {
-      "title": "Notificações",
-      "description": "Silencie os toasts de erro de indexação no seu dispositivo quando você estiver confiante na sua configuração.",
-      "toggleTitle": "Ocultar alertas de indexação no seu dispositivo",
-      "toggleDescription": "Evite que o Mnemos mostre avisos de fallback quando embeddings falharem."
+      "title": "Alertas de indexação",
+      "description": "Oculte os avisos que o Mnemos mostra quando não consegue indexar uma anotação no seu dispositivo.",
+      "toggleTitle": "Ocultar alertas de indexação",
+      "toggleDescription": "Interrompe os avisos de fallback quando a indexação no dispositivo falha. A busca pode deixar de incluir anotações novas."
     },
     "privacyPrompt": "Quer revisar a privacidade? Veja a <link>política de privacidade</link>."
   },
@@ -250,7 +259,7 @@
       "onDeviceLabel": "No seu dispositivo:",
       "onDevice": "Alguns recursos de IA podem rodar localmente, o que geralmente significa que não é necessário internet.",
       "cloudLabel": "Na nuvem (opcional):",
-      "cloud": "Se você habilitar, o Mnemos pode enviar o texto necessário para criar um resumo ou melhorar a busca a um helper na nuvem. Isso pode ser útil quando seu dispositivo está ocupado ou não oferece suporte a um recurso.",
+      "cloud": "Se você habilitar, o Mnemos pode enviar o texto necessário para criar um resumo ou melhorar a busca a um serviço na nuvem. Isso pode ser útil quando seu dispositivo está ocupado ou não oferece suporte a um recurso.",
       "settingsHint": "Você pode mudar essas escolhas a qualquer momento em Configurações."
     },
     "actions": {
@@ -283,7 +292,7 @@
     },
     "kicker": "Política de Privacidade",
     "heroTitle": "Suas anotações ficam no seu dispositivo",
-    "intro": "Mnemos foi criado como um caderno com foco em privacidade, pensado para rodar no seu dispositivo. Esta página explica quais dados são criados, onde ficam armazenados e em quais casos limitados eles podem sair do seu navegador.",
+    "intro": "O Mnemos foi criado como um caderno com foco em privacidade, pensado para rodar no seu dispositivo. Esta página explica quais dados são criados, onde ficam armazenados e em quais casos limitados eles podem sair do seu navegador.",
     "lastUpdated": "Última atualização: {date}",
     "localDataPoints": [
       {
