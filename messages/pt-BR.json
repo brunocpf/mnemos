@@ -86,7 +86,13 @@
         "openSettings": "Abrir configurações",
         "generatedLocally": "Gerado no seu dispositivo.",
         "generatedViaServer": "Gerado na nuvem.",
-        "errorFallback": "Não foi possível gerar um resumo."
+        "progress": "Download: {progress}%.",
+        "retry": "Tentar novamente",
+        "errors": {
+          "downloading": "O modelo no dispositivo ainda está sendo baixado ({progress}%). Tente novamente quando terminar ou use os resumos na nuvem nas configurações.",
+          "offline": "Você está offline e o modelo no dispositivo não está pronto, então não foi possível gerar um resumo. Reconecte-se e tente novamente.",
+          "failed": "Não foi possível gerar um resumo. Tente novamente ou confira as configurações de resumo."
+        }
       }
     },
     "toasts": {

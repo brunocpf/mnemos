@@ -29,7 +29,13 @@ import { Spinner } from "@/components/ui/spinner";
 import { useNoteById } from "@/hooks/use-note-by-id";
 import { Link } from "@/i18n/navigation";
 import { SearchHighlightPayload } from "@/lib/search-highlight";
+import {
+  getDownloadProgress,
+  getSummaryFailureReason,
+  SummaryFailureReason,
+} from "@/lib/summary-failure";
 import { useEmbedder } from "@/providers/embedder-provider";
+import { useSettings } from "@/providers/settings-provider";
 import { useSummarizer } from "@/providers/summarizer-provider";
 
 export interface NoteViewProps {
@@ -39,7 +45,12 @@ export interface NoteViewProps {
 
 export function NoteView({ noteId, highlight }: NoteViewProps) {
   const t = useTranslations("NoteView");
-  const { summarize, isReady: summarizerIsReady } = useSummarizer();
+  const {
+    summarize,
+    isReady: summarizerIsReady,
+    modelDownloadState: summarizerDownloadState,
+  } = useSummarizer();
+  const { settings } = useSettings();
   const { schedule, flush, isReady: embedderIsReady } = useEmbedder();
   const [currentNoteId, setCurrentNoteId] = useState(() => noteId);
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
@@ -50,7 +61,7 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
     | { status: "idle" }
     | { status: "loading" }
     | { status: "success"; host: "local" | "server"; result: string }
-    | { status: "error"; error: string }
+    | { status: "error"; reason: SummaryFailureReason }
   >({ status: "idle" });
   const { data: noteData, isLoading: noteIsLoading } = useNoteById(
     currentNoteId ?? "",
@@ -90,6 +101,17 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
     lastSummarizerIsReadyRef.current = summarizerIsReady;
   };
 
+  const getFailureReason = () =>
+    getSummaryFailureReason({
+      host: settings.summarizerHost,
+      modelDownloadState: summarizerDownloadState,
+      online: navigator.onLine,
+    });
+
+  const progress = getDownloadProgress(summarizerDownloadState);
+  const progressText =
+    progress === undefined ? "" : t("dialogs.summary.progress", { progress });
+
   const handleSummarize = async () => {
     if (!noteData || !canSummarize) return;
 
@@ -113,17 +135,11 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
         });
       } else if (response.status === "error") {
         console.error("Summarization failed", response.error);
-        setSummaryState({
-          status: "error",
-          error: t("dialogs.summary.errorFallback"),
-        });
+        setSummaryState({ status: "error", reason: getFailureReason() });
       }
     } catch (error: unknown) {
       console.error("Summarization failed", error);
-      setSummaryState({
-        status: "error",
-        error: t("dialogs.summary.errorFallback"),
-      });
+      setSummaryState({ status: "error", reason: getFailureReason() });
     }
   };
 
@@ -205,7 +221,15 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
               : "bg-muted inline-flex rounded-4xl p-px"
           }
         >
-          <Button disabled={!canSummarize} onClick={handleSummarize}>
+          <Button
+            disabled={!canSummarize}
+            onClick={handleSummarize}
+            title={
+              canSummarize && !summarizerIsReady
+                ? `${t("dialogs.summary.unavailable")} ${progressText}`.trim()
+                : undefined
+            }
+          >
             <IconSparkles2 />
             {t("actions.summarize")}
           </Button>
@@ -222,7 +246,8 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
             <ViewTransition>
               <Activity mode={!summarizerIsReady ? "visible" : "hidden"}>
                 <DialogDescription>
-                  {t("dialogs.summary.unavailable")}{" "}
+                  {t("dialogs.summary.unavailable")}
+                  {progressText ? ` ${progressText}` : ""}{" "}
                   <Link href="/settings">
                     {t("dialogs.summary.openSettings")}
                   </Link>
@@ -250,8 +275,31 @@ export function NoteView({ noteId, highlight }: NoteViewProps) {
               <Activity
                 mode={summaryState.status === "error" ? "visible" : "hidden"}
               >
-                <DialogDescription>
-                  {summaryState.status === "error" ? summaryState.error : ""}
+                <DialogDescription className="flex flex-col items-start gap-3">
+                  {summaryState.status === "error" ? (
+                    <>
+                      <span>
+                        {t(
+                          `dialogs.summary.errors.${summaryState.reason.kind}`,
+                          {
+                            progress:
+                              summaryState.reason.kind === "downloading" &&
+                              summaryState.reason.progress !== undefined
+                                ? summaryState.reason.progress
+                                : "…",
+                          },
+                        )}
+                      </span>
+                      <span className="flex items-center gap-3">
+                        <Button size="sm" onClick={handleSummarize}>
+                          {t("dialogs.summary.retry")}
+                        </Button>
+                        <Link href="/settings" className="text-sm underline">
+                          {t("dialogs.summary.openSettings")}
+                        </Link>
+                      </span>
+                    </>
+                  ) : null}
                 </DialogDescription>
               </Activity>
             </ViewTransition>
