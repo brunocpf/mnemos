@@ -2,6 +2,7 @@
 
 import { IconSparkles2 } from "@tabler/icons-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import {
   Activity,
   useEffect,
@@ -12,6 +13,7 @@ import {
 } from "react";
 import Markdown from "react-markdown";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { db } from "@/client-data/db";
 import { createNote, updateNote } from "@/client-data/notes-dal";
@@ -29,7 +31,10 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { useNoteById } from "@/hooks/use-note-by-id";
 import { Link } from "@/i18n/navigation";
-import { SearchHighlightPayload } from "@/lib/search-highlight";
+import {
+  decodeSearchHighlight,
+  SearchHighlightPayload,
+} from "@/lib/search-highlight";
 import {
   getDownloadProgress,
   getSummaryFailureReason,
@@ -39,14 +44,48 @@ import { useEmbedder } from "@/providers/embedder-provider";
 import { useSettings } from "@/providers/settings-provider";
 import { useSummarizer } from "@/providers/summarizer-provider";
 
-export interface NoteViewProps {
+/**
+ * Reads the note from the URL. The offline shell of `/note` is a precached page
+ * rendered without query params, so `noteId`, `folderId`, `new` and
+ * `highlight` come from the client-side search params, never from the server.
+ */
+export function NoteView() {
+  const searchParams = useSearchParams();
+  const noteId = searchParams.get("noteId") || undefined;
+  const folderId = z.uuid().safeParse(searchParams.get("folderId")).data;
+  const forceNew = searchParams.get("new");
+  const highlightParam = searchParams.get("highlight");
+  const highlight = useMemo(() => {
+    if (!highlightParam) return undefined;
+    try {
+      return decodeSearchHighlight(highlightParam);
+    } catch {
+      return undefined;
+    }
+  }, [highlightParam]);
+
+  return (
+    <NoteViewContent
+      key={`${noteId ?? ""}:${forceNew ?? ""}`}
+      noteId={noteId}
+      folderId={folderId}
+      highlight={highlight}
+    />
+  );
+}
+
+interface NoteViewContentProps {
   noteId?: string;
   /** Folder a newly created note is filed in; the root when omitted. */
   folderId?: string;
   highlight?: SearchHighlightPayload;
 }
 
-export function NoteView({ noteId, folderId, highlight }: NoteViewProps) {
+function NoteViewContent({
+  noteId,
+  folderId,
+  highlight,
+}: NoteViewContentProps) {
   const t = useTranslations("NoteView");
   const {
     summarize,

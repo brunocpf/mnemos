@@ -9,6 +9,8 @@ import {
   Serwist,
 } from "serwist";
 
+import { getOfflineShellPath } from "@/lib/offline-shell";
+
 // This declares the value of `injectionPoint` to TypeScript.
 // `injectionPoint` is the string that will be replaced by the
 // actual precache manifest. By default, this string is set to
@@ -50,65 +52,34 @@ const onnxRuntime: RuntimeCaching = {
   }),
 };
 
-// `/note?new=<timestamp>` opens an empty editor, which is exactly the precached
-// `/note` document. Serve that when the network is down. Requests with a
-// `noteId` are deliberately excluded: the shell would show an empty editor
-// instead of the note.
-const NEW_NOTE_PATH = /^(?:\/pt-BR)?\/note$/;
+// Every app route is rendered per request (the shared layout reads search
+// params), so only one shell per route and locale is precached. The pages read
+// their dynamic parts (noteId, folder id, share payload) from the URL on the
+// client and load the data from IndexedDB, so that shell serves every note,
+// folder and query string when the network is down. Online, the server's
+// document wins; offline (or after NAVIGATION_TIMEOUT_MS) the precached shell
+// of the same route and locale is used. Only when a path has no shell does the
+// request fail and the localized offline page take over.
+const NAVIGATION_TIMEOUT_MS = 5000;
 
-const newNoteOffline: RuntimeCaching = {
-  matcher: ({ request, url }) =>
+const appShell: RuntimeCaching = {
+  matcher: ({ request, url, sameOrigin }) =>
+    sameOrigin &&
     request.mode === "navigate" &&
-    NEW_NOTE_PATH.test(url.pathname) &&
-    url.searchParams.has("new") &&
-    !url.searchParams.has("noteId"),
-  handler: async ({ request, url }) => {
+    getOfflineShellPath(url.pathname) !== null,
+  handler: async ({ request, url, event }) => {
     try {
-      return await fetch(request);
+      const preloaded = await (event as FetchEvent | undefined)
+        ?.preloadResponse;
+      if (preloaded) return preloaded;
+      return await fetch(request, {
+        signal: AbortSignal.timeout(NAVIGATION_TIMEOUT_MS),
+      });
     } catch {
-      const cached = await serwist.matchPrecache(url.pathname);
+      const shellPath = getOfflineShellPath(url.pathname);
+      const cached = shellPath ? await serwist.matchPrecache(shellPath) : null;
       if (cached) return cached;
-      throw new Error("No cached new-note shell");
-    }
-  },
-};
-
-// The Share Target opens `/share?title=&text=&url=`. The precached `/share`
-// shell reads those params on the client and saves the note locally, so it is
-// served as-is when the network is down (precache lookups don't match on the
-// query string).
-const SHARE_PATH = /^(?:\/pt-BR)?\/share$/;
-
-const shareTargetOffline: RuntimeCaching = {
-  matcher: ({ request, url }) =>
-    request.mode === "navigate" && SHARE_PATH.test(url.pathname),
-  handler: async ({ request, url }) => {
-    try {
-      return await fetch(request);
-    } catch {
-      const cached = await serwist.matchPrecache(url.pathname);
-      if (cached) return cached;
-      throw new Error("No cached share shell");
-    }
-  },
-};
-
-// `/folders/<id>` is rendered per request, so only a placeholder folder is
-// precached. The page reads the real id from the URL on the client and loads
-// the folder from IndexedDB, so that one shell serves every folder offline.
-const FOLDER_PATH = /^(\/pt-BR)?\/folders\/[^/]+$/;
-
-const folderOffline: RuntimeCaching = {
-  matcher: ({ request, url }) =>
-    request.mode === "navigate" && FOLDER_PATH.test(url.pathname),
-  handler: async ({ request, url }) => {
-    try {
-      return await fetch(request);
-    } catch {
-      const prefix = url.pathname.startsWith("/pt-BR/") ? "/pt-BR" : "";
-      const cached = await serwist.matchPrecache(`${prefix}/folders/_`);
-      if (cached) return cached;
-      throw new Error("No cached folder shell");
+      throw new Error("No cached app shell");
     }
   },
 };
@@ -143,9 +114,7 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
-    newNoteOffline,
-    shareTargetOffline,
-    folderOffline,
+    appShell,
     { matcher: MODEL_HOSTS, handler: new NetworkOnly() },
     onnxRuntime,
     ...defaultCache,
