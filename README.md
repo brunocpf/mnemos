@@ -62,7 +62,7 @@ Mnemos is designed to work **reliably offline**, use AI **only when explicitly r
 ### PWA Experience
 
 - Installable on desktop and mobile (web app manifest, standard and maskable icons, a "New note" shortcut)
-- Offline support via a Serwist Service Worker: the app shell is precached, there is a localized offline fallback page, and model files are deliberately left to the models' own cache
+- Offline support via a Serwist Service Worker: the app shell is precached and served for every note/folder URL when the network is down, there is a localized offline fallback page, and model files are deliberately left to the models' own cache
 - In-app prompt to reload when a new version is available
 - Store packaging (PWABuilder) is still being prepared, see [#9](https://github.com/brunocpf/mnemos/issues/9)
 
@@ -109,19 +109,21 @@ The server actions are the only code that ever receives note text. They spend th
 
 ## Offline Behavior
 
-| Feature             | Offline                                                                                                          |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Open the app        | ✅ after the first visit (shell is precached)                                                                    |
-| Create / edit notes | ✅                                                                                                               |
-| Semantic search     | ✅ once the embedding model (about 118 MB) has been downloaded; notes written before that are indexed afterwards |
-| Summarization       | ✅ once the on-device model (about 570 MB) has been downloaded; the server fallback needs a network              |
-| Ask across notes    | Not implemented                                                                                                  |
+| Feature             | Offline                                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Open the app        | ✅ after the first visit (shell is precached)                                                                            |
+| Open a saved note   | ✅ any note, folder or route, in both locales: the precached shell reads the id from the URL and loads it from IndexedDB |
+| Create / edit notes | ✅                                                                                                                       |
+| Semantic search     | ✅ once the embedding model (about 118 MB) has been downloaded; notes written before that are indexed afterwards         |
+| Summarization       | ✅ once the on-device model (about 570 MB) has been downloaded; the server fallback needs a network                      |
+| Ask across notes    | Not implemented                                                                                                          |
 
 When offline:
 
 - Server-backed AI actions are unavailable
 - The app remains fully usable for core note-taking and search
-- Pages that were never loaded show a localized offline page instead of the browser error
+- Every app route (home, `/note` with or without `noteId`, folders, settings, privacy policy, share) is served from its precached shell, then hydrates from IndexedDB. A shell is only used for its own locale
+- Paths that have no shell show a localized offline page instead of the browser error
 
 ---
 
