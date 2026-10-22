@@ -61,6 +61,8 @@ export interface EmbedderContextValue {
   isReady: boolean;
   modelId?: string;
   modelDownloadState?: ModelDownloadState;
+  /** Starts loading the on-device model again after a failure. */
+  retry: () => void;
 }
 
 export const EmbedderContext = createContext<EmbedderContextValue>({
@@ -79,6 +81,7 @@ export const EmbedderContext = createContext<EmbedderContextValue>({
   isReady: false,
   modelId: "unknown",
   modelDownloadState: undefined,
+  retry: () => undefined,
 });
 
 export function EmbedderProvider({ children }: PropsWithChildren) {
@@ -516,6 +519,9 @@ export function EmbedderProvider({ children }: PropsWithChildren) {
       reindexNotes,
       embedQuery: embedQueryFn,
       isReady,
+      retry: () => {
+        void embeddingWorkerApi?.retry();
+      },
     };
   }, [
     embedQueryFn,

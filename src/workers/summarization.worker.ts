@@ -27,11 +27,7 @@ class SummarizationWorkerService extends HfModelWorkerService<"text-generation">
     const salt = Math.random().toString(36).substring(7);
 
     try {
-      if (!this.pipelinePromise) {
-        this.init();
-      }
-
-      const generator = await this.pipelinePromise;
+      const generator = await this.ensurePipeline();
 
       if (!generator) {
         throw new Error("Summarization pipeline is not initialized.");

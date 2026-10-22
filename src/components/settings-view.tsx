@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import type { Settings } from "@/client-data/settings";
 import { ImportExportCard } from "@/components/import-export-card";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -36,8 +37,12 @@ export function SettingsView() {
   const tShared = useTranslations("Shared");
   const t = useTranslations("SettingsView");
   const { settings, changeSetting } = useSettings();
-  const { modelDownloadState: summarizerDownloadState } = useSummarizer();
-  const { modelDownloadState: embedderDownloadState } = useEmbedder();
+  const {
+    modelDownloadState: summarizerDownloadState,
+    retry: retrySummarizer,
+  } = useSummarizer();
+  const { modelDownloadState: embedderDownloadState, retry: retryEmbedder } =
+    useEmbedder();
 
   const summarizerOptions: {
     value: Settings["summarizerHost"];
@@ -180,13 +185,22 @@ export function SettingsView() {
             {shouldShowSummarizerProgress && (
               <div className="space-y-2">
                 <p className="text-muted-foreground text-xs">
-                  {summarizerDownloadState?.isReady
-                    ? t("modelDownload.readyIndicator.ready")
-                    : Object.keys(summarizerDownloadState?.fileStates ?? {})
-                          .length > 0
-                      ? t("modelDownload.readyIndicator.downloading")
-                      : t("modelDownload.readyIndicator.notReady")}
+                  {summarizerDownloadState?.error
+                    ? t("modelDownload.readyIndicator.failed", {
+                        error: summarizerDownloadState.error,
+                      })
+                    : summarizerDownloadState?.isReady
+                      ? t("modelDownload.readyIndicator.ready")
+                      : Object.keys(summarizerDownloadState?.fileStates ?? {})
+                            .length > 0
+                        ? t("modelDownload.readyIndicator.downloading")
+                        : t("modelDownload.readyIndicator.notReady")}
                 </p>
+                {summarizerDownloadState?.error && (
+                  <Button size="sm" variant="outline" onClick={retrySummarizer}>
+                    {t("modelDownload.retry")}
+                  </Button>
+                )}
                 {summarizerDownloadState?.storageIssue && (
                   <p className="text-xs text-amber-600 dark:text-amber-400">
                     {t("modelDownload.storageIssue")}
@@ -208,6 +222,7 @@ export function SettingsView() {
                         ? 100
                         : undefined;
                   const isReady = !!summarizerDownloadState?.isReady;
+                  const hasError = !!summarizerDownloadState?.error;
                   const value = isReady
                     ? 100
                     : typeof percent === "number"
@@ -223,7 +238,9 @@ export function SettingsView() {
                   const statusLabel =
                     fileState.status === "done"
                       ? t("modelDownload.status.ready")
-                      : t("modelDownload.status.downloading");
+                      : hasError
+                        ? t("modelDownload.status.failed")
+                        : t("modelDownload.status.downloading");
 
                   return (
                     <Progress
@@ -299,13 +316,22 @@ export function SettingsView() {
             {shouldShowEmbedderProgress && (
               <div className="space-y-2">
                 <p className="text-muted-foreground text-xs">
-                  {embedderDownloadState?.isReady
-                    ? t("modelDownload.readyIndicator.ready")
-                    : Object.keys(embedderDownloadState?.fileStates ?? {})
-                          .length > 0
-                      ? t("modelDownload.readyIndicator.downloading")
-                      : t("modelDownload.readyIndicator.notReady")}
+                  {embedderDownloadState?.error
+                    ? t("modelDownload.readyIndicator.failed", {
+                        error: embedderDownloadState.error,
+                      })
+                    : embedderDownloadState?.isReady
+                      ? t("modelDownload.readyIndicator.ready")
+                      : Object.keys(embedderDownloadState?.fileStates ?? {})
+                            .length > 0
+                        ? t("modelDownload.readyIndicator.downloading")
+                        : t("modelDownload.readyIndicator.notReady")}
                 </p>
+                {embedderDownloadState?.error && (
+                  <Button size="sm" variant="outline" onClick={retryEmbedder}>
+                    {t("modelDownload.retry")}
+                  </Button>
+                )}
                 {embedderDownloadState?.storageIssue && (
                   <p className="text-xs text-amber-600 dark:text-amber-400">
                     {t("modelDownload.storageIssue")}
@@ -327,6 +353,7 @@ export function SettingsView() {
                         ? 100
                         : undefined;
                   const isReady = !!embedderDownloadState?.isReady;
+                  const hasError = !!embedderDownloadState?.error;
                   const value = isReady
                     ? 100
                     : typeof percent === "number"
@@ -342,7 +369,9 @@ export function SettingsView() {
                   const statusLabel =
                     fileState.status === "done"
                       ? t("modelDownload.status.ready")
-                      : t("modelDownload.status.downloading");
+                      : hasError
+                        ? t("modelDownload.status.failed")
+                        : t("modelDownload.status.downloading");
 
                   return (
                     <Progress

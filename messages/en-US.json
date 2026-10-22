@@ -183,7 +183,8 @@
         "errors": {
           "downloading": "The on-device model is still downloading ({progress}%). Try again when it finishes, or switch to cloud summaries in settings.",
           "offline": "You're offline and the on-device model isn't ready, so no summary could be generated. Reconnect and try again.",
-          "failed": "Could not generate a summary. Try again, or check your summary settings."
+          "failed": "Could not generate a summary. Try again, or check your summary settings.",
+          "modelFailed": "Could not load the on-device model. Try again, or switch to cloud summaries in settings."
         }
       }
     },
@@ -292,14 +293,17 @@
     "modelDownload": {
       "title": "Model files",
       "storageIssue": "Couldn't save the download on this device (storage is full or unavailable). The model will keep downloading, but if you close or reload the page it will start over. Free up some space to make downloads resumable.",
+      "retry": "Try again",
       "readyIndicator": {
         "ready": "Model ready",
         "notReady": "Model not downloaded yet. It downloads once and then works offline.",
+        "failed": "The model could not be loaded: {error}",
         "downloading": "Downloading the model. This happens once and can take a few minutes."
       },
       "status": {
         "ready": "Ready",
-        "downloading": "Downloading..."
+        "downloading": "Downloading...",
+        "failed": "Failed"
       }
     },
     "summaries": {

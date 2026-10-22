@@ -30,11 +30,7 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
    * it persists the result, so there is nothing to cancel here.
    */
   async embedBatch(request: { items: { chunkId: string; text: string }[] }) {
-    if (!this.pipelinePromise) {
-      this.init();
-    }
-
-    const extractor = await this.pipelinePromise;
+    const extractor = await this.ensurePipeline();
 
     if (!extractor) {
       throw new Error("Embedding pipeline is not initialized.");
@@ -61,11 +57,7 @@ class EmbeddingWorkerService extends HfModelWorkerService<"feature-extraction"> 
   async embedQuery(request: { version: number; text: string }) {
     this.latestQueryVersion = request.version;
 
-    if (!this.pipelinePromise) {
-      this.init();
-    }
-
-    const extractor = await this.pipelinePromise;
+    const extractor = await this.ensurePipeline();
 
     if (!extractor) {
       throw new Error("Embedding pipeline is not initialized.");

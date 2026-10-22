@@ -19,10 +19,7 @@ export const RATE_LIMITS = {
 } as const;
 
 export type ServerErrorCode =
-  | "invalid_input"
-  | "rate_limited"
-  | "not_configured"
-  | "upstream_error";
+  "invalid_input" | "rate_limited" | "not_configured" | "upstream_error";
 
 export type ServerError = {
   ok: false;

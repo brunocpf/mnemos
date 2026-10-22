@@ -59,3 +59,51 @@ describe("getSummaryFailureReason", () => {
     ).toEqual({ kind: "failed" });
   });
 });
+
+describe("getSummaryFailureReason with a failed model load", () => {
+  const failed = {
+    isReady: false,
+    error: "Could not locate file",
+    fileStates: { a: { status: "progress" as const, loaded: 5, total: 5 } },
+  };
+
+  it("reports the load failure instead of a stuck download", () => {
+    expect(
+      getSummaryFailureReason({
+        host: "local-only",
+        modelDownloadState: failed,
+        online: true,
+      }),
+    ).toEqual({ kind: "modelFailed", detail: "Could not locate file" });
+  });
+
+  it("reports the load failure when offline with fallback", () => {
+    expect(
+      getSummaryFailureReason({
+        host: "allow-fallback",
+        modelDownloadState: failed,
+        online: false,
+      }).kind,
+    ).toBe("modelFailed");
+  });
+
+  it("stays generic when the cloud fallback was available", () => {
+    expect(
+      getSummaryFailureReason({
+        host: "allow-fallback",
+        modelDownloadState: failed,
+        online: true,
+      }),
+    ).toEqual({ kind: "failed" });
+  });
+
+  it("ignores the model error for cloud-only summaries", () => {
+    expect(
+      getSummaryFailureReason({
+        host: "server-only",
+        modelDownloadState: failed,
+        online: true,
+      }),
+    ).toEqual({ kind: "failed" });
+  });
+});

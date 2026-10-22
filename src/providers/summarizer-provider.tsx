@@ -36,6 +36,8 @@ export interface SummarizerContextValue {
   isReady: boolean;
   modelId?: string;
   modelDownloadState?: ModelDownloadState;
+  /** Starts loading the on-device model again after a failure. */
+  retry: () => void;
 }
 export const SummarizerContext = createContext<SummarizerContextValue>({
   summarize: async () => {
@@ -44,6 +46,7 @@ export const SummarizerContext = createContext<SummarizerContextValue>({
   isReady: false,
   modelId: "unknown",
   modelDownloadState: undefined,
+  retry: () => undefined,
 });
 
 export function SummarizerProvider({ children }: PropsWithChildren) {
@@ -180,6 +183,9 @@ export function SummarizerProvider({ children }: PropsWithChildren) {
       modelDownloadState,
       modelId,
       isReady,
+      retry: () => {
+        void summarizerWorkerApi?.retry();
+      },
     };
   }, [modelDownloadState, settings.summarizerHost, summarizerWorkerApi]);
 

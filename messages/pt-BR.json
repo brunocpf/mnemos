@@ -183,7 +183,8 @@
         "errors": {
           "downloading": "O modelo no dispositivo ainda está sendo baixado ({progress}%). Tente novamente quando terminar ou use os resumos na nuvem nas configurações.",
           "offline": "Você está offline e o modelo no dispositivo não está pronto, então não foi possível gerar um resumo. Reconecte-se e tente novamente.",
-          "failed": "Não foi possível gerar um resumo. Tente novamente ou confira as configurações de resumo."
+          "failed": "Não foi possível gerar um resumo. Tente novamente ou confira as configurações de resumo.",
+          "modelFailed": "Não foi possível carregar o modelo no dispositivo. Tente novamente ou use os resumos na nuvem nas configurações."
         }
       }
     },
@@ -292,14 +293,17 @@
     "modelDownload": {
       "title": "Arquivos do modelo",
       "storageIssue": "Não foi possível salvar o download neste dispositivo (armazenamento cheio ou indisponível). O modelo continuará baixando, mas se você fechar ou recarregar a página ele recomeçará do zero. Libere espaço para que os downloads possam ser retomados.",
+      "retry": "Tentar novamente",
       "readyIndicator": {
         "ready": "Modelo pronto",
         "notReady": "Modelo ainda não baixado. Ele é baixado uma vez e depois funciona offline.",
+        "failed": "Não foi possível carregar o modelo: {error}",
         "downloading": "Baixando o modelo. Isso acontece uma única vez e pode levar alguns minutos."
       },
       "status": {
         "ready": "Pronto",
-        "downloading": "Baixando..."
+        "downloading": "Baixando...",
+        "failed": "Falhou"
       }
     },
     "summaries": {

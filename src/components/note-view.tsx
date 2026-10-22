@@ -52,6 +52,7 @@ export function NoteView({ noteId, folderId, highlight }: NoteViewProps) {
     summarize,
     isReady: summarizerIsReady,
     modelDownloadState: summarizerDownloadState,
+    retry: retrySummarizer,
   } = useSummarizer();
   const { settings } = useSettings();
   const { schedule, flush, isReady: embedderIsReady } = useEmbedder();
@@ -115,6 +116,18 @@ export function NoteView({ noteId, folderId, highlight }: NoteViewProps) {
   const progressText =
     progress === undefined ? "" : t("dialogs.summary.progress", { progress });
 
+  const handleRetry = () => {
+    if (
+      summaryState.status === "error" &&
+      summaryState.reason.kind === "modelFailed"
+    ) {
+      retrySummarizer();
+      setSummaryState({ status: "idle" });
+      return;
+    }
+    void handleSummarize();
+  };
+
   const handleSummarize = async () => {
     if (!noteData || !canSummarize) return;
 
@@ -122,7 +135,12 @@ export function NoteView({ noteId, folderId, highlight }: NoteViewProps) {
     setBecameReadyWhileDialogOpen(false);
 
     if (!summarizerIsReady) {
-      setSummaryState({ status: "idle" });
+      const reason = getFailureReason();
+      setSummaryState(
+        reason.kind === "modelFailed"
+          ? { status: "error", reason }
+          : { status: "idle" },
+      );
       return;
     }
 
@@ -252,7 +270,13 @@ export function NoteView({ noteId, folderId, highlight }: NoteViewProps) {
           <DialogHeader>
             <DialogTitle>{t("dialogs.summary.title")}</DialogTitle>
             <ViewTransition>
-              <Activity mode={!summarizerIsReady ? "visible" : "hidden"}>
+              <Activity
+                mode={
+                  !summarizerIsReady && summaryState.status !== "error"
+                    ? "visible"
+                    : "hidden"
+                }
+              >
                 <DialogDescription>
                   {t("dialogs.summary.unavailable")}
                   {progressText ? ` ${progressText}` : ""}{" "}
@@ -299,7 +323,7 @@ export function NoteView({ noteId, folderId, highlight }: NoteViewProps) {
                         )}
                       </span>
                       <span className="flex items-center gap-3">
-                        <Button size="sm" onClick={handleSummarize}>
+                        <Button size="sm" onClick={handleRetry}>
                           {t("dialogs.summary.retry")}
                         </Button>
                         <Link href="/settings" className="text-sm underline">

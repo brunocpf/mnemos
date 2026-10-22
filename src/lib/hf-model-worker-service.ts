@@ -19,6 +19,8 @@ export type FileDownloadState = {
 
 export type ModelDownloadState = {
   isReady: boolean;
+  /** Set when loading the pipeline failed; cleared by retry(). */
+  error?: string;
   /** Set when download progress cannot be saved, so an interruption restarts the file. */
   storageIssue?: "quota" | "unavailable";
   fileStates: { [fileName: string]: FileDownloadState };
@@ -143,10 +145,42 @@ export class HfModelWorkerService<T extends PipelineType> {
       },
     });
 
-    this.pipelinePromise.then(
+    const promise = this.pipelinePromise;
+    promise.then(
       () => void pruneResumableDownloads(),
-      () => undefined,
+      (error: unknown) => {
+        console.error("Model load failed:", error);
+        // Drop the rejected promise so a retry can start a fresh load.
+        if (this.pipelinePromise === promise) {
+          this.pipelinePromise = undefined;
+        }
+        this.modelDownloadState = {
+          isReady: false,
+          error: error instanceof Error ? error.message : String(error),
+          fileStates: this.modelDownloadState.fileStates,
+        };
+        this.notifySubscribers();
+      },
     );
+  }
+
+  /** Returns the pipeline, starting a load unless the last one failed (see retry()). */
+  protected async ensurePipeline() {
+    if (!this.pipelinePromise) {
+      if (this.modelDownloadState.error) {
+        throw new Error(this.modelDownloadState.error);
+      }
+      this.init();
+    }
+    return this.pipelinePromise!;
+  }
+
+  /** Clears a recorded load failure and starts loading the model again. */
+  retry() {
+    if (this.pipelinePromise) return;
+    this.modelDownloadState = { isReady: false, fileStates: {} };
+    this.notifySubscribers();
+    this.init();
   }
 
   subscribeDownloadState(callback: (state: ModelDownloadState) => void) {
