@@ -267,6 +267,7 @@
       "actions": {
         "add": "Add link",
         "remove": "Remove link",
+        "edit": "Edit link",
         "open": "Open link"
       },
       "prompts": {

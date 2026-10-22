@@ -16,6 +16,7 @@ import {
   IconH3,
   IconItalic,
   IconLink,
+  IconPencil,
   IconList,
   IconListNumbers,
   IconPhoto,
@@ -130,7 +131,11 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
     }
 
     if (!trimmed) return;
-    editor.chain().focus().setImage({ src: trimmed }).run();
+    // Replacing a selection (e.g. text inside a list item) would delete it.
+    const { empty, to } = editor.state.selection;
+    const chain = editor.chain().focus();
+    if (!empty) chain.setTextSelection(to);
+    chain.setImage({ src: trimmed }).run();
   };
 
   const urlPromptTitle =
@@ -506,6 +511,24 @@ export function RichTextEditorToolbar({ editor }: RichTextEditorToolbarProps) {
       <Separator orientation="vertical" className="h-6" />
 
       <div className="flex shrink-0 items-center gap-1">
+        {isLinkActive && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t("link.actions.edit")}
+            title={t("link.actions.edit")}
+            disabled={!editor}
+            onMouseDown={preventMouseDown}
+            onClick={() => {
+              if (!editor) return;
+              const href = String(editor.getAttributes("link").href ?? "");
+              setUrlPrompt({ kind: "link", initialValue: href || "https://" });
+            }}
+          >
+            <IconPencil />
+          </Button>
+        )}
         <Button
           type="button"
           variant="ghost"
