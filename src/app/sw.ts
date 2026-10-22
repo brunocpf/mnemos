@@ -1,7 +1,13 @@
 import { defaultCache } from "@serwist/turbopack/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
 import type { RuntimeCaching, SerwistPlugin } from "serwist";
-import { NetworkOnly, Serwist } from "serwist";
+import {
+  CacheableResponsePlugin,
+  CacheFirst,
+  ExpirationPlugin,
+  NetworkOnly,
+  Serwist,
+} from "serwist";
 
 // This declares the value of `injectionPoint` to TypeScript.
 // `injectionPoint` is the string that will be replaced by the
@@ -19,6 +25,30 @@ declare const self: ServiceWorkerGlobalScope;
 // Cache API store. Letting the default runtime rules touch them would copy them
 // a second time (and evict them after an hour).
 const MODEL_HOSTS = /^https:\/\/(?:[\w-]+\.)*(?:huggingface\.co|hf\.co)\//i;
+
+// transformers.js loads the onnxruntime-web wasm and its loader from jsDelivr.
+// defaultCache only keeps cross-origin files for about an hour, after which
+// on-device embeddings and summaries would fail offline. The URLs are
+// versioned, so cache them for a long time and serve cache-first.
+const ONNX_RUNTIME_FILES =
+  /^\/npm\/onnxruntime-web@[^/]+\/dist\/[^/]+\.(?:wasm|mjs)$/;
+
+const onnxRuntime: RuntimeCaching = {
+  matcher: ({ url }) =>
+    url.hostname === "cdn.jsdelivr.net" &&
+    ONNX_RUNTIME_FILES.test(url.pathname),
+  handler: new CacheFirst({
+    cacheName: "onnxruntime-wasm",
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({
+        maxEntries: 16,
+        maxAgeSeconds: 365 * 24 * 60 * 60,
+        maxAgeFrom: "last-used",
+      }),
+    ],
+  }),
+};
 
 // `/note?new=<timestamp>` opens an empty editor, which is exactly the precached
 // `/note` document. Serve that when the network is down. Requests with a
@@ -117,6 +147,7 @@ const serwist = new Serwist({
     shareTargetOffline,
     folderOffline,
     { matcher: MODEL_HOSTS, handler: new NetworkOnly() },
+    onnxRuntime,
     ...defaultCache,
   ],
   fallbacks: {
