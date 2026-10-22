@@ -72,10 +72,11 @@ export function useNotes(search: string, folderId?: string | null) {
       .filter((entry): entry is NoteEntry => Boolean(entry));
   }, [matches, scopedNotes, noteMap, search]);
 
+  const searchPending = isSearching || (Boolean(search) && !isReady);
+
   useEffect(() => {
     const dbIsLoading = allNotes === loadingSymbol || !scopedNotes;
-    const newIsLoading =
-      dbIsLoading || isSearching || (Boolean(search) && !isReady);
+    const newIsLoading = dbIsLoading || searchPending;
 
     if (isLoading !== newIsLoading) {
       startTransition(() => {
@@ -84,11 +85,12 @@ export function useNotes(search: string, folderId?: string | null) {
         setIsLoading(newIsLoading);
       });
     }
-  }, [allNotes, scopedNotes, isLoading, isSearching, isReady, search]);
+  }, [allNotes, scopedNotes, isLoading, searchPending]);
 
   return {
     data: filteredNotes,
-    isLoading,
+    // The effect-driven flag lags a render behind, so count a pending search directly.
+    isLoading: isLoading || searchPending,
     error: searchError,
   };
 }

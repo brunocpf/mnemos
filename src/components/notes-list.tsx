@@ -39,12 +39,15 @@ export default function NotesList({ folderId = null }: NotesListProps) {
   const router = useRouter();
 
   const safeNotes = notes ?? [];
+  // Typed but not yet handed to the search (debounce/deferral in flight).
+  const searchIsCatchingUp =
+    Boolean(searchValue) && searchValue !== deferredSearchValue;
 
   const noNotes = safeNotes.length === 0;
   const filteredNoResults = Boolean(searchValue) && noNotes;
 
   const state: "loading" | "error" | "filtered-empty" | "empty" | "list" =
-    isLoading || !notes
+    isLoading || !notes || searchIsCatchingUp
       ? "loading"
       : error
         ? "error"

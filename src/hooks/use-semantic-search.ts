@@ -41,7 +41,8 @@ export function useSemanticSearch(
 ) {
   const { embedQuery, modelId, isReady } = useEmbedder();
   const [matches, setMatches] = useState<SemanticMatch[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  // The trimmed query whose results (or failure) were last published.
+  const [settledQuery, setSettledQuery] = useState("");
   const [error, setError] = useState<Error | null>(null);
 
   const latestSearchRef = useRef(0);
@@ -67,7 +68,6 @@ export function useSemanticSearch(
         return;
       }
 
-      setIsSearching(true);
       setError(null);
 
       try {
@@ -152,7 +152,7 @@ export function useSemanticSearch(
         setError(error);
       } finally {
         if (cancelled || latestSearchRef.current !== searchId) return;
-        setIsSearching(false);
+        setSettledQuery(normalizedQuery);
       }
     }
 
@@ -168,7 +168,9 @@ export function useSemanticSearch(
 
   return {
     matches: hasQuery ? matches : EMPTY_MATCHES,
-    isSearching: hasQuery && isSearching,
+    // Derived (not set from the effect) so it is true from the first render
+    // with this query, before the search effect has had a chance to run.
+    isSearching: hasQuery && isReady && settledQuery !== query.trim(),
     error: hasQuery ? error : null,
     isReady,
   };
