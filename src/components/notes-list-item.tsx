@@ -73,7 +73,7 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
   const t = useTranslations("Notes");
   const locale = useLocale();
   const tFolders = useTranslations("Folders");
-  const { flush, isReady: embedderIsReady } = useEmbedder();
+  const { flush, reindexNotes, isReady: embedderIsReady } = useEmbedder();
   const [moveOpen, setMoveOpen] = useState(false);
 
   const handleMove = async (folderId: string | null) => {
@@ -136,7 +136,8 @@ export function NotesListItem({ note, match }: NotesListItemProps) {
       action: {
         label: t("actions.undo"),
         onClick: () => {
-          restoreNote(note.id);
+          // Deleting dropped the note's chunks and embeddings; rebuild them now.
+          void restoreNote(note.id).then(() => reindexNotes([note.id]));
           toast.info(t("toasts.noteRestored"), {
             position: "top-center",
           });
