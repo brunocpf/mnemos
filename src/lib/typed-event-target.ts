@@ -7,7 +7,8 @@ export interface TypedEventListenerObject<M, T extends keyof M> {
 }
 
 export type TypedEventListenerOrEventListenerObject<M, T extends keyof M> =
-  TypedEventListener<M, T> | TypedEventListenerObject<M, T>;
+  | TypedEventListener<M, T>
+  | TypedEventListenerObject<M, T>;
 
 type ValueIsEvent<T> = {
   [key in keyof T]: Event;
